@@ -15,6 +15,6 @@ class MessageTest extends TestCase
             createdAt: new DateTime('2026-08-05 21:22:13'),
             author: 'Ivan',
         );
-        $this->assertSame('[21:22:13 05.08.2026] Ivan: Text message', $message->toString());
+        $this->assertSame('[21:22:13 05.08.2026] Ivan: Text message', (string) $message);
     }
 }
