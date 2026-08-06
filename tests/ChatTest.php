@@ -90,4 +90,19 @@ class ChatTest extends TestCase
             $chat->getMessagesByDateTime(new DateTime('2026-08-06 00:00:00'), 10)
         );
     }
+
+    public function testGetMessagesAfterMessageReturnsCorrectNumberOfRecentMessages()
+    {
+        $message1 = $this->messageFromIvan('First', '2026-08-06 10:00:00');
+        $message2 = $this->messageFromOlga('Second', '2026-08-06 10:01:00');
+
+        $chat = new Chat();
+        $chat->sendMessage($message1);
+        $chat->sendMessage($message2);
+
+        $this->assertEquals(
+            [$message2],
+            $chat->getMessagesAfterMessage($message1, 10)
+        );
+    }
 }
