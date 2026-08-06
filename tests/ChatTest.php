@@ -2,26 +2,11 @@
 
 namespace Tests\Antonowano\Chat;
 
-use Antonowano\Chat\Message;
-use DateTime;
-use PHPUnit\Framework\TestCase;
-use Antonowano\Chat\Chat;
-
 class ChatTest extends TestCase
 {
-    private function createMessage(int $id = 0): Message
-    {
-        return new Message(
-            id: $id,
-            text: 'Text message',
-            createdAt: new DateTime('now'),
-            author: 'User',
-        );
-    }
-
     public function testEmptyChat()
     {
-        $chat = new Chat();
+        $chat = $this->createChat();
         $this->assertEquals([], $chat->getLastMessages(10));
     }
 
@@ -29,7 +14,7 @@ class ChatTest extends TestCase
     {
         $message = $this->createMessage();
 
-        $chat = new Chat();
+        $chat = $this->createChat();
         $chat->sendMessage($message);
         $this->assertEquals([$message], $chat->getLastMessages(5));
     }
@@ -40,7 +25,7 @@ class ChatTest extends TestCase
         $message2 = $this->createMessage();
         $message3 = $this->createMessage();
 
-        $chat = new Chat();
+        $chat = $this->createChat();
         $chat->sendMessage($message1);
         $chat->sendMessage($message2);
         $chat->sendMessage($message3);
@@ -55,7 +40,7 @@ class ChatTest extends TestCase
         $message2 = $this->createMessage(id: 2);
         $message3 = $this->createMessage(id: 3);
 
-        $chat = new Chat();
+        $chat = $this->createChat();
         $chat->sendMessage($message1);
         $chat->sendMessage($message2);
         $chat->sendMessage($message3);
@@ -73,7 +58,7 @@ class ChatTest extends TestCase
         $message4 = $this->createMessage(id: 4);
         $message5 = $this->createMessage(id: 5);
 
-        $chat = new Chat();
+        $chat = $this->createChat();
         $chat->sendMessage($message1);
         $chat->sendMessage($message2);
         $chat->sendMessage($message3);
@@ -93,7 +78,7 @@ class ChatTest extends TestCase
         $message3 = $this->createMessage(id: 30);
         $message4 = $this->createMessage(id: 40);
 
-        $chat = new Chat();
+        $chat = $this->createChat();
         $chat->sendMessage($message1);
         $chat->sendMessage($message2);
         $chat->sendMessage($message3);
