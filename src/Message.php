@@ -13,11 +13,6 @@ readonly class Message
     ) {
     }
 
-    public function isCreatedAfter(DateTimeInterface $dateTime): bool
-    {
-        return $this->createdAt > $dateTime;
-    }
-
     public function __toString(): string
     {
         return sprintf(
