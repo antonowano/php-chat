@@ -2,7 +2,7 @@
 
 namespace Tests\Antonowano\Chat;
 
-use Antonowano\Chat\Chat;
+use Antonowano\Chat\ChatInterface;
 use Antonowano\Chat\Message;
 use DateTime;
 use PHPUnit\Framework\TestCase as BaseTestCase;
@@ -28,17 +28,10 @@ class TestCase extends BaseTestCase
         return array_map(fn ($id) => $this->createMessage(id: $id), $ids);
     }
 
-    /**
-     * @param list<Message> $messages
-     */
-    protected function createChat(array $messages = []): Chat
+    protected function fillChatWithMessages(ChatInterface $chat, array $messages = []): void
     {
-        $chat = new Chat();
-
         foreach ($messages as $message) {
             $chat->sendMessage($message);
         }
-
-        return $chat;
     }
 }
