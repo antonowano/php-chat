@@ -44,6 +44,7 @@ class ChatTest extends TestCase
         $chat->sendMessage($message1);
         $chat->sendMessage($message2);
         $chat->sendMessage($message3);
+
         $this->assertEquals([$message2, $message3], $chat->getLastMessages(2));
         $this->assertEquals([$message1, $message2, $message3], $chat->getLastMessages(5));
     }
