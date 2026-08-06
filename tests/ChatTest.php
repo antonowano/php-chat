@@ -12,78 +12,78 @@ class ChatTest extends TestCase
 
     public function testSendMessageAddsMessageToChat()
     {
-        $message = $this->createMessage();
+        $messages = $this->createMessages(ids: [1]);
+        $chat = $this->createChat($messages);
 
-        $chat = $this->createChat();
-        $chat->sendMessage($message);
-        $this->assertEquals([$message], $chat->getLastMessages(5));
+        $this->assertEquals($messages, $chat->getLastMessages(5));
     }
 
     public function testGetLastMessagesReturnsCorrectNumberOfRecentMessages()
     {
-        $message1 = $this->createMessage();
-        $message2 = $this->createMessage();
-        $message3 = $this->createMessage();
+        $messages = $this->createMessages(ids: [1, 2, 3]);
+        $chat = $this->createChat($messages);
+        [$m1, $m2, $m3] = $messages;
 
-        $chat = $this->createChat();
-        $chat->sendMessage($message1);
-        $chat->sendMessage($message2);
-        $chat->sendMessage($message3);
-
-        $this->assertEquals([$message2, $message3], $chat->getLastMessages(2));
-        $this->assertEquals([$message1, $message2, $message3], $chat->getLastMessages(5));
+        $this->assertEquals([$m2, $m3], $chat->getLastMessages(2));
+        $this->assertEquals([$m1, $m2, $m3], $chat->getLastMessages(5));
     }
 
-    public function testGetMessagesAfterIdReturnsMessagesWithGreaterId()
+    public function testGetMessagesAfterIdReturnsOnlyMessagesWithGreaterId(): void
     {
-        $message1 = $this->createMessage(id: 1);
-        $message2 = $this->createMessage(id: 2);
-        $message3 = $this->createMessage(id: 3);
+        $messages = $this->createMessages(ids: [1, 2, 3]);
+        $chat = $this->createChat($messages);
+        [, $m2, $m3] = $messages;
 
-        $chat = $this->createChat();
-        $chat->sendMessage($message1);
-        $chat->sendMessage($message2);
-        $chat->sendMessage($message3);
-
-        $this->assertSame([], $chat->getMessagesAfterId(3, 5));
-        $this->assertSame([$message3], $chat->getMessagesAfterId(2, 5));
-        $this->assertSame([$message2, $message3], $chat->getMessagesAfterId(1, 5));
+        $this->assertSame([$m2, $m3], $chat->getMessagesAfterId(1, 10));
+        $this->assertSame([$m3], $chat->getMessagesAfterId(2, 10));
+        $this->assertSame([], $chat->getMessagesAfterId(3, 10));
     }
 
-    public function testGetMessagesAfterIdRespectsCountLimit()
+    public function testGetMessagesAfterIdRespectsCountLimit(): void
     {
-        $message1 = $this->createMessage(id: 1);
-        $message2 = $this->createMessage(id: 2);
-        $message3 = $this->createMessage(id: 3);
-        $message4 = $this->createMessage(id: 4);
-        $message5 = $this->createMessage(id: 5);
+        $messages = $this->createMessages(ids: [1, 2, 3, 4, 5]);
+        $chat = $this->createChat($messages);
+        [, $m2, $m3, $m4, ] = $messages;
 
-        $chat = $this->createChat();
-        $chat->sendMessage($message1);
-        $chat->sendMessage($message2);
-        $chat->sendMessage($message3);
-        $chat->sendMessage($message4);
-        $chat->sendMessage($message5);
-
-        $this->assertSame([$message2, $message3], $chat->getMessagesAfterId(1, 2));
-        $this->assertSame([$message2, $message3, $message4], $chat->getMessagesAfterId(1, 3));
-        $this->assertSame([], $chat->getMessagesAfterId(3, 0));
-        $this->assertSame([], $chat->getMessagesAfterId(5, 10));
+        $this->assertSame([$m2, $m3], $chat->getMessagesAfterId(1, 2));
+        $this->assertSame([$m2, $m3, $m4], $chat->getMessagesAfterId(1, 3));
     }
 
-    public function testGetMessagesAfterIdRespectsCountWithNonSequentialIds()
+    public function testGetMessagesAfterIdWithZeroCountReturnsEmpty(): void
     {
-        $message1 = $this->createMessage(id: 10);
-        $message2 = $this->createMessage(id: 20);
-        $message3 = $this->createMessage(id: 30);
-        $message4 = $this->createMessage(id: 40);
+        $messages = $this->createMessages(ids: [1, 2, 3]);
+        $chat = $this->createChat($messages);
 
-        $chat = $this->createChat();
-        $chat->sendMessage($message1);
-        $chat->sendMessage($message2);
-        $chat->sendMessage($message3);
-        $chat->sendMessage($message4);
+        $this->assertSame([], $chat->getMessagesAfterId(0, 0));
+        $this->assertSame([], $chat->getMessagesAfterId(1, 0));
+    }
 
-        $this->assertSame([$message2, $message3, $message4], $chat->getMessagesAfterId(15, 5));
+    public function testGetMessagesAfterIdReturnsAllAvailableWhenCountExceedsTotal(): void
+    {
+        $messages = $this->createMessages(ids: [1, 2, 3]);
+        $chat = $this->createChat($messages);
+
+        $result = $chat->getMessagesAfterId(0, 100);
+
+        $this->assertSame($messages, $result);
+    }
+
+    public function testGetMessagesAfterIdWorksWithNonSequentialIds(): void
+    {
+        $messages = $this->createMessages(ids: [10, 20, 30, 40]);
+        $chat = $this->createChat($messages);
+        [, $m2, $m3, ] = $messages;
+
+        $result = $chat->getMessagesAfterId(15, 2);
+
+        $this->assertSame([$m2, $m3], $result);
+    }
+
+    public function testGetMessagesAfterIdWithNegativeIdReturnsAllMessages(): void
+    {
+        $messages = $this->createMessages(ids: [1, 2, 3]);
+        $chat = $this->createChat($messages);
+
+        $this->assertSame($messages, $chat->getMessagesAfterId(-1, 10));
     }
 }

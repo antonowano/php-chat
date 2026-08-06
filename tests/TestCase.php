@@ -19,8 +19,26 @@ class TestCase extends BaseTestCase
         );
     }
 
-    protected function createChat(): Chat
+    /**
+     * @param list<int> $ids
+     * @return list<Message>
+     */
+    protected function createMessages(array $ids): array
     {
-        return new Chat();
+        return array_map(fn ($id) => $this->createMessage(id: $id), $ids);
+    }
+
+    /**
+     * @param list<Message> $messages
+     */
+    protected function createChat(array $messages = []): Chat
+    {
+        $chat = new Chat();
+
+        foreach ($messages as $message) {
+            $chat->sendMessage($message);
+        }
+
+        return $chat;
     }
 }
