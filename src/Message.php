@@ -14,6 +14,11 @@ readonly class Message
     ) {
     }
 
+    public function hasIdGreaterThan(int $id): bool
+    {
+        return $this->id > $id;
+    }
+
     public function __toString(): string
     {
         return sprintf(

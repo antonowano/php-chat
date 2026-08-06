@@ -24,4 +24,28 @@ class MessageTest extends TestCase
 
         $this->assertSame('[21:22:13 05.08.2026] [#15432] Ivan: Text message', (string) $message);
     }
+
+    public function testHasIdGreaterThanReturnsTrueWhenIdIsGreater(): void
+    {
+        $message = $this->createMessage(id: 10);
+
+        $this->assertTrue($message->hasIdGreaterThan(5));
+        $this->assertTrue($message->hasIdGreaterThan(9));
+        $this->assertTrue($message->hasIdGreaterThan(-100));
+    }
+
+    public function testHasIdGreaterThanReturnsFalseWhenIdIsEqual(): void
+    {
+        $message = $this->createMessage(id: 10);
+
+        $this->assertFalse($message->hasIdGreaterThan(10));
+    }
+
+    public function testHasIdGreaterThanReturnsFalseWhenIdIsLess(): void
+    {
+        $message = $this->createMessage(id: 10);
+
+        $this->assertFalse($message->hasIdGreaterThan(15));
+        $this->assertFalse($message->hasIdGreaterThan(100));
+    }
 }
