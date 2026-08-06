@@ -2,8 +2,6 @@
 
 namespace Antonowano\Chat;
 
-use DateTimeInterface;
-
 class Chat
 {
     /** @var list<Message> */
