@@ -9,14 +9,14 @@ use Antonowano\Chat\Chat;
 
 class ChatTest extends TestCase
 {
-    private function messageFromIvan(string $text, string $datetime = 'now'): Message
+    private function createMessage(): Message
     {
-        return new Message($text, new DateTime($datetime), 'Ivan');
-    }
-
-    private function messageFromOlga(string $text, string $datetime = 'now'): Message
-    {
-        return new Message($text, new DateTime($datetime), 'Olga');
+        return new Message(
+            id: 0,
+            text: 'Text message',
+            createdAt: new DateTime('now'),
+            author: 'User',
+        );
     }
 
     public function testEmptyChat()
@@ -27,7 +27,7 @@ class ChatTest extends TestCase
 
     public function testSendMessageAddsMessageToChat()
     {
-        $message = $this->messageFromOlga('Hello, World!');
+        $message = $this->createMessage();
 
         $chat = new Chat();
         $chat->sendMessage($message);
@@ -36,9 +36,9 @@ class ChatTest extends TestCase
 
     public function testGetLastMessagesReturnsCorrectNumberOfRecentMessages()
     {
-        $message1 = $this->messageFromIvan('Hey Olga, are you free for a call later?');
-        $message2 = $this->messageFromOlga('Hi Ivan! Sure, what time works for you?');
-        $message3 = $this->messageFromIvan('Great! Let\'s do 5 PM, if that\'s okay.');
+        $message1 = $this->createMessage();
+        $message2 = $this->createMessage();
+        $message3 = $this->createMessage();
 
         $chat = new Chat();
         $chat->sendMessage($message1);
