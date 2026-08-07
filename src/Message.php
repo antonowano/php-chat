@@ -14,6 +14,14 @@ readonly class Message
     ) {
     }
 
+    public function equals(Message $message): bool
+    {
+        return $this->id === $message->id
+            && $this->text === $message->text
+            && $this->createdAt == $message->createdAt
+            && $this->author === $message->author;
+    }
+
     public function hasIdGreaterThan(int $id): bool
     {
         return $this->id > $id;

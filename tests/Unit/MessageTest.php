@@ -11,6 +11,22 @@ class MessageTest extends TestCase
         $this->assertSame('[21:22:13 05.08.2026] [#15432] User: Text message', (string) $message);
     }
 
+    public function testObjectEquals(): void
+    {
+        $message1 = $this->createMessage(id: 10, datetime: '2026-08-07 21:00:00');
+        $message2 = $this->createMessage(id: 10, datetime: '2026-08-07 21:00:00');
+
+        $this->assertObjectEquals($message1, $message2);
+    }
+
+    public function testObjectNotEquals(): void
+    {
+        $message1 = $this->createMessage(id: 10);
+        $message2 = $this->createMessage(id: 11);
+
+        $this->assertObjectNotEquals($message1, $message2);
+    }
+
     public function testHasIdGreaterThanReturnsTrueWhenIdIsGreater(): void
     {
         $message = $this->createMessage(id: 10);

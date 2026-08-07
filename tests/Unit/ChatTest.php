@@ -24,7 +24,7 @@ class ChatTest extends TestCase
         $messages = $this->createMessages(ids: [1]);
         $this->fillChatWithMessages($this->chat, $messages);
 
-        $this->assertEquals($messages, $this->chat->getLastMessages(5));
+        $this->assertObjectListEquals($messages, $this->chat->getLastMessages(5));
     }
 
     public function testGetLastMessagesReturnsCorrectNumberOfRecentMessages(): void
@@ -33,8 +33,8 @@ class ChatTest extends TestCase
         $this->fillChatWithMessages($this->chat, $messages);
         [$m1, $m2, $m3] = $messages;
 
-        $this->assertEquals([$m2, $m3], $this->chat->getLastMessages(2));
-        $this->assertEquals([$m1, $m2, $m3], $this->chat->getLastMessages(5));
+        $this->assertObjectListEquals([$m2, $m3], $this->chat->getLastMessages(2));
+        $this->assertObjectListEquals([$m1, $m2, $m3], $this->chat->getLastMessages(5));
     }
 
     public function testGetMessagesAfterIdReturnsOnlyMessagesWithGreaterId(): void
@@ -43,9 +43,9 @@ class ChatTest extends TestCase
         $this->fillChatWithMessages($this->chat, $messages);
         [, $m2, $m3] = $messages;
 
-        $this->assertSame([$m2, $m3], $this->chat->getMessagesAfterId(1, 10));
-        $this->assertSame([$m3], $this->chat->getMessagesAfterId(2, 10));
-        $this->assertSame([], $this->chat->getMessagesAfterId(3, 10));
+        $this->assertObjectListEquals([$m2, $m3], $this->chat->getMessagesAfterId(1, 10));
+        $this->assertObjectListEquals([$m3], $this->chat->getMessagesAfterId(2, 10));
+        $this->assertObjectListEquals([], $this->chat->getMessagesAfterId(3, 10));
     }
 
     public function testGetMessagesAfterIdRespectsCountLimit(): void
@@ -54,8 +54,8 @@ class ChatTest extends TestCase
         $this->fillChatWithMessages($this->chat, $messages);
         [, $m2, $m3, $m4, ] = $messages;
 
-        $this->assertSame([$m2, $m3], $this->chat->getMessagesAfterId(1, 2));
-        $this->assertSame([$m2, $m3, $m4], $this->chat->getMessagesAfterId(1, 3));
+        $this->assertObjectListEquals([$m2, $m3], $this->chat->getMessagesAfterId(1, 2));
+        $this->assertObjectListEquals([$m2, $m3, $m4], $this->chat->getMessagesAfterId(1, 3));
     }
 
     public function testGetMessagesAfterIdWithZeroCountReturnsEmpty(): void
@@ -63,8 +63,8 @@ class ChatTest extends TestCase
         $messages = $this->createMessages(ids: [1, 2, 3]);
         $this->fillChatWithMessages($this->chat, $messages);
 
-        $this->assertSame([], $this->chat->getMessagesAfterId(0, 0));
-        $this->assertSame([], $this->chat->getMessagesAfterId(1, 0));
+        $this->assertObjectListEquals([], $this->chat->getMessagesAfterId(0, 0));
+        $this->assertObjectListEquals([], $this->chat->getMessagesAfterId(1, 0));
     }
 
     public function testGetMessagesAfterIdReturnsAllAvailableWhenCountExceedsTotal(): void
@@ -74,7 +74,7 @@ class ChatTest extends TestCase
 
         $result = $this->chat->getMessagesAfterId(0, 100);
 
-        $this->assertSame($messages, $result);
+        $this->assertObjectListEquals($messages, $result);
     }
 
     public function testGetMessagesAfterIdWorksWithNonSequentialIds(): void
@@ -85,7 +85,7 @@ class ChatTest extends TestCase
 
         $result = $this->chat->getMessagesAfterId(15, 2);
 
-        $this->assertSame([$m2, $m3], $result);
+        $this->assertObjectListEquals([$m2, $m3], $result);
     }
 
     public function testGetMessagesAfterIdWithNegativeIdReturnsAllMessages(): void
@@ -93,6 +93,6 @@ class ChatTest extends TestCase
         $messages = $this->createMessages(ids: [1, 2, 3]);
         $this->fillChatWithMessages($this->chat, $messages);
 
-        $this->assertSame($messages, $this->chat->getMessagesAfterId(-1, 10));
+        $this->assertObjectListEquals($messages, $this->chat->getMessagesAfterId(-1, 10));
     }
 }

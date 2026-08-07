@@ -34,4 +34,26 @@ class TestCase extends BaseTestCase
             $chat->sendMessage($message);
         }
     }
+
+    /**
+     * @param list<object> $expected
+     * @param list<object> $actual
+     */
+    protected function assertObjectListEquals(array $expected, array $actual): void
+    {
+        $this->assertCount(
+            count($expected),
+            $actual,
+            'Array sizes do not match'
+        );
+
+        foreach ($expected as $index => $expectedObject) {
+            $this->assertObjectEquals(
+                $expectedObject,
+                $actual[$index],
+                'equals',
+                "Objects at index {$index} are not equal"
+            );
+        }
+    }
 }
