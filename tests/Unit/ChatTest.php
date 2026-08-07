@@ -2,107 +2,97 @@
 
 namespace Tests\Antonowano\Chat\Unit;
 
-use Antonowano\Chat\ArrayChat;
-use Antonowano\Chat\ChatInterface;
-use PHPUnit\Framework\Attributes\DataProvider;
+use Antonowano\Chat\Chat;
 
 class ChatTest extends TestCase
 {
-    public static function chatImplements(): array
+    private Chat $chat;
+
+    protected function setUp(): void
     {
-        return [
-            [new ArrayChat()],
-        ];
+        parent::setUp();
+        $this->chat = new Chat();
     }
 
-    #[DataProvider('chatImplements')]
-    public function testEmptyChat(ChatInterface $chat): void
+    public function testEmptyChat(): void
     {
-        $this->assertEquals([], $chat->getLastMessages(10));
+        $this->assertEquals([], $this->chat->getLastMessages(10));
     }
 
-    #[DataProvider('chatImplements')]
-    public function testSendMessageAddsMessageToChat(ChatInterface $chat): void
+    public function testSendMessageAddsMessageToChat(): void
     {
         $messages = $this->createMessages(ids: [1]);
-        $this->fillChatWithMessages($chat, $messages);
+        $this->fillChatWithMessages($this->chat, $messages);
 
-        $this->assertEquals($messages, $chat->getLastMessages(5));
+        $this->assertEquals($messages, $this->chat->getLastMessages(5));
     }
 
-    #[DataProvider('chatImplements')]
-    public function testGetLastMessagesReturnsCorrectNumberOfRecentMessages(ChatInterface $chat): void
+    public function testGetLastMessagesReturnsCorrectNumberOfRecentMessages(): void
     {
         $messages = $this->createMessages(ids: [1, 2, 3]);
-        $this->fillChatWithMessages($chat, $messages);
+        $this->fillChatWithMessages($this->chat, $messages);
         [$m1, $m2, $m3] = $messages;
 
-        $this->assertEquals([$m2, $m3], $chat->getLastMessages(2));
-        $this->assertEquals([$m1, $m2, $m3], $chat->getLastMessages(5));
+        $this->assertEquals([$m2, $m3], $this->chat->getLastMessages(2));
+        $this->assertEquals([$m1, $m2, $m3], $this->chat->getLastMessages(5));
     }
 
-    #[DataProvider('chatImplements')]
-    public function testGetMessagesAfterIdReturnsOnlyMessagesWithGreaterId(ChatInterface $chat): void
+    public function testGetMessagesAfterIdReturnsOnlyMessagesWithGreaterId(): void
     {
         $messages = $this->createMessages(ids: [1, 2, 3]);
-        $this->fillChatWithMessages($chat, $messages);
+        $this->fillChatWithMessages($this->chat, $messages);
         [, $m2, $m3] = $messages;
 
-        $this->assertSame([$m2, $m3], $chat->getMessagesAfterId(1, 10));
-        $this->assertSame([$m3], $chat->getMessagesAfterId(2, 10));
-        $this->assertSame([], $chat->getMessagesAfterId(3, 10));
+        $this->assertSame([$m2, $m3], $this->chat->getMessagesAfterId(1, 10));
+        $this->assertSame([$m3], $this->chat->getMessagesAfterId(2, 10));
+        $this->assertSame([], $this->chat->getMessagesAfterId(3, 10));
     }
 
-    #[DataProvider('chatImplements')]
-    public function testGetMessagesAfterIdRespectsCountLimit(ChatInterface $chat): void
+    public function testGetMessagesAfterIdRespectsCountLimit(): void
     {
         $messages = $this->createMessages(ids: [1, 2, 3, 4, 5]);
-        $this->fillChatWithMessages($chat, $messages);
+        $this->fillChatWithMessages($this->chat, $messages);
         [, $m2, $m3, $m4, ] = $messages;
 
-        $this->assertSame([$m2, $m3], $chat->getMessagesAfterId(1, 2));
-        $this->assertSame([$m2, $m3, $m4], $chat->getMessagesAfterId(1, 3));
+        $this->assertSame([$m2, $m3], $this->chat->getMessagesAfterId(1, 2));
+        $this->assertSame([$m2, $m3, $m4], $this->chat->getMessagesAfterId(1, 3));
     }
 
-    #[DataProvider('chatImplements')]
-    public function testGetMessagesAfterIdWithZeroCountReturnsEmpty(ChatInterface $chat): void
+    public function testGetMessagesAfterIdWithZeroCountReturnsEmpty(): void
     {
         $messages = $this->createMessages(ids: [1, 2, 3]);
-        $this->fillChatWithMessages($chat, $messages);
+        $this->fillChatWithMessages($this->chat, $messages);
 
-        $this->assertSame([], $chat->getMessagesAfterId(0, 0));
-        $this->assertSame([], $chat->getMessagesAfterId(1, 0));
+        $this->assertSame([], $this->chat->getMessagesAfterId(0, 0));
+        $this->assertSame([], $this->chat->getMessagesAfterId(1, 0));
     }
 
-    #[DataProvider('chatImplements')]
-    public function testGetMessagesAfterIdReturnsAllAvailableWhenCountExceedsTotal(ChatInterface $chat): void
+    public function testGetMessagesAfterIdReturnsAllAvailableWhenCountExceedsTotal(): void
     {
         $messages = $this->createMessages(ids: [1, 2, 3]);
-        $this->fillChatWithMessages($chat, $messages);
+        $this->fillChatWithMessages($this->chat, $messages);
 
-        $result = $chat->getMessagesAfterId(0, 100);
+        $result = $this->chat->getMessagesAfterId(0, 100);
 
         $this->assertSame($messages, $result);
     }
 
-    #[DataProvider('chatImplements')]
-    public function testGetMessagesAfterIdWorksWithNonSequentialIds(ChatInterface $chat): void
+    public function testGetMessagesAfterIdWorksWithNonSequentialIds(): void
     {
         $messages = $this->createMessages(ids: [10, 20, 30, 40]);
-        $this->fillChatWithMessages($chat, $messages);
+        $this->fillChatWithMessages($this->chat, $messages);
         [, $m2, $m3, ] = $messages;
 
-        $result = $chat->getMessagesAfterId(15, 2);
+        $result = $this->chat->getMessagesAfterId(15, 2);
 
         $this->assertSame([$m2, $m3], $result);
     }
 
-    #[DataProvider('chatImplements')]
-    public function testGetMessagesAfterIdWithNegativeIdReturnsAllMessages(ChatInterface $chat): void
+    public function testGetMessagesAfterIdWithNegativeIdReturnsAllMessages(): void
     {
         $messages = $this->createMessages(ids: [1, 2, 3]);
-        $this->fillChatWithMessages($chat, $messages);
+        $this->fillChatWithMessages($this->chat, $messages);
 
-        $this->assertSame($messages, $chat->getMessagesAfterId(-1, 10));
+        $this->assertSame($messages, $this->chat->getMessagesAfterId(-1, 10));
     }
 }

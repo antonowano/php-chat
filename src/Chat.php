@@ -2,7 +2,7 @@
 
 namespace Antonowano\Chat;
 
-class ArrayChat implements ChatInterface
+class Chat
 {
     /** @var list<Message> */
     private array $messages = [];
