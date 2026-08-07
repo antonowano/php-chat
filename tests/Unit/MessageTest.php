@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Antonowano\Chat;
+namespace Tests\Antonowano\Chat\Unit;
 
 class MessageTest extends TestCase
 {

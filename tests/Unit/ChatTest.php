@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Antonowano\Chat;
+namespace Tests\Antonowano\Chat\Unit;
 
 use Antonowano\Chat\ArrayChat;
 use Antonowano\Chat\ChatInterface;
