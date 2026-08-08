@@ -1,16 +1,46 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="h-full">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="utf-8">
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css">
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <title>Chat</title>
 </head>
-<body>
+<body class="h-full">
 
-Hello, Chat!
+<div class="flex flex-col h-full">
+    <div class="flex-1" style="max-height: calc(100% - 112px);">
+        <div class="h-full overflow-y-auto flex flex-col-reverse">
+            <div class="p-2">
+                <div class="chat chat-start">
+                    <div class="chat-header">
+                        Obi-Wan Kenobi
+                        <time class="text-xs opacity-50">12:45</time>
+                    </div>
+                    <div class="chat-bubble">You were the Chosen One!</div>
+                </div>
+                <div class="chat chat-end">
+                    <div class="chat-header">
+                        Anakin
+                        <time class="text-xs opacity-50">12:46</time>
+                    </div>
+                    <div class="chat-bubble">I hate you!</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="p-2 flex gap-2 flex-0">
+        <div class="flex-1">
+            <textarea class="textarea w-full h-24" aria-label="Message"></textarea>
+        </div>
+        <div class="flex-0">
+            <button type="button" class="btn">Send</button>
+        </div>
+    </div>
+</div>
 
 </body>
 </html>
