@@ -1,0 +1,23 @@
+services:
+
+  swoole:
+    build:
+      dockerfile: Dockerfile
+    expose:
+      - 9501
+    networks:
+      - chat
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    networks:
+      - chat
+    volumes:
+      - ./app/nginx/templates:/etc/nginx/templates
+      - ./app/nginx/logs:/var/log/nginx
+      - ./app/public:/var/www/html
+
+networks:
+  chat:
