@@ -4,8 +4,11 @@ namespace Antonowano\Chat;
 
 class Chat
 {
-    /** @var list<Message> */
-    private array $messages = [];
+    public function __construct(
+        /** @var list<Message> */
+        private array $messages = [],
+    ) {
+    }
 
     public function sendMessage(Message $message): void
     {

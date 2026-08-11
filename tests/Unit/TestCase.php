@@ -28,6 +28,11 @@ class TestCase extends BaseTestCase
         return array_map(fn ($id) => $this->createMessage(id: $id), $ids);
     }
 
+    protected function createChat(array $messages = []): Chat
+    {
+        return new Chat($messages);
+    }
+
     protected function fillChatWithMessages(Chat $chat, array $messages = []): void
     {
         foreach ($messages as $message) {
