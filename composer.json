@@ -20,7 +20,6 @@
     },
     "require": {
         "php": "^8.4",
-        "openswoole/core": "^26.2",
         "symfony/clock": "^8.1"
     },
     "require-dev": {

@@ -6,4 +6,8 @@ WORKDIR /opt/app
 
 EXPOSE 9501
 
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+RUN composer install
+
 CMD php app/api.php
