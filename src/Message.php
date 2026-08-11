@@ -22,6 +22,11 @@ readonly class Message
             && $this->author === $message->author;
     }
 
+    public function hasIdLessThan(int $id): bool
+    {
+        return $this->id < $id;
+    }
+
     public function hasIdGreaterThan(int $id): bool
     {
         return $this->id > $id;

@@ -37,6 +37,27 @@ class ChatTest extends TestCase
         $this->assertObjectListEquals([$m1, $m2, $m3], $this->chat->getLastMessages(5));
     }
 
+    public function testGetMessagesBeforeIdReturnsMessagesWithLessId(): void
+    {
+        $messages = $this->createMessages(ids: [1, 2, 3]);
+        $this->fillChatWithMessages($this->chat, $messages);
+        [$m1, $m2, ] = $messages;
+
+        $this->assertObjectListEquals([$m1, $m2], $this->chat->getMessagesBeforeId(3, 10));
+        $this->assertObjectListEquals([$m1], $this->chat->getMessagesBeforeId(2, 10));
+        $this->assertObjectListEquals([], $this->chat->getMessagesBeforeId(1, 10));
+    }
+
+    public function testGetMessagesBeforeIdRespectsCountLimit(): void
+    {
+        $messages = $this->createMessages(ids: [1, 2, 3, 4, 5]);
+        $this->fillChatWithMessages($this->chat, $messages);
+        [, $m2, $m3, $m4, ] = $messages;
+
+        $this->assertObjectListEquals([$m2, $m3], $this->chat->getMessagesBeforeId(4, 2));
+        $this->assertObjectListEquals([$m2, $m3, $m4], $this->chat->getMessagesBeforeId(5, 3));
+    }
+
     public function testGetMessagesAfterIdReturnsOnlyMessagesWithGreaterId(): void
     {
         $messages = $this->createMessages(ids: [1, 2, 3]);

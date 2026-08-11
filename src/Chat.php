@@ -23,6 +23,19 @@ class Chat
     /**
      * @return list<Message>
      */
+    public function getMessagesBeforeId(int $id, int $count): array
+    {
+        $messages = array_values(array_filter(
+            $this->messages,
+            static fn (Message $message) => $message->hasIdLessThan($id)
+        ));
+
+        return array_slice($messages, -$count);
+    }
+
+    /**
+     * @return list<Message>
+     */
     public function getMessagesAfterId(int $id, int $count): array
     {
         $messages = array_values(array_filter(

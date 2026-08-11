@@ -27,7 +27,31 @@ class MessageTest extends TestCase
         $this->assertObjectNotEquals($message1, $message2);
     }
 
-    public function testHasIdGreaterThanReturnsTrueWhenIdIsGreater(): void
+    public function testHasIdLessThanReturnsTrueWhenMessageIdIsLess(): void
+    {
+        $message = $this->createMessage(id: 10);
+
+        $this->assertTrue($message->hasIdLessThan(11));
+        $this->assertTrue($message->hasIdLessThan(100));
+    }
+
+    public function testHasIdLessThanReturnsFalseWhenMessageIdIsEqual(): void
+    {
+        $message = $this->createMessage(id: 10);
+
+        $this->assertFalse($message->hasIdLessThan(10));
+    }
+
+    public function testHasIdLessThanReturnsFalseWhenMessageIdIsGreater(): void
+    {
+        $message = $this->createMessage(id: 10);
+
+        $this->assertFalse($message->hasIdLessThan(9));
+        $this->assertFalse($message->hasIdLessThan(1));
+        $this->assertFalse($message->hasIdLessThan(-10));
+    }
+
+    public function testHasIdGreaterThanReturnsTrueWhenMessageIdIsGreater(): void
     {
         $message = $this->createMessage(id: 10);
 
@@ -36,14 +60,14 @@ class MessageTest extends TestCase
         $this->assertTrue($message->hasIdGreaterThan(-100));
     }
 
-    public function testHasIdGreaterThanReturnsFalseWhenIdIsEqual(): void
+    public function testHasIdGreaterThanReturnsFalseWhenMessageIdIsEqual(): void
     {
         $message = $this->createMessage(id: 10);
 
         $this->assertFalse($message->hasIdGreaterThan(10));
     }
 
-    public function testHasIdGreaterThanReturnsFalseWhenIdIsLess(): void
+    public function testHasIdGreaterThanReturnsFalseWhenMessageIdIsLess(): void
     {
         $message = $this->createMessage(id: 10);
 
