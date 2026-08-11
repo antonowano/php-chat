@@ -8,12 +8,12 @@ use Antonowano\Chat\Chat;
 use Antonowano\Chat\Message;
 use Antonowano\Chat\NewMessage;
 use Antonowano\Chat\Swoole\ApiRequest;
-use OpenSwoole\Http\Server;
 use OpenSwoole\Http\Request;
 use OpenSwoole\Http\Response;
+use OpenSwoole\WebSocket\Server;
 use Symfony\Component\Clock\NativeClock;
 
-$server = new Server('0.0.0.0', 9501);
+$server = new Server('0.0.0.0', 9501, SWOOLE_BASE);
 $clock = new NativeClock();
 $chat = new Chat($clock);
 
@@ -21,7 +21,20 @@ $server->on('Start', function (Server $server) {
     echo 'OpenSwoole http server is started' . PHP_EOL;
 });
 
-$server->on('Request', function (Request $request, Response $response) use ($chat) {
+$server->on('Open', function(Server $server, $request) {
+    echo "server: handshake success with fd{$request->fd}\n";
+});
+
+$server->on('Message', function (Server $server, $frame) {
+    echo "receive from {$frame->fd}:{$frame->data},opcode:{$frame->opcode},fin:{$frame->finish}\n";
+    $server->push($frame->fd, "this is server");
+});
+
+$server->on('Close', function(Server $server, $fd) {
+    echo "client {$fd} closed\n";
+});
+
+$server->on('Request', function (Request $request, Response $response) use ($chat, $server) {
     $response->header('Content-Type', 'application/json');
     $apiRequest = new ApiRequest($request);
 
@@ -47,7 +60,7 @@ $server->on('Request', function (Request $request, Response $response) use ($cha
             'status' => 'Success',
             'messages' => $data,
         ]));
-    } elseif ($apiRequest->isPath('/api/messages/prev')) {
+    } elseif ($apiRequest->isPath('/api/messages/previous')) {
         $beforeId = $apiRequest->query()->get('id', 0);
         $messages = $chat->getMessagesBeforeId($beforeId, 30);
         $data = array_map(fn (Message $message) => $message->toChatPayload(), $messages);
