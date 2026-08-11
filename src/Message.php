@@ -42,4 +42,15 @@ readonly class Message
             $this->text
         );
     }
+
+    public function toChatPayload(): array
+    {
+        return [
+            'id' => $this->id,
+            'text' => $this->text,
+            'author' => $this->author,
+            'date' => $this->createdAt->format('d.m.Y'),
+            'time' => $this->createdAt->format('H:i'),
+        ];
+    }
 }

@@ -5,6 +5,7 @@ error_reporting(E_ALL);
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use Antonowano\Chat\Chat;
+use Antonowano\Chat\Message;
 use Antonowano\Chat\NewMessage;
 use Antonowano\Chat\Swoole\ApiRequest;
 use OpenSwoole\Http\Server;
@@ -21,7 +22,7 @@ $server->on('Start', function (Server $server) {
 });
 
 $server->on('Request', function (Request $request, Response $response) use ($chat) {
-    $response->header('Content-Type', 'text/plain');
+    $response->header('Content-Type', 'application/json');
     $apiRequest = new ApiRequest($request);
 
     if ($apiRequest->isMethod('POST') && $apiRequest->isPath('/api/message/send')) {
@@ -30,18 +31,33 @@ $server->on('Request', function (Request $request, Response $response) use ($cha
             text: $data->get('text'),
             author: $data->get('author'),
         ));
-        $response->end('Message sent');
+        $response->end('{"status": "Success"}');
     } elseif ($apiRequest->isPath('/api/messages/last')) {
-        $response->end(var_export($chat->getLastMessages(30), true));
+        $messages = $chat->getLastMessages(30);
+        $data = array_map(fn (Message $message) => $message->toChatPayload(), $messages);
+        $response->end(json_encode([
+            'status' => 'Success',
+            'messages' => $data,
+        ]));
     } elseif ($apiRequest->isPath('/api/messages/next')) {
         $afterId = $apiRequest->query()->get('id', 0);
-        $response->end(var_export($chat->getMessagesAfterId($afterId, 30), true));
+        $messages = $chat->getMessagesAfterId($afterId, 30);
+        $data = array_map(fn (Message $message) => $message->toChatPayload(), $messages);
+        $response->end(json_encode([
+            'status' => 'Success',
+            'messages' => $data,
+        ]));
     } elseif ($apiRequest->isPath('/api/messages/prev')) {
         $beforeId = $apiRequest->query()->get('id', 0);
-        $response->end(var_export($chat->getMessagesBeforeId($beforeId, 30), true));
+        $messages = $chat->getMessagesBeforeId($beforeId, 30);
+        $data = array_map(fn (Message $message) => $message->toChatPayload(), $messages);
+        $response->end(json_encode([
+            'status' => 'Success',
+            'messages' => $data,
+        ]));
     } else {
         $response->status(404);
-        $response->end('Route not found');
+        $response->end('{"status": "NotFound", "message": "Route not found"}');
         //$response->end(
         //    var_export($request, true) . PHP_EOL
         //    . 'Methods: ' . var_export(get_class_methods($request), true) . PHP_EOL

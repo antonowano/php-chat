@@ -76,4 +76,25 @@ class MessageTest extends TestCase
         $this->assertFalse($message->hasIdGreaterThan(15));
         $this->assertFalse($message->hasIdGreaterThan(100));
     }
+
+    public function testToChatPayload()
+    {
+        $message = $this->createMessage(
+            id: 11,
+            text: 'Hello World',
+            createdAt: new DateTime('2027-08-05 21:22:13'),
+            author: 'Ivan',
+        );
+
+        $this->assertSame(
+            [
+                'id' => 11,
+                'text' => 'Hello World',
+                'author' => 'Ivan',
+                'date' => '05.08.2027',
+                'time' => '21:22',
+            ],
+            $message->toChatPayload()
+        );
+    }
 }
