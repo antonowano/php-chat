@@ -2,6 +2,9 @@
 
 namespace Tests\Antonowano\Chat\Unit;
 
+use Antonowano\Chat\NewMessage;
+use Symfony\Component\Clock\MockClock;
+
 class ChatTest extends TestCase
 {
     public function testEmptyChat(): void
@@ -12,10 +15,21 @@ class ChatTest extends TestCase
 
     public function testSendMessageAddsMessageToChat(): void
     {
-        $messages = $this->createMessages(ids: [1]);
-        $chat = $this->createChat($messages);
+        $clock = new MockClock('now');
+        $chat = $this->createChat([], $clock);
+        $chat->sendMessage(new NewMessage('First', 'Ivan'));
+        $chat->sendMessage(new NewMessage('Second', 'Olga'));
 
-        $this->assertObjectListEquals($messages, $chat->getLastMessages(5));
+        $messages = $chat->getLastMessages(5);
+
+        $this->assertObjectEquals(
+            $this->createMessage(id: 1, text: 'First', createdAt: $clock->now(), author: 'Ivan'),
+            $messages[0]
+        );
+        $this->assertObjectEquals(
+            $this->createMessage(id: 2, text: 'Second', createdAt: $clock->now(), author: 'Olga'),
+            $messages[1]
+        );
     }
 
     public function testGetLastMessagesReturnsCorrectNumberOfRecentMessages(): void

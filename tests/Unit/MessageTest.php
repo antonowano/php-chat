@@ -2,19 +2,21 @@
 
 namespace Tests\Antonowano\Chat\Unit;
 
+use DateTime;
+
 class MessageTest extends TestCase
 {
     public function testToString()
     {
-        $message = $this->createMessage(id: 15432, datetime: '2026-08-05 21:22:13');
+        $message = $this->createMessage(id: 15432, createdAt: new DateTime('2026-08-05 21:22:13'));
 
         $this->assertSame('[21:22:13 05.08.2026] [#15432] User: Text message', (string) $message);
     }
 
     public function testObjectEquals(): void
     {
-        $message1 = $this->createMessage(id: 10, datetime: '2026-08-07 21:00:00');
-        $message2 = $this->createMessage(id: 10, datetime: '2026-08-07 21:00:00');
+        $message1 = $this->createMessage(id: 10, createdAt: new DateTime('2026-08-07 21:00:00'));
+        $message2 = $this->createMessage(id: 10, createdAt: new DateTime('2026-08-07 21:00:00'));
 
         $this->assertObjectEquals($message1, $message2);
     }

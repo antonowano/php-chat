@@ -1,4 +1,4 @@
-FROM openswoole/swoole:25.2-php8.2-alpine
+FROM openswoole/swoole:25.2-php8.4-alpine
 
 COPY . /opt/app
 

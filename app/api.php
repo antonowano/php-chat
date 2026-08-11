@@ -5,30 +5,29 @@ error_reporting(E_ALL);
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use Antonowano\Chat\Chat;
-use Antonowano\Chat\Message;
+use Antonowano\Chat\NewMessage;
 use Antonowano\Chat\Swoole\ApiRequest;
 use OpenSwoole\Http\Server;
 use OpenSwoole\Http\Request;
 use OpenSwoole\Http\Response;
+use Symfony\Component\Clock\NativeClock;
 
 $server = new Server('0.0.0.0', 9501);
-$chat = new Chat();
-$messageId = 1;
+$clock = new NativeClock();
+$chat = new Chat($clock);
 
 $server->on('Start', function (Server $server) {
     echo 'OpenSwoole http server is started' . PHP_EOL;
 });
 
-$server->on('Request', function (Request $request, Response $response) use ($chat, &$messageId) {
+$server->on('Request', function (Request $request, Response $response) use ($chat) {
     $response->header('Content-Type', 'text/plain');
     $apiRequest = new ApiRequest($request);
 
     if ($apiRequest->isMethod('POST') && $apiRequest->isPath('/api/message/send')) {
         $data = $apiRequest->json();
-        $chat->sendMessage(new Message(
-            id: $messageId++,
+        $chat->sendMessage(new NewMessage(
             text: $data->get('text'),
-            createdAt: new \DateTime('now'),
             author: $data->get('author'),
         ));
         $response->end('Message sent');

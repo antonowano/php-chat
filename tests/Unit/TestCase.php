@@ -6,16 +6,22 @@ use Antonowano\Chat\Chat;
 use Antonowano\Chat\Message;
 use DateTime;
 use PHPUnit\Framework\TestCase as BaseTestCase;
+use Psr\Clock\ClockInterface;
+use Symfony\Component\Clock\NativeClock;
 
 class TestCase extends BaseTestCase
 {
-    protected function createMessage(int $id = 0, string $datetime = 'now'): Message
-    {
+    protected function createMessage(
+        int $id = 0,
+        string $text = 'Text message',
+        ?\DateTimeInterface $createdAt = null,
+        string $author = 'User',
+    ): Message {
         return new Message(
             id: $id,
-            text: 'Text message',
-            createdAt: new DateTime($datetime),
-            author: 'User',
+            text: $text,
+            createdAt: $createdAt ?? new DateTime('now'),
+            author: $author,
         );
     }
 
@@ -28,16 +34,12 @@ class TestCase extends BaseTestCase
         return array_map(fn ($id) => $this->createMessage(id: $id), $ids);
     }
 
-    protected function createChat(array $messages = []): Chat
+    protected function createChat(array $messages = [], ?ClockInterface $clock = null): Chat
     {
-        return new Chat($messages);
-    }
-
-    protected function fillChatWithMessages(Chat $chat, array $messages = []): void
-    {
-        foreach ($messages as $message) {
-            $chat->sendMessage($message);
-        }
+        return new Chat(
+            clock: $clock ?? new NativeClock(),
+            messages: $messages,
+        );
     }
 
     /**

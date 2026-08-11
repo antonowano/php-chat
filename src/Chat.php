@@ -2,17 +2,26 @@
 
 namespace Antonowano\Chat;
 
+use Psr\Clock\ClockInterface;
+
 class Chat
 {
     public function __construct(
+        private readonly ClockInterface $clock,
         /** @var list<Message> */
         private array $messages = [],
+        private int $autoIncrement = 1,
     ) {
     }
 
-    public function sendMessage(Message $message): void
+    public function sendMessage(NewMessage $newMessage): void
     {
-        $this->messages[] = $message;
+        $this->messages[] = new Message(
+            id: $this->autoIncrement++,
+            text: $newMessage->text(),
+            createdAt: $this->clock->now(),
+            author: $newMessage->author(),
+        );
     }
 
     /**
