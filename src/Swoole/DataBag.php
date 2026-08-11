@@ -2,19 +2,25 @@
 
 namespace Antonowano\Chat\Swoole;
 
-readonly class Json
+readonly class DataBag
 {
     public function __construct(
         private array $data,
     ) {
     }
 
-    public static function create(string $json): self
+    public static function fromJson(string $json): self
     {
         return new self(json_decode($json, true));
     }
 
-    public function equals(Json $json): bool
+    public static function fromQuery(string $query): self
+    {
+        parse_str($query, $data);
+        return new self($data);
+    }
+
+    public function equals(DataBag $json): bool
     {
         return $this->data === $json->data;
     }

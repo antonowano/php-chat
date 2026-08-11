@@ -59,7 +59,7 @@ class ApiRequestTest extends TestCase
         $this->assertTrue($this->apiRequest->isMethod('POST'));
     }
 
-    public function testJsonReturnsValueBy(): void
+    public function testJsonReturnsValueByKey(): void
     {
         $data = [
             'name' => 'John Doe',
@@ -68,5 +68,12 @@ class ApiRequestTest extends TestCase
         $this->swooleRequest->method('getContent')->willReturn(json_encode($data));
 
         $this->assertEquals($data['name'], $this->apiRequest->json()->get('name'));
+    }
+
+    public function testQueryReturnsValueByKey(): void
+    {
+        $this->swooleRequest->server['query_string'] = 'id=123&limit=30';
+
+        $this->assertSame('30', $this->apiRequest->query()->get('limit'));
     }
 }

@@ -19,8 +19,13 @@ readonly class ApiRequest
         return $this->swooleRequest->getMethod() === $method;
     }
 
-    public function json(): Json
+    public function json(): DataBag
     {
-        return Json::create($this->swooleRequest->getContent());
+        return DataBag::fromJson($this->swooleRequest->getContent());
+    }
+
+    public function query(): DataBag
+    {
+        return DataBag::fromQuery($this->swooleRequest->server['query_string']);
     }
 }
