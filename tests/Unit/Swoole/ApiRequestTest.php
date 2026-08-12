@@ -7,6 +7,7 @@ use Tests\Antonowano\Chat\Unit\TestCase;
 
 class ApiRequestTest extends TestCase
 {
+    /** @var \OpenSwoole\Http\Request  */
     private object $swooleRequest;
     private ApiRequest $apiRequest;
 

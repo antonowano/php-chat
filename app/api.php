@@ -10,6 +10,7 @@ use Antonowano\Chat\NewMessage;
 use Antonowano\Chat\Swoole\ApiRequest;
 use OpenSwoole\Http\Request;
 use OpenSwoole\Http\Response;
+use OpenSwoole\WebSocket\Frame;
 use OpenSwoole\WebSocket\Server;
 use Symfony\Component\Clock\NativeClock;
 
@@ -21,16 +22,16 @@ $server->on('Start', function (Server $server) {
     echo 'OpenSwoole http server is started' . PHP_EOL;
 });
 
-$server->on('Open', function(Server $server, $request) {
+$server->on('Open', function (Server $server, Request $request) {
     echo "server: handshake success with fd{$request->fd}\n";
 });
 
-$server->on('Message', function (Server $server, $frame) {
+$server->on('Message', function (Server $server, Frame $frame) use ($chat) {
     echo "receive from {$frame->fd}:{$frame->data},opcode:{$frame->opcode},fin:{$frame->finish}\n";
     $server->push($frame->fd, "this is server");
 });
 
-$server->on('Close', function(Server $server, $fd) {
+$server->on('Close', function (Server $server, int $fd) {
     echo "client {$fd} closed\n";
 });
 
