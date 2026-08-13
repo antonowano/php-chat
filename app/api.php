@@ -8,6 +8,7 @@ use Antonowano\Chat\Chat;
 use Antonowano\Chat\Message;
 use Antonowano\Chat\NewMessage;
 use Antonowano\Chat\Swoole\ApiRequest;
+use Antonowano\Chat\Swoole\WsFrame;
 use OpenSwoole\Http\Request;
 use OpenSwoole\Http\Response;
 use OpenSwoole\WebSocket\Frame;
@@ -27,8 +28,17 @@ $server->on('Open', function (Server $server, Request $request) {
 });
 
 $server->on('Message', function (Server $server, Frame $frame) use ($chat) {
-    echo "receive from {$frame->fd}:{$frame->data},opcode:{$frame->opcode},fin:{$frame->finish}\n";
-    $server->push($frame->fd, "this is server");
+    $wsFrame = new WsFrame($frame);
+    $data = $wsFrame->data();
+    if ($data->get('type') == 'NewMessage') {
+        $chat->sendMessage(new NewMessage(
+            text: $data->get('newMessage.text'),
+            author: $data->get('newMessage.author'),
+        ));
+        $server->push($frame->fd, json_encode([
+            'type' => 'Message',
+        ]));
+    }
 });
 
 $server->on('Close', function (Server $server, int $fd) {

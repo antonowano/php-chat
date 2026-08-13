@@ -51,4 +51,17 @@ class DataBagTest extends TestCase
 
         $this->assertSame('30', $json->get('limit', 30));
     }
+
+    public function testNestedGet(): void
+    {
+        $data = new DataBag([
+            'newMessage' => [
+                'text' => 'Hello, World!',
+                'author' => 'John',
+            ]
+        ]);
+
+        $this->assertSame('Hello, World!', $data->get('newMessage.text'));
+        $this->assertSame('John', $data->get('newMessage.author'));
+    }
 }

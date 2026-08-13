@@ -27,6 +27,16 @@ readonly class DataBag
 
     public function get(string $key, ?string $default = null): mixed
     {
-        return $this->data[$key] ?? $default;
+        $keys = explode('.', $key);
+        $value = $this->data;
+
+        foreach ($keys as $segment) {
+            if (!is_array($value) || !array_key_exists($segment, $value)) {
+                return $default;
+            }
+            $value = $value[$segment];
+        }
+
+        return $value;
     }
 }
