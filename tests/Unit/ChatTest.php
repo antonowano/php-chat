@@ -2,6 +2,8 @@
 
 namespace Tests\Antonowano\Chat\Unit;
 
+use Antonowano\Chat\ChatListener;
+use Antonowano\Chat\Message;
 use Antonowano\Chat\NewMessage;
 use Symfony\Component\Clock\MockClock;
 
@@ -137,5 +139,30 @@ class ChatTest extends TestCase
         $chat = $this->createChat($messages);
 
         $this->assertObjectListEquals($messages, $chat->getMessagesAfterId(-1, 10));
+    }
+
+    public function testCallMessageSentWhenTheMessageIsSent(): void
+    {
+        $clock = new MockClock('now');
+        $listener = $this->createMock(ChatListener::class);
+        $listener->expects($this->once())->method('onMessageSent')->with(
+            $this->callback(function (Message $message) use ($clock) {
+                $expected = $this->createMessage(id: 1, text: 'First', createdAt: $clock->now(), author: 'Ivan');
+                return $message->equals($expected);
+            }),
+        );
+        $chat = $this->createChat([], $clock);
+        $chat->addListener($listener);
+        $chat->sendMessage(new NewMessage('First', 'Ivan'));
+    }
+
+    public function testDoNotCallMessageSentIfListenerIsRemoved(): void
+    {
+        $chat = $this->createChat();
+        $listener = $this->createMock(ChatListener::class);
+        $listener->expects($this->never())->method('onMessageSent');
+        $chat->addListener($listener);
+        $chat->removeListener($listener);
+        $chat->sendMessage(new NewMessage('First', 'Ivan'));
     }
 }

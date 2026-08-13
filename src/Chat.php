@@ -6,6 +6,9 @@ use Psr\Clock\ClockInterface;
 
 class Chat
 {
+    /** @var list<ChatListener> */
+    private array $listeners = [];
+
     public function __construct(
         private readonly ClockInterface $clock,
         /** @var list<Message> */
@@ -23,6 +26,10 @@ class Chat
             author: $newMessage->author(),
         );
         $this->messages[] = $message;
+
+        foreach ($this->listeners as $listener) {
+            $listener->onMessageSent($message);
+        }
 
         return $message;
     }
@@ -59,5 +66,18 @@ class Chat
         ));
 
         return array_slice($messages, 0, $count);
+    }
+
+    public function addListener(ChatListener $listener): void
+    {
+        $this->listeners[] = $listener;
+    }
+
+    public function removeListener(ChatListener $listener): void
+    {
+        $this->listeners = array_filter(
+            $this->listeners,
+            static fn ($l) => $l !== $listener
+        );
     }
 }

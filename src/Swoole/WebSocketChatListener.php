@@ -1,0 +1,24 @@
+<?php
+
+namespace Antonowano\Chat\Swoole;
+
+use Antonowano\Chat\ChatListener;
+use Antonowano\Chat\Message;
+
+readonly class WebSocketChatListener implements ChatListener
+{
+    public function __construct(
+        /** @var \Swoole\WebSocket\Server $server */
+        private object $server,
+        private int $fd,
+    ) {
+    }
+
+    public function onMessageSent(Message $message): void
+    {
+        $this->server->push($this->fd, json_encode([
+            'type' => 'Message',
+            'message' => $message->toChatPayload(),
+        ]));
+    }
+}

@@ -7,6 +7,7 @@ namespace {
 namespace OpenSwoole\Http {
     if (!class_exists('OpenSwoole\Http\Request')) {
         class Request {
+            public int $fd = 0;
             public array $server = [];
 
             public function getMethod(): string { return 'GET'; }

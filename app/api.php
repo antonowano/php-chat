@@ -8,6 +8,7 @@ use Antonowano\Chat\Chat;
 use Antonowano\Chat\Message;
 use Antonowano\Chat\NewMessage;
 use Antonowano\Chat\Swoole\ApiRequest;
+use Antonowano\Chat\Swoole\WebSocketChatListener;
 use Antonowano\Chat\Swoole\WsFrame;
 use OpenSwoole\Http\Request;
 use OpenSwoole\Http\Response;
@@ -16,34 +17,35 @@ use OpenSwoole\WebSocket\Server;
 use Symfony\Component\Clock\NativeClock;
 
 $server = new Server('0.0.0.0', 9501, SWOOLE_BASE);
-$clock = new NativeClock();
-$chat = new Chat($clock);
+$chat = new Chat(new NativeClock());
+$listeners = [];
 
 $server->on('Start', function (Server $server) {
     echo 'OpenSwoole http server is started' . PHP_EOL;
 });
 
-$server->on('Open', function (Server $server, Request $request) {
+$server->on('Open', function (Server $server, Request $request) use ($chat, &$listeners) {
     echo "server: handshake success with fd{$request->fd}\n";
+    $listener = new WebSocketChatListener($server, $request->fd);
+    $chat->addListener($listener);
+    $listeners[$request->fd] = $listener;
 });
 
 $server->on('Message', function (Server $server, Frame $frame) use ($chat) {
     $wsFrame = new WsFrame($frame);
     $data = $wsFrame->data();
     if ($data->get('type') == 'NewMessage') {
-        $message = $chat->sendMessage(new NewMessage(
+        $chat->sendMessage(new NewMessage(
             text: $data->get('newMessage.text'),
             author: $data->get('newMessage.author'),
         ));
-        $server->push($frame->fd, json_encode([
-            'type' => 'Message',
-            'message' => $message->toChatPayload(),
-        ]));
     }
 });
 
-$server->on('Close', function (Server $server, int $fd) {
+$server->on('Close', function (Server $server, int $fd) use ($chat, &$listeners) {
     echo "client {$fd} closed\n";
+    $chat->removeListener($listeners[$fd]);
+    unset($listeners[$fd]);
 });
 
 $server->on('Request', function (Request $request, Response $response) use ($chat, $server) {
