@@ -82,16 +82,6 @@ $server->on('Request', function (Request $request, Response $response) use ($cha
     } else {
         $response->status(404);
         $response->end('{"status": "NotFound", "message": "Route not found"}');
-        //$response->end(
-        //    var_export($request, true) . PHP_EOL
-        //    . 'Methods: ' . var_export(get_class_methods($request), true) . PHP_EOL
-        //    . 'Data: ' . var_export($request->getData(), true) . PHP_EOL
-        //    . 'isCompleted: ' . var_export($request->isCompleted(), true) . PHP_EOL
-        //    . 'Raw Content: ' . var_export($request->rawContent(), true) . PHP_EOL
-        //    . 'Content: ' . var_export($request->getContent(), true) . PHP_EOL
-        //    . 'Method: ' . var_export($request->getMethod(), true) . PHP_EOL
-        //    . 'Request Uri: ' . var_export($request->server['request_uri'], true) . PHP_EOL
-        //);
     }
 });
 
