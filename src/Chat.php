@@ -17,7 +17,7 @@ class Chat
     ) {
     }
 
-    public function sendMessage(NewMessage $newMessage): Message
+    public function sendMessage(NewMessage $newMessage): void
     {
         $message = new Message(
             id: $this->autoIncrement++,
@@ -30,8 +30,6 @@ class Chat
         foreach ($this->listeners as $listener) {
             $listener->onMessageSent($message);
         }
-
-        return $message;
     }
 
     /**
