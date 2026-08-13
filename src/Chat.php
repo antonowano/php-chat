@@ -14,14 +14,17 @@ class Chat
     ) {
     }
 
-    public function sendMessage(NewMessage $newMessage): void
+    public function sendMessage(NewMessage $newMessage): Message
     {
-        $this->messages[] = new Message(
+        $message = new Message(
             id: $this->autoIncrement++,
             text: $newMessage->text(),
             createdAt: $this->clock->now(),
             author: $newMessage->author(),
         );
+        $this->messages[] = $message;
+
+        return $message;
     }
 
     /**

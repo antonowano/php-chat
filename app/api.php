@@ -31,12 +31,13 @@ $server->on('Message', function (Server $server, Frame $frame) use ($chat) {
     $wsFrame = new WsFrame($frame);
     $data = $wsFrame->data();
     if ($data->get('type') == 'NewMessage') {
-        $chat->sendMessage(new NewMessage(
+        $message = $chat->sendMessage(new NewMessage(
             text: $data->get('newMessage.text'),
             author: $data->get('newMessage.author'),
         ));
         $server->push($frame->fd, json_encode([
             'type' => 'Message',
+            'message' => $message->toChatPayload(),
         ]));
     }
 });

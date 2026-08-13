@@ -13,6 +13,23 @@ class ChatTest extends TestCase
         $this->assertEquals([], $chat->getLastMessages(10));
     }
 
+    public function testSendMessageReturnsMessage(): void
+    {
+        $clock = new MockClock('now');
+        $chat = $this->createChat([], $clock);
+        $message1 = $chat->sendMessage(new NewMessage('First', 'Ivan'));
+        $message2 = $chat->sendMessage(new NewMessage('Second', 'Olga'));
+
+        $this->assertObjectEquals(
+            $this->createMessage(id: 1, text: 'First', createdAt: $clock->now(), author: 'Ivan'),
+            $message1
+        );
+        $this->assertObjectEquals(
+            $this->createMessage(id: 2, text: 'Second', createdAt: $clock->now(), author: 'Olga'),
+            $message2
+        );
+    }
+
     public function testSendMessageAddsMessageToChat(): void
     {
         $clock = new MockClock('now');
