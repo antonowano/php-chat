@@ -2,10 +2,12 @@
 
 namespace Antonowano\Chat\Swoole;
 
+use OpenSwoole\Http\Request;
+
 readonly class ApiRequest
 {
     public function __construct(
-        private object $swooleRequest,
+        private Request $swooleRequest,
     ) {
     }
 

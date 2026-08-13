@@ -4,12 +4,12 @@ namespace Antonowano\Chat\Swoole;
 
 use Antonowano\Chat\ChatListener;
 use Antonowano\Chat\Message;
+use OpenSwoole\WebSocket\Server;
 
 readonly class WebSocketChatListener implements ChatListener
 {
     public function __construct(
-        /** @var \Swoole\WebSocket\Server $server */
-        private object $server,
+        private Server $server,
         private int $fd,
     ) {
     }

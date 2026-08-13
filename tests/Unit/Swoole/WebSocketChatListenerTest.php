@@ -3,17 +3,18 @@
 namespace Tests\Antonowano\Chat\Unit\Swoole;
 
 use Antonowano\Chat\Swoole\WebSocketChatListener;
+use OpenSwoole\WebSocket\Server;
 use Tests\Antonowano\Chat\Unit\TestCase;
 
 class WebSocketChatListenerTest extends TestCase
 {
-    private object $server;
+    private Server $server;
     private WebSocketChatListener $listener;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->server = $this->createMock('Swoole\WebSocket\Server');
+        $this->server = $this->createMock(Server::class);
         $this->listener = new WebSocketChatListener(
             server: $this->server,
             fd: 23,

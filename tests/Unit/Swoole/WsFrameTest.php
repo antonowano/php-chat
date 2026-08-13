@@ -4,18 +4,18 @@ namespace Tests\Antonowano\Chat\Unit\Swoole;
 
 use Antonowano\Chat\Swoole\DataBag;
 use Antonowano\Chat\Swoole\WsFrame;
+use OpenSwoole\WebSocket\Frame;
 use Tests\Antonowano\Chat\Unit\TestCase;
 
 class WsFrameTest extends TestCase
 {
-    /** @var \OpenSwoole\WebSocket\Frame */
-    private object $swooleFrame;
+    private Frame $swooleFrame;
     private WsFrame $wsFrame;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->swooleFrame = $this->createMock('OpenSwoole\WebSocket\Frame');
+        $this->swooleFrame = $this->createMock(Frame::class);
         $this->wsFrame = new WsFrame($this->swooleFrame);
     }
 

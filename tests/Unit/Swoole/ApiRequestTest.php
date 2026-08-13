@@ -3,18 +3,18 @@
 namespace Tests\Antonowano\Chat\Unit\Swoole;
 
 use Antonowano\Chat\Swoole\ApiRequest;
+use OpenSwoole\Http\Request;
 use Tests\Antonowano\Chat\Unit\TestCase;
 
 class ApiRequestTest extends TestCase
 {
-    /** @var \OpenSwoole\Http\Request  */
-    private object $swooleRequest;
+    private Request $swooleRequest;
     private ApiRequest $apiRequest;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->swooleRequest = $this->createMock('OpenSwoole\Http\Request');
+        $this->swooleRequest = $this->createMock(Request::class);
         $this->apiRequest = new ApiRequest($this->swooleRequest);
     }
 
