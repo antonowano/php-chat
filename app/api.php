@@ -18,17 +18,15 @@ use Symfony\Component\Clock\NativeClock;
 
 $server = new Server('0.0.0.0', 9501, SWOOLE_BASE);
 $chat = new Chat(new NativeClock());
-$listeners = [];
 
 $server->on('Start', function (Server $server) {
     echo 'OpenSwoole http server is started' . PHP_EOL;
 });
 
-$server->on('Open', function (Server $server, Request $request) use ($chat, &$listeners) {
+$server->on('Open', function (Server $server, Request $request) use ($chat) {
     echo "server: handshake success with fd{$request->fd}\n";
     $listener = new WebSocketChatListener($server, $request->fd);
     $chat->addListener($listener);
-    $listeners[$request->fd] = $listener;
 });
 
 $server->on('Message', function (Server $server, Frame $frame) use ($chat) {
@@ -42,10 +40,9 @@ $server->on('Message', function (Server $server, Frame $frame) use ($chat) {
     }
 });
 
-$server->on('Close', function (Server $server, int $fd) use ($chat, &$listeners) {
+$server->on('Close', function (Server $server, int $fd) use ($chat) {
     echo "client {$fd} closed\n";
-    $chat->removeListener($listeners[$fd]);
-    unset($listeners[$fd]);
+    $chat->removeListenerById(WebSocketChatListener::generateId($fd));
 });
 
 $server->on('Request', function (Request $request, Response $response) use ($chat, $server) {

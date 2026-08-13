@@ -20,6 +20,17 @@ class WebSocketChatListenerTest extends TestCase
         );
     }
 
+    public function testId()
+    {
+        $this->assertSame('fd23', $this->listener->id());
+    }
+
+    public function testGenerateId()
+    {
+        $this->assertSame('fd4893', WebSocketChatListener::generateId(4893));
+        $this->assertSame('fd132', WebSocketChatListener::generateId(132));
+    }
+
     public function testOnMessageSent()
     {
         $message = $this->createMessage(id: 100);

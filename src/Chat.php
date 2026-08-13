@@ -6,7 +6,7 @@ use Psr\Clock\ClockInterface;
 
 class Chat
 {
-    /** @var list<ChatListener> */
+    /** @var array<string, ChatListener> */
     private array $listeners = [];
 
     public function __construct(
@@ -70,14 +70,11 @@ class Chat
 
     public function addListener(ChatListener $listener): void
     {
-        $this->listeners[] = $listener;
+        $this->listeners[$listener->id()] = $listener;
     }
 
-    public function removeListener(ChatListener $listener): void
+    public function removeListenerById(string $id): void
     {
-        $this->listeners = array_filter(
-            $this->listeners,
-            static fn ($l) => $l !== $listener
-        );
+        unset($this->listeners[$id]);
     }
 }
