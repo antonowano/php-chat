@@ -55,7 +55,9 @@ $server->on('Request', function (Request $request, Response $response) use ($cha
             text: $data->get('text'),
             author: $data->get('author'),
         ));
-        $response->end('{"status": "Success"}');
+        $response->end(json_encode([
+            'status' => 'Success',
+        ]));
     } elseif ($apiRequest->isPath('/api/messages/last')) {
         $messages = $chat->getLastMessages(30);
         $data = array_map(fn (Message $message) => $message->toChatPayload(), $messages);
@@ -81,7 +83,10 @@ $server->on('Request', function (Request $request, Response $response) use ($cha
         ]));
     } else {
         $response->status(404);
-        $response->end('{"status": "NotFound", "message": "Route not found"}');
+        $response->end(json_encode([
+            'status' => 'NotFound',
+            'message' => 'Route not found',
+        ]));
     }
 });
 
