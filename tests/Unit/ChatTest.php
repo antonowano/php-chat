@@ -4,7 +4,6 @@ namespace Tests\Antonowano\Chat\Unit;
 
 use Antonowano\Chat\ChatListener;
 use Antonowano\Chat\Message;
-use Antonowano\Chat\NewMessage;
 use Symfony\Component\Clock\MockClock;
 
 class ChatTest extends TestCase
@@ -19,8 +18,8 @@ class ChatTest extends TestCase
     {
         $clock = new MockClock('now');
         $chat = $this->createChat([], $clock);
-        $chat->sendMessage(new NewMessage('First', 'Ivan'));
-        $chat->sendMessage(new NewMessage('Second', 'Olga'));
+        $chat->sendMessage($this->createNewMessage('First', 'Ivan'));
+        $chat->sendMessage($this->createNewMessage('Second', 'Olga'));
 
         $messages = $chat->getLastMessages(5);
 
@@ -136,7 +135,7 @@ class ChatTest extends TestCase
         );
         $chat = $this->createChat([], $clock);
         $chat->addListener($listener);
-        $chat->sendMessage(new NewMessage('First', 'Ivan'));
+        $chat->sendMessage($this->createNewMessage('First', 'Ivan'));
     }
 
     public function testDoNotCallMessageSentIfListenerIsRemoved(): void
@@ -147,7 +146,7 @@ class ChatTest extends TestCase
         $listener->expects($this->never())->method('onMessageSent');
         $chat->addListener($listener);
         $chat->removeListenerById('fd1');
-        $chat->sendMessage(new NewMessage('First', 'Ivan'));
+        $chat->sendMessage($this->createNewMessage('First', 'Ivan'));
     }
 
     public function testCallMessageSentIfListenerIsNotRemoved(): void
@@ -158,6 +157,6 @@ class ChatTest extends TestCase
         $listener->expects($this->once())->method('onMessageSent');
         $chat->addListener($listener);
         $chat->removeListenerById('not_found');
-        $chat->sendMessage(new NewMessage('First', 'Ivan'));
+        $chat->sendMessage($this->createNewMessage('First', 'Ivan'));
     }
 }

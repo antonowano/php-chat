@@ -4,6 +4,7 @@ namespace Tests\Antonowano\Chat\Unit;
 
 use Antonowano\Chat\Chat;
 use Antonowano\Chat\Message;
+use Antonowano\Chat\NewMessage;
 use DateTime;
 use PHPUnit\Framework\TestCase as BaseTestCase;
 use Psr\Clock\ClockInterface;
@@ -39,6 +40,14 @@ class TestCase extends BaseTestCase
         return new Chat(
             clock: $clock ?? new NativeClock(),
             messages: $messages,
+        );
+    }
+
+    protected function createNewMessage(string $text, string $author): NewMessage
+    {
+        return new NewMessage(
+            text: $text,
+            author: $author,
         );
     }
 

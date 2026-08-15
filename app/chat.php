@@ -4,6 +4,7 @@ error_reporting(E_ALL);
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
+use Antonowano\Chat\ApiController;
 use Antonowano\Chat\ApiRequest;
 use Antonowano\Chat\Chat;
 use Antonowano\Chat\NewMessage;
@@ -20,6 +21,7 @@ use Symfony\Component\Clock\NativeClock;
 
 $server = new Server('0.0.0.0', 9501, SWOOLE_BASE);
 $chat = new Chat(new NativeClock());
+$apiController = new ApiController($chat);
 
 $server->on('Start', function (Server $server) {
     echo 'OpenSwoole http server is started' . PHP_EOL;
@@ -47,28 +49,18 @@ $server->on('Close', function (Server $server, int $fd) use ($chat) {
     $chat->removeListenerById(WebSocketChatListener::generateId($fd));
 });
 
-$server->on('Request', function (Request $swooleRequest, Response $swooleResponse) use ($chat, $server) {
+$server->on('Request', function (Request $swooleRequest, Response $swooleResponse) use ($apiController) {
     $request = new ApiRequest(new SwooleHttpRequest($swooleRequest));
     $response = new ApiResponse(new SwooleHttpResponse($swooleResponse));
 
     if ($request->routeMatches('/api/message/send', 'POST')) {
-        $data = $request->json();
-        $chat->sendMessage(new NewMessage(
-            text: $data->get('text'),
-            author: $data->get('author'),
-        ));
-        $response->sendCreated();
+        $apiController->sendMessage($request, $response);
     } elseif ($request->routeMatches('/api/messages/last', 'GET')) {
-        $messages = $chat->getLastMessages(30);
-        $response->sendMessageList($messages);
+        $apiController->lastMessages($request, $response);
     } elseif ($request->routeMatches('/api/messages/next', 'GET')) {
-        $afterId = $request->query()->get('id', 0);
-        $messages = $chat->getMessagesAfterId($afterId, 30);
-        $response->sendMessageList($messages);
+        $apiController->nextMessages($request, $response);
     } elseif ($request->routeMatches('/api/messages/previous', 'GET')) {
-        $beforeId = $request->query()->get('id', 0);
-        $messages = $chat->getMessagesBeforeId($beforeId, 30);
-        $response->sendMessageList($messages);
+        $apiController->previousMessages($request, $response);
     } else {
         $response->sendRouteNotFound();
     }
