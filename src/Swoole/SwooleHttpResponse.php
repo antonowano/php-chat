@@ -8,7 +8,7 @@ use Antonowano\Chat\HttpResponse;
 use Antonowano\Chat\HttpStatusCode;
 use OpenSwoole\Http\Response;
 
-readonly class ApiResponse implements HttpResponse
+readonly class SwooleHttpResponse implements HttpResponse
 {
     public function __construct(
         private Response $swooleResponse,

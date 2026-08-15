@@ -6,9 +6,9 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 use Antonowano\Chat\Chat;
 use Antonowano\Chat\NewMessage;
-use Antonowano\Chat\Responses;
+use Antonowano\Chat\ApiResponse;
 use Antonowano\Chat\Swoole\ApiRequest;
-use Antonowano\Chat\Swoole\ApiResponse;
+use Antonowano\Chat\Swoole\SwooleHttpResponse;
 use Antonowano\Chat\Swoole\WebSocketChatListener;
 use Antonowano\Chat\Swoole\WsFrame;
 use OpenSwoole\Http\Request;
@@ -48,7 +48,7 @@ $server->on('Close', function (Server $server, int $fd) use ($chat) {
 
 $server->on('Request', function (Request $swooleRequest, Response $swooleResponse) use ($chat, $server) {
     $request = new ApiRequest($swooleRequest);
-    $responses = new Responses(new ApiResponse($swooleResponse));
+    $response = new ApiResponse(new SwooleHttpResponse($swooleResponse));
 
     if ($request->isMethod('POST') && $request->isPath('/api/message/send')) {
         $data = $request->json();
@@ -56,20 +56,20 @@ $server->on('Request', function (Request $swooleRequest, Response $swooleRespons
             text: $data->get('text'),
             author: $data->get('author'),
         ));
-        $responses->sendCreated();
+        $response->sendCreated();
     } elseif ($request->isPath('/api/messages/last')) {
         $messages = $chat->getLastMessages(30);
-        $responses->sendMessageList($messages);
+        $response->sendMessageList($messages);
     } elseif ($request->isPath('/api/messages/next')) {
         $afterId = $request->query()->get('id', 0);
         $messages = $chat->getMessagesAfterId($afterId, 30);
-        $responses->sendMessageList($messages);
+        $response->sendMessageList($messages);
     } elseif ($request->isPath('/api/messages/previous')) {
         $beforeId = $request->query()->get('id', 0);
         $messages = $chat->getMessagesBeforeId($beforeId, 30);
-        $responses->sendMessageList($messages);
+        $response->sendMessageList($messages);
     } else {
-        $responses->sendRouteNotFound();
+        $response->sendRouteNotFound();
     }
 });
 

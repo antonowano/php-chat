@@ -4,18 +4,18 @@ namespace Tests\Antonowano\Chat\Unit;
 
 use Antonowano\Chat\HttpResponse;
 use Antonowano\Chat\HttpStatusCode;
-use Antonowano\Chat\Responses;
+use Antonowano\Chat\ApiResponse;
 
-class ResponsesTest extends TestCase
+class ApiResponseTest extends TestCase
 {
     private HttpResponse $httpResponse;
-    private Responses $responses;
+    private ApiResponse $response;
 
     protected function setUp(): void
     {
         parent::setUp();
         $this->httpResponse = $this->createMock(HttpResponse::class);
-        $this->responses = new Responses($this->httpResponse);
+        $this->response = new ApiResponse($this->httpResponse);
     }
 
     public function testSendCreated(): void
@@ -24,7 +24,7 @@ class ResponsesTest extends TestCase
             $this->anything(),
             $this->equalTo(HTTPStatusCode::CREATED),
         );
-        $this->responses->sendCreated();
+        $this->response->sendCreated();
     }
 
     public function testSendMessageList(): void
@@ -38,7 +38,7 @@ class ResponsesTest extends TestCase
             }),
             $this->equalTo(HTTPStatusCode::OK),
         );
-        $this->responses->sendMessageList($messages);
+        $this->response->sendMessageList($messages);
     }
 
     public function testSendRouteNotFound(): void
@@ -49,6 +49,6 @@ class ResponsesTest extends TestCase
             }),
             $this->equalTo(HttpStatusCode::NOT_FOUND),
         );
-        $this->responses->sendRouteNotFound();
+        $this->response->sendRouteNotFound();
     }
 }

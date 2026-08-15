@@ -5,20 +5,20 @@ namespace Tests\Antonowano\Chat\Unit\Swoole;
 use Antonowano\Chat\HttpContentType;
 use Antonowano\Chat\HttpHeader;
 use Antonowano\Chat\HttpStatusCode;
-use Antonowano\Chat\Swoole\ApiResponse;
+use Antonowano\Chat\Swoole\SwooleHttpResponse;
 use OpenSwoole\Http\Response;
 use Tests\Antonowano\Chat\Unit\TestCase;
 
-class ApiResponseTest extends TestCase
+class SwooleHttpResponseTest extends TestCase
 {
     private Response $swooleResponse;
-    private ApiResponse $apiResponse;
+    private SwooleHttpResponse $response;
 
     protected function setUp(): void
     {
         parent::setUp();
         $this->swooleResponse = $this->createMock(Response::class);
-        $this->apiResponse = new ApiResponse($this->swooleResponse);
+        $this->response = new SwooleHttpResponse($this->swooleResponse);
     }
 
     public function testJson(): void
@@ -39,6 +39,6 @@ class ApiResponseTest extends TestCase
             $this->equalTo(json_encode($data)),
         );
 
-        $this->apiResponse->json($data, $status);
+        $this->response->json($data, $status);
     }
 }

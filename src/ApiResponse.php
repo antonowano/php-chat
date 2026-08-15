@@ -2,7 +2,7 @@
 
 namespace Antonowano\Chat;
 
-readonly class Responses
+readonly class ApiResponse
 {
     public function __construct(
         private HttpResponse $httpResponse,
