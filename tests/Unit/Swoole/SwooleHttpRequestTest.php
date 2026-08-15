@@ -2,7 +2,7 @@
 
 namespace Tests\Antonowano\Chat\Unit\Swoole;
 
-use Antonowano\Chat\Swoole\DataBag;
+use Antonowano\Chat\HttpMethod;
 use Antonowano\Chat\Swoole\SwooleHttpRequest;
 use OpenSwoole\Http\Request;
 use Tests\Antonowano\Chat\Unit\TestCase;
@@ -19,41 +19,31 @@ class SwooleHttpRequestTest extends TestCase
         $this->request = new SwooleHttpRequest($this->swooleRequest);
     }
 
-    public function testIsPathReturnsTrueWhenRouteMatches(): void
+    public function testPath(): void
     {
-        $this->swooleRequest->server['path_info'] = '/api/messages/last';
-
-        $this->assertTrue($this->request->isPath('/api/messages/last'));
-        $this->assertFalse($this->request->isPath('/api/messages/send'));
+        $path = '/api/chat/123';
+        $this->swooleRequest->server['path_info'] = $path;
+        $this->assertSame($path, $this->request->path());
     }
 
-    public function testIsMethodReturnsGetWhenGetRequest(): void
+    public function testHttpMethod(): void
     {
-        $this->swooleRequest->method('getMethod')->willReturn('GET');
-
-        $this->assertTrue($this->request->isMethod('GET'));
-        $this->assertFalse($this->request->isMethod('POST'));
+        $method = HttpMethod::GET->value;
+        $this->swooleRequest->method('getMethod')->willReturn($method);
+        $this->assertSame($method, $this->request->httpMethod());
     }
 
-    public function testJsonReturnsValueByKey(): void
+    public function testContent(): void
     {
-        $data = [
-            'name' => 'John Doe',
-            'text' => 'Hello World',
-        ];
-        $this->swooleRequest->method('getContent')->willReturn(json_encode($data));
-
-        $this->assertObjectEquals(new DataBag($data), $this->request->json());
+        $content = 'Hello World!';
+        $this->swooleRequest->method('getContent')->willReturn($content);
+        $this->assertSame($content, $this->request->content());
     }
 
-    public function testQueryReturnsValueByKey(): void
+    public function testQueryString(): void
     {
-        $data = [
-            'id' => '123',
-            'limit' => '30',
-        ];
-        $this->swooleRequest->server['query_string'] = http_build_query($data);
-
-        $this->assertObjectEquals(new DataBag($data), $this->request->query());
+        $queryString = 'limit=20&offset=0';
+        $this->swooleRequest->server['query_string'] = $queryString;
+        $this->assertSame($queryString, $this->request->queryString());
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Antonowano\Chat\Swoole;
 
+use Antonowano\Chat\DataBag;
 use OpenSwoole\WebSocket\Frame;
 
 readonly class WsFrame

@@ -1,9 +1,8 @@
 <?php
 
-namespace Tests\Antonowano\Chat\Unit\Swoole;
+namespace Tests\Antonowano\Chat\Unit;
 
-use Antonowano\Chat\Swoole\DataBag;
-use Tests\Antonowano\Chat\Unit\TestCase;
+use Antonowano\Chat\DataBag;
 
 class DataBagTest extends TestCase
 {

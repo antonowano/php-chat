@@ -2,7 +2,7 @@
 
 namespace Tests\Antonowano\Chat\Unit\Swoole;
 
-use Antonowano\Chat\Swoole\DataBag;
+use Antonowano\Chat\DataBag;
 use Antonowano\Chat\Swoole\WsFrame;
 use OpenSwoole\WebSocket\Frame;
 use Tests\Antonowano\Chat\Unit\TestCase;

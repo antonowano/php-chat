@@ -2,32 +2,33 @@
 
 namespace Antonowano\Chat\Swoole;
 
+use Antonowano\Chat\HttpRequest;
 use OpenSwoole\Http\Request;
 
-readonly class SwooleHttpRequest
+readonly class SwooleHttpRequest implements HttpRequest
 {
     public function __construct(
         private Request $swooleRequest,
     ) {
     }
 
-    public function isPath(string $pattern): bool
+    public function path(): string
     {
-        return $this->swooleRequest->server['path_info'] === $pattern;
+        return $this->swooleRequest->server['path_info'];
     }
 
-    public function isMethod(string $method): bool
+    public function httpMethod(): string
     {
-        return $this->swooleRequest->getMethod() === $method;
+        return $this->swooleRequest->getMethod();
     }
 
-    public function json(): DataBag
+    public function content(): string
     {
-        return DataBag::fromJson($this->swooleRequest->getContent());
+        return $this->swooleRequest->getContent();
     }
 
-    public function query(): DataBag
+    public function queryString(): string
     {
-        return DataBag::fromQuery($this->swooleRequest->server['query_string']);
+        return $this->swooleRequest->server['query_string'];
     }
 }

@@ -4,7 +4,10 @@ error_reporting(E_ALL);
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
+use Antonowano\Chat\ApiRequest;
 use Antonowano\Chat\Chat;
+use Antonowano\Chat\HttpMethod;
+use Antonowano\Chat\HttpPath;
 use Antonowano\Chat\NewMessage;
 use Antonowano\Chat\ApiResponse;
 use Antonowano\Chat\Swoole\SwooleHttpRequest;
@@ -47,24 +50,24 @@ $server->on('Close', function (Server $server, int $fd) use ($chat) {
 });
 
 $server->on('Request', function (Request $swooleRequest, Response $swooleResponse) use ($chat, $server) {
-    $request = new SwooleHttpRequest($swooleRequest);
+    $request = new ApiRequest(new SwooleHttpRequest($swooleRequest));
     $response = new ApiResponse(new SwooleHttpResponse($swooleResponse));
 
-    if ($request->isMethod('POST') && $request->isPath('/api/message/send')) {
+    if ($request->routeMatches(HttpPath::SEND_MESSAGE, HttpMethod::POST)) {
         $data = $request->json();
         $chat->sendMessage(new NewMessage(
             text: $data->get('text'),
             author: $data->get('author'),
         ));
         $response->sendCreated();
-    } elseif ($request->isPath('/api/messages/last')) {
+    } elseif ($request->routeMatches(HttpPath::LAST_MESSAGES, HttpMethod::GET)) {
         $messages = $chat->getLastMessages(30);
         $response->sendMessageList($messages);
-    } elseif ($request->isPath('/api/messages/next')) {
+    } elseif ($request->routeMatches(HttpPath::NEXT_MESSAGES, HttpMethod::GET)) {
         $afterId = $request->query()->get('id', 0);
         $messages = $chat->getMessagesAfterId($afterId, 30);
         $response->sendMessageList($messages);
-    } elseif ($request->isPath('/api/messages/previous')) {
+    } elseif ($request->routeMatches(HttpPath::PREVIOUS_MESSAGES, HttpMethod::GET)) {
         $beforeId = $request->query()->get('id', 0);
         $messages = $chat->getMessagesBeforeId($beforeId, 30);
         $response->sendMessageList($messages);

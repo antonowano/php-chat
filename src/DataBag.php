@@ -1,6 +1,6 @@
 <?php
 
-namespace Antonowano\Chat\Swoole;
+namespace Antonowano\Chat;
 
 readonly class DataBag
 {
