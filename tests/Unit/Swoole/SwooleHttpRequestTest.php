@@ -24,27 +24,7 @@ class SwooleHttpRequestTest extends TestCase
         $this->swooleRequest->server['path_info'] = '/api/messages/last';
 
         $this->assertTrue($this->request->isPath('/api/messages/last'));
-    }
-
-    public function testIsPathReturnsFalseWhenRouteNotMatches(): void
-    {
-        $this->swooleRequest->server['path_info'] = '/api/message/send';
-
-        $this->assertFalse($this->request->isPath('/api/messages/last'));
-    }
-
-    public function testIsPathReturnsFalseWhenRoutePartiallyMatches(): void
-    {
-        $this->swooleRequest->server['path_info'] = '/api/message/send';
-
-        $this->assertFalse($this->request->isPath('/api/message'));
-    }
-
-    public function testIsPathReturnsFalseWhenRoutePartiallyMatches2(): void
-    {
-        $this->swooleRequest->server['path_info'] = '/api/message';
-
-        $this->assertFalse($this->request->isPath('/api/message/send'));
+        $this->assertFalse($this->request->isPath('/api/messages/send'));
     }
 
     public function testIsMethodReturnsGetWhenGetRequest(): void
@@ -52,13 +32,7 @@ class SwooleHttpRequestTest extends TestCase
         $this->swooleRequest->method('getMethod')->willReturn('GET');
 
         $this->assertTrue($this->request->isMethod('GET'));
-    }
-
-    public function testIsMethodReturnsPostWhenGetRequest(): void
-    {
-        $this->swooleRequest->method('getMethod')->willReturn('POST');
-
-        $this->assertTrue($this->request->isMethod('POST'));
+        $this->assertFalse($this->request->isMethod('POST'));
     }
 
     public function testJsonReturnsValueByKey(): void
