@@ -4,7 +4,7 @@ namespace Antonowano\Chat\Swoole;
 
 use OpenSwoole\Http\Request;
 
-readonly class ApiRequest
+readonly class SwooleHttpRequest
 {
     public function __construct(
         private Request $swooleRequest,

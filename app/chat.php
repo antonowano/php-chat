@@ -7,7 +7,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 use Antonowano\Chat\Chat;
 use Antonowano\Chat\NewMessage;
 use Antonowano\Chat\ApiResponse;
-use Antonowano\Chat\Swoole\ApiRequest;
+use Antonowano\Chat\Swoole\SwooleHttpRequest;
 use Antonowano\Chat\Swoole\SwooleHttpResponse;
 use Antonowano\Chat\Swoole\WebSocketChatListener;
 use Antonowano\Chat\Swoole\WsFrame;
@@ -47,7 +47,7 @@ $server->on('Close', function (Server $server, int $fd) use ($chat) {
 });
 
 $server->on('Request', function (Request $swooleRequest, Response $swooleResponse) use ($chat, $server) {
-    $request = new ApiRequest($swooleRequest);
+    $request = new SwooleHttpRequest($swooleRequest);
     $response = new ApiResponse(new SwooleHttpResponse($swooleResponse));
 
     if ($request->isMethod('POST') && $request->isPath('/api/message/send')) {

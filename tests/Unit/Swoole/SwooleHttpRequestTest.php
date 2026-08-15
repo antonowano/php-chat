@@ -2,62 +2,63 @@
 
 namespace Tests\Antonowano\Chat\Unit\Swoole;
 
-use Antonowano\Chat\Swoole\ApiRequest;
+use Antonowano\Chat\Swoole\DataBag;
+use Antonowano\Chat\Swoole\SwooleHttpRequest;
 use OpenSwoole\Http\Request;
 use Tests\Antonowano\Chat\Unit\TestCase;
 
-class ApiRequestTest extends TestCase
+class SwooleHttpRequestTest extends TestCase
 {
     private Request $swooleRequest;
-    private ApiRequest $apiRequest;
+    private SwooleHttpRequest $request;
 
     protected function setUp(): void
     {
         parent::setUp();
         $this->swooleRequest = $this->createMock(Request::class);
-        $this->apiRequest = new ApiRequest($this->swooleRequest);
+        $this->request = new SwooleHttpRequest($this->swooleRequest);
     }
 
     public function testIsPathReturnsTrueWhenRouteMatches(): void
     {
         $this->swooleRequest->server['path_info'] = '/api/messages/last';
 
-        $this->assertTrue($this->apiRequest->isPath('/api/messages/last'));
+        $this->assertTrue($this->request->isPath('/api/messages/last'));
     }
 
     public function testIsPathReturnsFalseWhenRouteNotMatches(): void
     {
         $this->swooleRequest->server['path_info'] = '/api/message/send';
 
-        $this->assertFalse($this->apiRequest->isPath('/api/messages/last'));
+        $this->assertFalse($this->request->isPath('/api/messages/last'));
     }
 
     public function testIsPathReturnsFalseWhenRoutePartiallyMatches(): void
     {
         $this->swooleRequest->server['path_info'] = '/api/message/send';
 
-        $this->assertFalse($this->apiRequest->isPath('/api/message'));
+        $this->assertFalse($this->request->isPath('/api/message'));
     }
 
     public function testIsPathReturnsFalseWhenRoutePartiallyMatches2(): void
     {
         $this->swooleRequest->server['path_info'] = '/api/message';
 
-        $this->assertFalse($this->apiRequest->isPath('/api/message/send'));
+        $this->assertFalse($this->request->isPath('/api/message/send'));
     }
 
     public function testIsMethodReturnsGetWhenGetRequest(): void
     {
         $this->swooleRequest->method('getMethod')->willReturn('GET');
 
-        $this->assertTrue($this->apiRequest->isMethod('GET'));
+        $this->assertTrue($this->request->isMethod('GET'));
     }
 
     public function testIsMethodReturnsPostWhenGetRequest(): void
     {
         $this->swooleRequest->method('getMethod')->willReturn('POST');
 
-        $this->assertTrue($this->apiRequest->isMethod('POST'));
+        $this->assertTrue($this->request->isMethod('POST'));
     }
 
     public function testJsonReturnsValueByKey(): void
@@ -68,13 +69,17 @@ class ApiRequestTest extends TestCase
         ];
         $this->swooleRequest->method('getContent')->willReturn(json_encode($data));
 
-        $this->assertEquals($data['name'], $this->apiRequest->json()->get('name'));
+        $this->assertObjectEquals(new DataBag($data), $this->request->json());
     }
 
     public function testQueryReturnsValueByKey(): void
     {
-        $this->swooleRequest->server['query_string'] = 'id=123&limit=30';
+        $data = [
+            'id' => '123',
+            'limit' => '30',
+        ];
+        $this->swooleRequest->server['query_string'] = http_build_query($data);
 
-        $this->assertSame('30', $this->apiRequest->query()->get('limit'));
+        $this->assertObjectEquals(new DataBag($data), $this->request->query());
     }
 }
