@@ -2,6 +2,9 @@
 
 namespace Tests\Antonowano\Chat\Unit\Swoole;
 
+use Antonowano\Chat\HttpContentType;
+use Antonowano\Chat\HttpHeader;
+use Antonowano\Chat\HttpStatusCode;
 use Antonowano\Chat\Swoole\ApiResponse;
 use OpenSwoole\Http\Response;
 use Tests\Antonowano\Chat\Unit\TestCase;
@@ -18,26 +21,24 @@ class ApiResponseTest extends TestCase
         $this->apiResponse = new ApiResponse($this->swooleResponse);
     }
 
-    public function testJsonResponse(): void
+    public function testJson(): void
     {
+        $status = HttpStatusCode::CREATED;
         $data = [
-            'status' => 'Success',
-            'data' => [
-                'id' => 1,
-            ],
+            'id' => 1,
         ];
 
         $this->swooleResponse->expects($this->once())->method('header')->with(
-            $this->equalTo('Content-Type'),
-            $this->equalTo('application/json'),
+            $this->equalTo(HttpHeader::CONTENT_TYPE->value),
+            $this->equalTo(HttpContentType::JSON->value),
         );
         $this->swooleResponse->expects($this->once())->method('status')->with(
-            $this->equalTo(201),
+            $this->equalTo($status->value),
         );
         $this->swooleResponse->expects($this->once())->method('end')->with(
             $this->equalTo(json_encode($data)),
         );
 
-        $this->apiResponse->json($data, 201);
+        $this->apiResponse->json($data, $status);
     }
 }
