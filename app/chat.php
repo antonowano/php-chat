@@ -8,6 +8,7 @@ use Antonowano\Chat\Chat;
 use Antonowano\Chat\Message;
 use Antonowano\Chat\NewMessage;
 use Antonowano\Chat\Swoole\ApiRequest;
+use Antonowano\Chat\Swoole\ApiResponse;
 use Antonowano\Chat\Swoole\WebSocketChatListener;
 use Antonowano\Chat\Swoole\WsFrame;
 use OpenSwoole\Http\Request;
@@ -45,48 +46,47 @@ $server->on('Close', function (Server $server, int $fd) use ($chat) {
     $chat->removeListenerById(WebSocketChatListener::generateId($fd));
 });
 
-$server->on('Request', function (Request $request, Response $response) use ($chat, $server) {
-    $response->header('Content-Type', 'application/json');
-    $apiRequest = new ApiRequest($request);
+$server->on('Request', function (Request $swooleRequest, Response $swooleResponse) use ($chat, $server) {
+    $request = new ApiRequest($swooleRequest);
+    $response = new ApiResponse($swooleResponse);
 
-    if ($apiRequest->isMethod('POST') && $apiRequest->isPath('/api/message/send')) {
-        $data = $apiRequest->json();
+    if ($request->isMethod('POST') && $request->isPath('/api/message/send')) {
+        $data = $request->json();
         $chat->sendMessage(new NewMessage(
             text: $data->get('text'),
             author: $data->get('author'),
         ));
-        $response->end(json_encode([
+        $response->json([
             'status' => 'Success',
-        ]));
-    } elseif ($apiRequest->isPath('/api/messages/last')) {
+        ]);
+    } elseif ($request->isPath('/api/messages/last')) {
         $messages = $chat->getLastMessages(30);
         $data = array_map(fn (Message $message) => $message->toChatPayload(), $messages);
-        $response->end(json_encode([
+        $response->json([
             'status' => 'Success',
             'messages' => $data,
-        ]));
-    } elseif ($apiRequest->isPath('/api/messages/next')) {
-        $afterId = $apiRequest->query()->get('id', 0);
+        ]);
+    } elseif ($request->isPath('/api/messages/next')) {
+        $afterId = $request->query()->get('id', 0);
         $messages = $chat->getMessagesAfterId($afterId, 30);
         $data = array_map(fn (Message $message) => $message->toChatPayload(), $messages);
-        $response->end(json_encode([
+        $response->json([
             'status' => 'Success',
             'messages' => $data,
-        ]));
-    } elseif ($apiRequest->isPath('/api/messages/previous')) {
-        $beforeId = $apiRequest->query()->get('id', 0);
+        ]);
+    } elseif ($request->isPath('/api/messages/previous')) {
+        $beforeId = $request->query()->get('id', 0);
         $messages = $chat->getMessagesBeforeId($beforeId, 30);
         $data = array_map(fn (Message $message) => $message->toChatPayload(), $messages);
-        $response->end(json_encode([
+        $response->json([
             'status' => 'Success',
             'messages' => $data,
-        ]));
+        ]);
     } else {
-        $response->status(404);
-        $response->end(json_encode([
+        $response->json([
             'status' => 'NotFound',
             'message' => 'Route not found',
-        ]));
+        ], 404);
     }
 });
 
