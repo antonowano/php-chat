@@ -2,7 +2,6 @@
 
 namespace Tests\Antonowano\Chat\Unit\Swoole;
 
-use Antonowano\Chat\HttpMethod;
 use Antonowano\Chat\Swoole\SwooleHttpRequest;
 use OpenSwoole\Http\Request;
 use Tests\Antonowano\Chat\Unit\TestCase;
@@ -28,7 +27,7 @@ class SwooleHttpRequestTest extends TestCase
 
     public function testHttpMethod(): void
     {
-        $method = HttpMethod::GET->value;
+        $method = 'DELETE';
         $this->swooleRequest->method('getMethod')->willReturn($method);
         $this->assertSame($method, $this->request->httpMethod());
     }

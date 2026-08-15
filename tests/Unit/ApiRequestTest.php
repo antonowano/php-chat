@@ -4,8 +4,6 @@ namespace Tests\Antonowano\Chat\Unit;
 
 use Antonowano\Chat\ApiRequest;
 use Antonowano\Chat\DataBag;
-use Antonowano\Chat\HttpMethod;
-use Antonowano\Chat\HttpPath;
 use Antonowano\Chat\HttpRequest;
 
 class ApiRequestTest extends TestCase
@@ -22,11 +20,13 @@ class ApiRequestTest extends TestCase
 
     public function testIsRouteMatches(): void
     {
+        $path = 'api/chat/send_message';
+        $method = 'PUT';
         $this->httpRequest->expects($this->once())->method('path')
-            ->willReturn(HttpPath::SEND_MESSAGE->value);
+            ->willReturn($path);
         $this->httpRequest->expects($this->once())->method('httpMethod')
-            ->willReturn(HttpMethod::POST->value);
-        $this->assertTrue($this->request->routeMatches(HttpPath::SEND_MESSAGE, HttpMethod::POST));
+            ->willReturn($method);
+        $this->assertTrue($this->request->routeMatches($path, 'put'));
     }
 
     public function testJsonReturnsDataBag(): void
