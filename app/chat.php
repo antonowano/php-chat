@@ -42,10 +42,10 @@ $server->on('Open', function (Server $server, Request $request) use ($chat) {
 });
 
 $server->on('Message', function (Server $server, Frame $frame) use ($chat) {
-    $wsFrame = new SwooleWsFrame($frame);
-    if (!$wsFrame->finish()) {
+    if (!$frame->finish) {
         return;
     }
+    $wsFrame = new SwooleWsFrame($frame);
     $data = $wsFrame->data();
     if ($data->get('type') == 'NewMessage') {
         $chat->sendMessage(new NewMessage(

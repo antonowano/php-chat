@@ -12,11 +12,6 @@ readonly class SwooleWsFrame
     ) {
     }
 
-    public function finish(): bool
-    {
-        return $this->swooleFrame->finish;
-    }
-
     public function data(): DataBag
     {
         return DataBag::fromJson($this->swooleFrame->data);
