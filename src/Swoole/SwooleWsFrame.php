@@ -5,7 +5,7 @@ namespace Antonowano\Chat\Swoole;
 use Antonowano\Chat\DataBag;
 use OpenSwoole\WebSocket\Frame;
 
-readonly class WsFrame
+readonly class SwooleWsFrame
 {
     public function __construct(
         private Frame $swooleFrame,

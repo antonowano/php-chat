@@ -134,7 +134,7 @@ class ChatTest extends TestCase
             }),
         );
         $chat = $this->createChat([], $clock);
-        $chat->addListener($listener);
+        $chat->addListener('fd1', $listener);
         $chat->sendMessage($this->createNewMessage('First', 'Ivan'));
     }
 
@@ -142,9 +142,8 @@ class ChatTest extends TestCase
     {
         $chat = $this->createChat();
         $listener = $this->createMock(ChatListener::class);
-        $listener->expects($this->once())->method('id')->willReturn('fd1');
         $listener->expects($this->never())->method('onMessageSent');
-        $chat->addListener($listener);
+        $chat->addListener('fd1', $listener);
         $chat->removeListenerById('fd1');
         $chat->sendMessage($this->createNewMessage('First', 'Ivan'));
     }
@@ -153,9 +152,8 @@ class ChatTest extends TestCase
     {
         $chat = $this->createChat();
         $listener = $this->createMock(ChatListener::class);
-        $listener->expects($this->once())->method('id')->willReturn('fd1');
         $listener->expects($this->once())->method('onMessageSent');
-        $chat->addListener($listener);
+        $chat->addListener('fd1', $listener);
         $chat->removeListenerById('not_found');
         $chat->sendMessage($this->createNewMessage('First', 'Ivan'));
     }

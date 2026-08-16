@@ -13,8 +13,8 @@ use Antonowano\Chat\Chat;
 use Antonowano\Chat\NewMessage;
 use Antonowano\Chat\Swoole\SwooleHttpRequest;
 use Antonowano\Chat\Swoole\SwooleHttpResponse;
-use Antonowano\Chat\Swoole\WebSocketChatListener;
-use Antonowano\Chat\Swoole\WsFrame;
+use Antonowano\Chat\Swoole\SwooleWsChatListener;
+use Antonowano\Chat\Swoole\SwooleWsFrame;
 use OpenSwoole\Http\Request;
 use OpenSwoole\Http\Response;
 use OpenSwoole\WebSocket\Frame;
@@ -31,18 +31,18 @@ $apiRouter = new ApiRouter([
     new ApiRoute('GET', '/api/messages/previous', [$apiController, 'previousMessages']),
 ]);
 
-$server->on('Start', function (Server $server) {
+$server->on('Start', function () {
     echo 'OpenSwoole http server is started' . PHP_EOL;
 });
 
 $server->on('Open', function (Server $server, Request $request) use ($chat) {
     echo "server: handshake success with fd{$request->fd}\n";
-    $listener = new WebSocketChatListener($server, $request->fd);
-    $chat->addListener($listener);
+    $listener = new SwooleWsChatListener($server, $request->fd);
+    $chat->addListener(SwooleWsChatListener::generateId($request->fd), $listener);
 });
 
 $server->on('Message', function (Server $server, Frame $frame) use ($chat) {
-    $wsFrame = new WsFrame($frame);
+    $wsFrame = new SwooleWsFrame($frame);
     if (!$wsFrame->finish()) {
         return;
     }
@@ -57,7 +57,7 @@ $server->on('Message', function (Server $server, Frame $frame) use ($chat) {
 
 $server->on('Close', function (Server $server, int $fd) use ($chat) {
     echo "client {$fd} closed\n";
-    $chat->removeListenerById(WebSocketChatListener::generateId($fd));
+    $chat->removeListenerById(SwooleWsChatListener::generateId($fd));
 });
 
 $server->on('Request', function (Request $rawRequest, Response $rawResponse) use ($apiRouter) {

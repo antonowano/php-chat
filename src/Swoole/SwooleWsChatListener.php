@@ -6,7 +6,7 @@ use Antonowano\Chat\ChatListener;
 use Antonowano\Chat\Message;
 use OpenSwoole\WebSocket\Server;
 
-readonly class WebSocketChatListener implements ChatListener
+readonly class SwooleWsChatListener implements ChatListener
 {
     public function __construct(
         private Server $server,
@@ -17,11 +17,6 @@ readonly class WebSocketChatListener implements ChatListener
     public static function generateId(int $fd): string
     {
         return 'fd' . $fd;
-    }
-
-    public function id(): string
-    {
-        return self::generateId($this->fd);
     }
 
     public function onMessageSent(Message $message): void

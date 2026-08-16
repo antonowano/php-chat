@@ -66,9 +66,9 @@ class Chat
         return array_slice($messages, 0, $count);
     }
 
-    public function addListener(ChatListener $listener): void
+    public function addListener(string $id, ChatListener $listener): void
     {
-        $this->listeners[$listener->id()] = $listener;
+        $this->listeners[$id] = $listener;
     }
 
     public function removeListenerById(string $id): void

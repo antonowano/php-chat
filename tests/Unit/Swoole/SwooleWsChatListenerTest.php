@@ -2,34 +2,29 @@
 
 namespace Tests\Antonowano\Chat\Unit\Swoole;
 
-use Antonowano\Chat\Swoole\WebSocketChatListener;
+use Antonowano\Chat\Swoole\SwooleWsChatListener;
 use OpenSwoole\WebSocket\Server;
 use Tests\Antonowano\Chat\Unit\TestCase;
 
-class WebSocketChatListenerTest extends TestCase
+class SwooleWsChatListenerTest extends TestCase
 {
     private Server $server;
-    private WebSocketChatListener $listener;
+    private SwooleWsChatListener $listener;
 
     protected function setUp(): void
     {
         parent::setUp();
         $this->server = $this->createMock(Server::class);
-        $this->listener = new WebSocketChatListener(
+        $this->listener = new SwooleWsChatListener(
             server: $this->server,
             fd: 23,
         );
     }
 
-    public function testId()
-    {
-        $this->assertSame('fd23', $this->listener->id());
-    }
-
     public function testGenerateId()
     {
-        $this->assertSame('fd4893', WebSocketChatListener::generateId(4893));
-        $this->assertSame('fd132', WebSocketChatListener::generateId(132));
+        $this->assertSame('fd4893', SwooleWsChatListener::generateId(4893));
+        $this->assertSame('fd132', SwooleWsChatListener::generateId(132));
     }
 
     public function testOnMessageSent()
