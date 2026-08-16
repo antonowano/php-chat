@@ -4,8 +4,8 @@ namespace Tests\Antonowano\Chat\Unit\Api;
 
 use Antonowano\Chat\Api\ApiRequest;
 use Antonowano\Chat\Api\ApiRoute;
+use Antonowano\Chat\Api\HttpRequest;
 use Antonowano\Chat\DataBag;
-use Antonowano\Chat\HttpRequest;
 use Tests\Antonowano\Chat\Unit\TestCase;
 
 class ApiRequestTest extends TestCase

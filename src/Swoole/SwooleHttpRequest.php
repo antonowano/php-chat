@@ -2,7 +2,7 @@
 
 namespace Antonowano\Chat\Swoole;
 
-use Antonowano\Chat\HttpRequest;
+use Antonowano\Chat\Api\HttpRequest;
 use OpenSwoole\Http\Request;
 
 readonly class SwooleHttpRequest implements HttpRequest

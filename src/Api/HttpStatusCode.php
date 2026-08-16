@@ -1,6 +1,6 @@
 <?php
 
-namespace Antonowano\Chat;
+namespace Antonowano\Chat\Api;
 
 enum HttpStatusCode: int
 {
