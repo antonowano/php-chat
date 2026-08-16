@@ -10,7 +10,7 @@ use Antonowano\Chat\Api\ApiResponse;
 use Antonowano\Chat\Api\ApiRoute;
 use Antonowano\Chat\Api\ApiRouter;
 use Antonowano\Chat\Chat;
-use Antonowano\Chat\NewMessage;
+use Antonowano\Chat\Stream\StreamController;
 use Antonowano\Chat\Stream\StreamFrame;
 use Antonowano\Chat\Swoole\SwooleHttpRequest;
 use Antonowano\Chat\Swoole\SwooleHttpResponse;
@@ -31,6 +31,7 @@ $apiRouter = new ApiRouter([
     new ApiRoute('GET', '/api/messages/next', [$apiController, 'nextMessages']),
     new ApiRoute('GET', '/api/messages/previous', [$apiController, 'previousMessages']),
 ]);
+$streamController = new StreamController($chat);
 
 $server->on('Start', function () {
     echo 'OpenSwoole http server is started' . PHP_EOL;
@@ -42,17 +43,13 @@ $server->on('Open', function (Server $server, Request $request) use ($chat) {
     $chat->addListener(SwooleWsChatListener::generateId($request->fd), $listener);
 });
 
-$server->on('Message', function (Server $server, Frame $rawFrame) use ($chat) {
+$server->on('Message', function (Server $server, Frame $rawFrame) use ($streamController) {
     if (!$rawFrame->finish) {
         return;
     }
-    $wsFrame = new StreamFrame(new SwooleWsFrame($rawFrame));
-    $data = $wsFrame->data();
-    if ($wsFrame->type() === 'NewMessage') {
-        $chat->sendMessage(new NewMessage(
-            text: $data->get('text'),
-            author: $data->get('author'),
-        ));
+    $frame = new StreamFrame(new SwooleWsFrame($rawFrame));
+    if ($frame->type() === 'NewMessage') {
+        $streamController->sendMessage($frame);
     }
 });
 
