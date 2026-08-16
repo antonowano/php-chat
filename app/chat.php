@@ -12,6 +12,8 @@ use Antonowano\Chat\Api\ApiRouter;
 use Antonowano\Chat\Chat;
 use Antonowano\Chat\Stream\StreamController;
 use Antonowano\Chat\Stream\StreamFrame;
+use Antonowano\Chat\Stream\StreamRoute;
+use Antonowano\Chat\Stream\StreamRouter;
 use Antonowano\Chat\Swoole\SwooleHttpRequest;
 use Antonowano\Chat\Swoole\SwooleHttpResponse;
 use Antonowano\Chat\Swoole\SwooleWsChatListener;
@@ -32,6 +34,9 @@ $apiRouter = new ApiRouter([
     new ApiRoute('GET', '/api/messages/previous', [$apiController, 'previousMessages']),
 ]);
 $streamController = new StreamController($chat);
+$streamRouter = new StreamRouter([
+    new StreamRoute('NewMessage', [$streamController, 'sendMessage']),
+]);
 
 $server->on('Start', function () {
     echo 'OpenSwoole http server is started' . PHP_EOL;
@@ -43,14 +48,13 @@ $server->on('Open', function (Server $server, Request $request) use ($chat) {
     $chat->addListener(SwooleWsChatListener::generateId($request->fd), $listener);
 });
 
-$server->on('Message', function (Server $server, Frame $rawFrame) use ($streamController) {
+$server->on('Message', function (Server $server, Frame $rawFrame) use ($streamRouter) {
     if (!$rawFrame->finish) {
         return;
     }
-    $frame = new StreamFrame(new SwooleWsFrame($rawFrame));
-    if ($frame->type() === 'NewMessage') {
-        $streamController->sendMessage($frame);
-    }
+    $streamRouter->dispatch(
+        new StreamFrame(new SwooleWsFrame($rawFrame))
+    );
 });
 
 $server->on('Close', function (Server $server, int $fd) use ($chat) {
