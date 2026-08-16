@@ -1,10 +1,11 @@
 <?php
 
-namespace Tests\Antonowano\Chat\Unit;
+namespace Tests\Antonowano\Chat\Unit\Api;
 
+use Antonowano\Chat\Api\ApiResponse;
 use Antonowano\Chat\HttpResponse;
 use Antonowano\Chat\HttpStatusCode;
-use Antonowano\Chat\ApiResponse;
+use Tests\Antonowano\Chat\Unit\TestCase;
 
 class ApiResponseTest extends TestCase
 {

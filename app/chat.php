@@ -4,13 +4,13 @@ error_reporting(E_ALL);
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use Antonowano\Chat\ApiController;
-use Antonowano\Chat\ApiRequest;
-use Antonowano\Chat\ApiRoute;
-use Antonowano\Chat\ApiRouter;
+use Antonowano\Chat\Api\ApiController;
+use Antonowano\Chat\Api\ApiRequest;
+use Antonowano\Chat\Api\ApiResponse;
+use Antonowano\Chat\Api\ApiRoute;
+use Antonowano\Chat\Api\ApiRouter;
 use Antonowano\Chat\Chat;
 use Antonowano\Chat\NewMessage;
-use Antonowano\Chat\ApiResponse;
 use Antonowano\Chat\Swoole\SwooleHttpRequest;
 use Antonowano\Chat\Swoole\SwooleHttpResponse;
 use Antonowano\Chat\Swoole\WebSocketChatListener;

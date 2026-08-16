@@ -1,6 +1,9 @@
 <?php
 
-namespace Antonowano\Chat;
+namespace Antonowano\Chat\Api;
+
+use Antonowano\Chat\Chat;
+use Antonowano\Chat\NewMessage;
 
 readonly class ApiController
 {

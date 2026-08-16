@@ -1,12 +1,13 @@
 <?php
 
-namespace Tests\Antonowano\Chat\Unit;
+namespace Tests\Antonowano\Chat\Unit\Api;
 
-use Antonowano\Chat\ApiController;
-use Antonowano\Chat\ApiRequest;
-use Antonowano\Chat\ApiResponse;
-use Antonowano\Chat\ApiRouter;
-use Antonowano\Chat\ApiRoute;
+use Antonowano\Chat\Api\ApiController;
+use Antonowano\Chat\Api\ApiRequest;
+use Antonowano\Chat\Api\ApiResponse;
+use Antonowano\Chat\Api\ApiRoute;
+use Antonowano\Chat\Api\ApiRouter;
+use Tests\Antonowano\Chat\Unit\TestCase;
 
 class ApiRouterTest extends TestCase
 {

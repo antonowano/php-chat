@@ -1,6 +1,10 @@
 <?php
 
-namespace Antonowano\Chat;
+namespace Antonowano\Chat\Api;
+
+use Antonowano\Chat\HttpResponse;
+use Antonowano\Chat\HttpStatusCode;
+use Antonowano\Chat\Message;
 
 readonly class ApiResponse
 {

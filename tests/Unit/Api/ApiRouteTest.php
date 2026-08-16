@@ -1,8 +1,9 @@
 <?php
 
-namespace Tests\Antonowano\Chat\Unit;
+namespace Tests\Antonowano\Chat\Unit\Api;
 
-use Antonowano\Chat\ApiRoute;
+use Antonowano\Chat\Api\ApiRoute;
+use Tests\Antonowano\Chat\Unit\TestCase;
 
 class ApiRouteTest extends TestCase
 {

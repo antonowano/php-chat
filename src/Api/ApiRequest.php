@@ -1,6 +1,9 @@
 <?php
 
-namespace Antonowano\Chat;
+namespace Antonowano\Chat\Api;
+
+use Antonowano\Chat\DataBag;
+use Antonowano\Chat\HttpRequest;
 
 readonly class ApiRequest
 {
