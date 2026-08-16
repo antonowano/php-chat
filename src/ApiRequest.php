@@ -9,10 +9,10 @@ readonly class ApiRequest
     ) {
     }
 
-    public function routeMatches(string $path, string $method): bool
+    public function routeMatches(ApiRoute $route): bool
     {
-        return $this->httpRequest->path() === $path
-            && $this->httpRequest->httpMethod() === strtoupper($method);
+        return $this->httpRequest->path() === $route->path()
+            && $this->httpRequest->httpMethod() === $route->method();
     }
 
     public function json(): DataBag

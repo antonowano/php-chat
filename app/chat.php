@@ -6,6 +6,8 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 use Antonowano\Chat\ApiController;
 use Antonowano\Chat\ApiRequest;
+use Antonowano\Chat\ApiRoute;
+use Antonowano\Chat\ApiRouter;
 use Antonowano\Chat\Chat;
 use Antonowano\Chat\NewMessage;
 use Antonowano\Chat\ApiResponse;
@@ -22,6 +24,12 @@ use Symfony\Component\Clock\NativeClock;
 $server = new Server('0.0.0.0', 9501, SWOOLE_BASE);
 $chat = new Chat(new NativeClock());
 $apiController = new ApiController($chat);
+$apiRouter = new ApiRouter([
+    new ApiRoute('POST', '/api/message/send', [$apiController, 'sendMessage']),
+    new ApiRoute('GET', '/api/messages/last', [$apiController, 'lastMessages']),
+    new ApiRoute('GET', '/api/messages/next', [$apiController, 'nextMessages']),
+    new ApiRoute('GET', '/api/messages/previous', [$apiController, 'previousMessages']),
+]);
 
 $server->on('Start', function (Server $server) {
     echo 'OpenSwoole http server is started' . PHP_EOL;
@@ -52,21 +60,11 @@ $server->on('Close', function (Server $server, int $fd) use ($chat) {
     $chat->removeListenerById(WebSocketChatListener::generateId($fd));
 });
 
-$server->on('Request', function (Request $swooleRequest, Response $swooleResponse) use ($apiController) {
-    $request = new ApiRequest(new SwooleHttpRequest($swooleRequest));
-    $response = new ApiResponse(new SwooleHttpResponse($swooleResponse));
-
-    if ($request->routeMatches('/api/message/send', 'POST')) {
-        $apiController->sendMessage($request, $response);
-    } elseif ($request->routeMatches('/api/messages/last', 'GET')) {
-        $apiController->lastMessages($request, $response);
-    } elseif ($request->routeMatches('/api/messages/next', 'GET')) {
-        $apiController->nextMessages($request, $response);
-    } elseif ($request->routeMatches('/api/messages/previous', 'GET')) {
-        $apiController->previousMessages($request, $response);
-    } else {
-        $response->sendRouteNotFound();
-    }
+$server->on('Request', function (Request $rawRequest, Response $rawResponse) use ($apiRouter) {
+    $apiRouter->dispatch(
+        new ApiRequest(new SwooleHttpRequest($rawRequest)),
+        new ApiResponse(new SwooleHttpResponse($rawResponse))
+    );
 });
 
 $server->start();
