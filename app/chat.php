@@ -42,11 +42,11 @@ $server->on('Open', function (Server $server, Request $request) use ($chat) {
     $chat->addListener(SwooleWsChatListener::generateId($request->fd), $listener);
 });
 
-$server->on('Message', function (Server $server, Frame $frame) use ($chat) {
-    if (!$frame->finish) {
+$server->on('Message', function (Server $server, Frame $rawFrame) use ($chat) {
+    if (!$rawFrame->finish) {
         return;
     }
-    $wsFrame = new StreamFrame(new SwooleWsFrame($frame));
+    $wsFrame = new StreamFrame(new SwooleWsFrame($rawFrame));
     $data = $wsFrame->data();
     if ($wsFrame->type() === 'NewMessage') {
         $chat->sendMessage(new NewMessage(

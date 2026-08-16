@@ -2,7 +2,7 @@
 
 namespace Antonowano\Chat\Stream;
 
-interface RawFrame
+interface WsFrame
 {
     public function data(): string;
 }

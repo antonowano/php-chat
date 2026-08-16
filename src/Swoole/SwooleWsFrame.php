@@ -2,10 +2,10 @@
 
 namespace Antonowano\Chat\Swoole;
 
-use Antonowano\Chat\Stream\RawFrame;
+use Antonowano\Chat\Stream\WsFrame;
 use OpenSwoole\WebSocket\Frame;
 
-readonly class SwooleWsFrame implements RawFrame
+readonly class SwooleWsFrame implements WsFrame
 {
     public function __construct(
         private Frame $swooleFrame,

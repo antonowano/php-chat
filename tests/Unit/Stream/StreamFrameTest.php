@@ -3,7 +3,7 @@
 namespace Tests\Antonowano\Chat\Unit\Stream;
 
 use Antonowano\Chat\DataBag;
-use Antonowano\Chat\Stream\RawFrame;
+use Antonowano\Chat\Stream\WsFrame;
 use Antonowano\Chat\Stream\StreamFrame;
 use Tests\Antonowano\Chat\Unit\TestCase;
 
@@ -19,7 +19,7 @@ class StreamFrameTest extends TestCase
                 'read' => true,
             ],
         ];
-        $swooleFrame = $this->createMock(RawFrame::class);
+        $swooleFrame = $this->createMock(WsFrame::class);
         $swooleFrame->expects($this->once())->method('data')
             ->willReturn(json_encode($data));
         $frame = new StreamFrame($swooleFrame);
@@ -36,7 +36,7 @@ class StreamFrameTest extends TestCase
                 'read' => true,
             ],
         ];
-        $swooleFrame = $this->createMock(RawFrame::class);
+        $swooleFrame = $this->createMock(WsFrame::class);
         $swooleFrame->expects($this->once())->method('data')
             ->willReturn(json_encode($data));
         $frame = new StreamFrame($swooleFrame);

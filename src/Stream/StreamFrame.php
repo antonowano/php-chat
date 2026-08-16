@@ -9,7 +9,7 @@ readonly class StreamFrame
     private DataBag $data;
 
     public function __construct(
-        RawFrame $frame,
+        WsFrame $frame,
     ) {
         $this->data = DataBag::fromJson($frame->data());
     }
