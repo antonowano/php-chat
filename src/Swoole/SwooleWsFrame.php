@@ -2,18 +2,18 @@
 
 namespace Antonowano\Chat\Swoole;
 
-use Antonowano\Chat\DataBag;
+use Antonowano\Chat\Stream\RawFrame;
 use OpenSwoole\WebSocket\Frame;
 
-readonly class SwooleWsFrame
+readonly class SwooleWsFrame implements RawFrame
 {
     public function __construct(
         private Frame $swooleFrame,
     ) {
     }
 
-    public function data(): DataBag
+    public function data(): string
     {
-        return DataBag::fromJson($this->swooleFrame->data);
+        return $this->swooleFrame->data;
     }
 }

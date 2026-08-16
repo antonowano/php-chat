@@ -2,7 +2,6 @@
 
 namespace Tests\Antonowano\Chat\Unit\Swoole;
 
-use Antonowano\Chat\DataBag;
 use Antonowano\Chat\Swoole\SwooleWsFrame;
 use OpenSwoole\WebSocket\Frame;
 use Tests\Antonowano\Chat\Unit\TestCase;
@@ -21,15 +20,8 @@ class SwooleWsFrameTest extends TestCase
 
     public function testDataReturnDataBag()
     {
-        $data = [
-            'type' => 'newMessage',
-            'newMessage' => [
-                'text' => 'Hello World!',
-                'author' => 'Ivan',
-            ],
-        ];
-        $this->swooleFrame->data = json_encode($data);
-
-        $this->assertObjectEquals(new DataBag($data), $this->wsFrame->data());
+        $data = 'Any data';
+        $this->swooleFrame->data = $data;
+        $this->assertSame($data, $this->wsFrame->data());
     }
 }

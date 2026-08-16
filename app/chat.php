@@ -11,6 +11,7 @@ use Antonowano\Chat\Api\ApiRoute;
 use Antonowano\Chat\Api\ApiRouter;
 use Antonowano\Chat\Chat;
 use Antonowano\Chat\NewMessage;
+use Antonowano\Chat\Stream\StreamFrame;
 use Antonowano\Chat\Swoole\SwooleHttpRequest;
 use Antonowano\Chat\Swoole\SwooleHttpResponse;
 use Antonowano\Chat\Swoole\SwooleWsChatListener;
@@ -45,12 +46,12 @@ $server->on('Message', function (Server $server, Frame $frame) use ($chat) {
     if (!$frame->finish) {
         return;
     }
-    $wsFrame = new SwooleWsFrame($frame);
+    $wsFrame = new StreamFrame(new SwooleWsFrame($frame));
     $data = $wsFrame->data();
-    if ($data->get('type') == 'NewMessage') {
+    if ($wsFrame->type() === 'NewMessage') {
         $chat->sendMessage(new NewMessage(
-            text: $data->get('newMessage.text'),
-            author: $data->get('newMessage.author'),
+            text: $data->get('text'),
+            author: $data->get('author'),
         ));
     }
 });
