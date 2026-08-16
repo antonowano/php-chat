@@ -2,9 +2,9 @@
 
 namespace Tests\Antonowano\Chat\Unit\Swoole;
 
-use Antonowano\Chat\Api\HttpContentType;
-use Antonowano\Chat\Api\HttpHeader;
-use Antonowano\Chat\Api\HttpStatusCode;
+use Antonowano\Chat\Enums\HttpContentType;
+use Antonowano\Chat\Enums\HttpHeader;
+use Antonowano\Chat\Enums\HttpStatusCode;
 use Antonowano\Chat\Swoole\SwooleHttpResponse;
 use OpenSwoole\Http\Response;
 use Tests\Antonowano\Chat\Unit\TestCase;

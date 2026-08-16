@@ -4,7 +4,7 @@ namespace Tests\Antonowano\Chat\Unit\Api;
 
 use Antonowano\Chat\Api\ApiResponse;
 use Antonowano\Chat\Api\HttpResponse;
-use Antonowano\Chat\Api\HttpStatusCode;
+use Antonowano\Chat\Enums\HttpStatusCode;
 use Tests\Antonowano\Chat\Unit\TestCase;
 
 class ApiResponseTest extends TestCase

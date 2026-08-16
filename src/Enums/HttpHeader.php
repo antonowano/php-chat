@@ -1,6 +1,6 @@
 <?php
 
-namespace Antonowano\Chat\Api;
+namespace Antonowano\Chat\Enums;
 
 enum HttpHeader: string
 {

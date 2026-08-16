@@ -2,10 +2,10 @@
 
 namespace Antonowano\Chat\Swoole;
 
-use Antonowano\Chat\Api\HttpContentType;
-use Antonowano\Chat\Api\HttpHeader;
 use Antonowano\Chat\Api\HttpResponse;
-use Antonowano\Chat\Api\HttpStatusCode;
+use Antonowano\Chat\Enums\HttpContentType;
+use Antonowano\Chat\Enums\HttpHeader;
+use Antonowano\Chat\Enums\HttpStatusCode;
 use OpenSwoole\Http\Response;
 
 readonly class SwooleHttpResponse implements HttpResponse

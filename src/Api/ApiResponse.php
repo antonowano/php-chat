@@ -2,6 +2,7 @@
 
 namespace Antonowano\Chat\Api;
 
+use Antonowano\Chat\Enums\HttpStatusCode;
 use Antonowano\Chat\Message;
 
 readonly class ApiResponse
