@@ -19,6 +19,18 @@ class WsFrameTest extends TestCase
         $this->wsFrame = new WsFrame($this->swooleFrame);
     }
 
+    public function testFinished()
+    {
+        $this->swooleFrame->finish = true;
+        $this->assertTrue($this->wsFrame->finish());
+    }
+
+    public function testNotFinished()
+    {
+        $this->swooleFrame->finish = false;
+        $this->assertFalse($this->wsFrame->finish());
+    }
+
     public function testDataReturnDataBag()
     {
         $data = [

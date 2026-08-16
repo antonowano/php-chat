@@ -55,7 +55,7 @@ namespace OpenSwoole\WebSocket {
             public int $fd = 0;
             public string $data = '';
             public int $opcode = 0;
-            public int $finish = 0;
+            public bool $finish = true;
         }
     }
 }

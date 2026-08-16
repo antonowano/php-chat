@@ -35,6 +35,9 @@ $server->on('Open', function (Server $server, Request $request) use ($chat) {
 
 $server->on('Message', function (Server $server, Frame $frame) use ($chat) {
     $wsFrame = new WsFrame($frame);
+    if (!$wsFrame->finish()) {
+        return;
+    }
     $data = $wsFrame->data();
     if ($data->get('type') == 'NewMessage') {
         $chat->sendMessage(new NewMessage(
