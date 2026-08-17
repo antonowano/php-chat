@@ -23,7 +23,7 @@ readonly class SwooleWsChatListener implements ChatListener
     {
         $this->server->push($this->fd, json_encode([
             'type' => 'Message',
-            'message' => $message->toChatPayload(),
+            'data' => $message->toChatPayload(),
         ]));
     }
 }

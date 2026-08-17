@@ -12,12 +12,14 @@ use Antonowano\Chat\Api\ApiRouter;
 use Antonowano\Chat\Chat;
 use Antonowano\Chat\Stream\StreamController;
 use Antonowano\Chat\Stream\StreamFrame;
+use Antonowano\Chat\Stream\StreamResponse;
 use Antonowano\Chat\Stream\StreamRoute;
 use Antonowano\Chat\Stream\StreamRouter;
 use Antonowano\Chat\Swoole\SwooleHttpRequest;
 use Antonowano\Chat\Swoole\SwooleHttpResponse;
 use Antonowano\Chat\Swoole\SwooleWsChatListener;
 use Antonowano\Chat\Swoole\SwooleWsFrame;
+use Antonowano\Chat\Swoole\SwooleWsResponse;
 use OpenSwoole\Http\Request;
 use OpenSwoole\Http\Response;
 use OpenSwoole\WebSocket\Frame;
@@ -36,6 +38,7 @@ $apiRouter = new ApiRouter([
 $streamController = new StreamController($chat);
 $streamRouter = new StreamRouter([
     new StreamRoute('NewMessage', [$streamController, 'sendMessage']),
+    new StreamRoute('LastMessages', [$streamController, 'lastMessages']),
 ]);
 
 $server->on('Start', function () {
@@ -53,7 +56,8 @@ $server->on('Message', function (Server $server, Frame $rawFrame) use ($streamRo
         return;
     }
     $streamRouter->dispatch(
-        new StreamFrame(new SwooleWsFrame($rawFrame))
+        new StreamFrame(new SwooleWsFrame($rawFrame)),
+        new StreamResponse(new SwooleWsResponse($server, $rawFrame->fd))
     );
 });
 

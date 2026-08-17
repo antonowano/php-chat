@@ -34,7 +34,7 @@ class SwooleWsChatListenerTest extends TestCase
             $this->equalTo(23),
             $this->equalTo(json_encode([
                 'type' => 'Message',
-                'message' => $message->toChatPayload(),
+                'data' => $message->toChatPayload(),
             ])),
         );
         $this->listener->onMessageSent($message);

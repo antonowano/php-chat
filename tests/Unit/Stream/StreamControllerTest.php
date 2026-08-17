@@ -6,6 +6,7 @@ use Antonowano\Chat\Chat;
 use Antonowano\Chat\DataBag;
 use Antonowano\Chat\Stream\StreamController;
 use Antonowano\Chat\Stream\StreamFrame;
+use Antonowano\Chat\Stream\StreamResponse;
 use Tests\Antonowano\Chat\Unit\TestCase;
 
 class StreamControllerTest extends TestCase
@@ -28,9 +29,10 @@ class StreamControllerTest extends TestCase
         ];
         $this->chat->expects($this->once())->method('sendMessage')
             ->with($this->createNewMessage(...$data));
+        $response = $this->createStub(StreamResponse::class);
         $frame = $this->createMock(StreamFrame::class);
         $frame->expects($this->once())->method('data')
             ->willReturn(new DataBag($data));
-        $this->controller->sendMessage($frame);
+        $this->controller->sendMessage($frame, $response);
     }
 }

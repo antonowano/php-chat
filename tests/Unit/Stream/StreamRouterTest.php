@@ -3,6 +3,7 @@
 namespace Tests\Antonowano\Chat\Unit\Stream;
 
 use Antonowano\Chat\Stream\StreamFrame;
+use Antonowano\Chat\Stream\StreamResponse;
 use Antonowano\Chat\Stream\StreamRoute;
 use Antonowano\Chat\Stream\StreamRouter;
 use Tests\Antonowano\Chat\Unit\TestCase;
@@ -14,6 +15,7 @@ class StreamRouterTest extends TestCase
         $type = 'isBurger';
         $executed1 = false;
         $executed2 = false;
+        $response = $this->createStub(StreamResponse::class);
         $frame = $this->createMock(StreamFrame::class);
         $frame->expects($this->once())->method('type')->willReturn($type);
         $router = new StreamRouter([
@@ -24,7 +26,7 @@ class StreamRouterTest extends TestCase
                 $executed2 = true;
             }),
         ]);
-        $router->dispatch($frame);
+        $router->dispatch($frame, $response);
         $this->assertTrue($executed1);
         $this->assertFalse($executed2);
     }

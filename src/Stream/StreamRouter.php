@@ -10,12 +10,12 @@ readonly class StreamRouter
     ) {
     }
 
-    public function dispatch(StreamFrame $frame): void
+    public function dispatch(StreamFrame $frame, StreamResponse $response): void
     {
         foreach ($this->routes as $route) {
             if ($frame->type() === $route->type()) {
                 $callback = $route->callback();
-                $callback($frame);
+                $callback($frame, $response);
                 return;
             }
         }
