@@ -11,10 +11,10 @@ readonly class StreamResponse
     ) {
     }
 
-    public function sendMessageList(array $messages): void
+    public function sendMessageList(string $type, array $messages): void
     {
         $this->wsResponse->push([
-            'type' => 'LastMessages',
+            'type' => $type,
             'data' => array_map(fn (Message $message) => $message->toChatPayload(), $messages),
         ]);
     }

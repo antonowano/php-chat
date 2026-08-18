@@ -24,6 +24,6 @@ readonly class StreamController
     public function lastMessages(StreamFrame $frame, StreamResponse $response): void
     {
         $messages = $this->chat->getLastMessages(30);
-        $response->sendMessageList($messages);
+        $response->sendMessageList('LastMessages', $messages);
     }
 }

@@ -31,32 +31,6 @@ class ChatHttpApiTest extends TestCase
         $this->response = new StubHttpResponse();
     }
 
-    protected function messageTexts(): array
-    {
-        return [
-            ['text' => 'Hi! How was your exam today?', 'author' => 'Ivan'],
-            ['text' => 'Hard! I think I failed the last part.', 'author' => 'Olga'],
-            ['text' => 'Oh no! Want to grab some coffee?', 'author' => 'Ivan'],
-            ['text' => 'Sure! I really need a break now.', 'author' => 'Olga'],
-            ['text' => 'Great! See you at 5 pm then.', 'author' => 'Ivan'],
-        ];
-    }
-
-    /**
-     * @return list<Message>
-     */
-    protected function fillChat(): array
-    {
-        $messages = [];
-
-        foreach ($this->messageTexts() as $i => $message) {
-            $this->chat->sendMessage($this->createNewMessage($message['text'], $message['author']));
-            $messages[] = $this->createMessage($i + 1, $message['text'], $this->clock->now(), $message['author']);
-        }
-
-        return $messages;
-    }
-
     /**
      * @param list<Message> $expectedMessages
      */
@@ -97,7 +71,7 @@ class ChatHttpApiTest extends TestCase
 
     public function testLastMessages(): void
     {
-        $expectedMessages = $this->fillChat();
+        $expectedMessages = $this->fillChat($this->chat, $this->clock);
         $request = new StubHttpRequest('GET', '/api/messages/last');
         $this->router->dispatch(new ApiRequest($request), new ApiResponse($this->response));
         $this->assertMessageListResponse($expectedMessages);
@@ -105,7 +79,7 @@ class ChatHttpApiTest extends TestCase
 
     public function testNextMessages(): void
     {
-        $expectedMessages = array_slice($this->fillChat(), 3);
+        $expectedMessages = array_slice($this->fillChat($this->chat, $this->clock), 3);
         $request = new StubHttpRequest('GET', '/api/messages/next', ['id' => 3]);
         $this->router->dispatch(new ApiRequest($request), new ApiResponse($this->response));
         $this->assertMessageListResponse($expectedMessages);
@@ -113,7 +87,7 @@ class ChatHttpApiTest extends TestCase
 
     public function testPreviousMessages(): void
     {
-        $expectedMessages = array_slice($this->fillChat(), 0, 2);
+        $expectedMessages = array_slice($this->fillChat($this->chat, $this->clock), 0, 2);
         $request = new StubHttpRequest('GET', '/api/messages/previous', ['id' => 3]);
         $this->router->dispatch(new ApiRequest($request), new ApiResponse($this->response));
         $this->assertMessageListResponse($expectedMessages);

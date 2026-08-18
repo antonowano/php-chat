@@ -7,13 +7,11 @@ require_once __DIR__ . '/../vendor/autoload.php';
 use Antonowano\Chat\Api\ApiController;
 use Antonowano\Chat\Api\ApiRequest;
 use Antonowano\Chat\Api\ApiResponse;
-use Antonowano\Chat\Api\ApiRoute;
 use Antonowano\Chat\Api\ApiRouter;
 use Antonowano\Chat\Chat;
 use Antonowano\Chat\Stream\StreamController;
 use Antonowano\Chat\Stream\StreamFrame;
 use Antonowano\Chat\Stream\StreamResponse;
-use Antonowano\Chat\Stream\StreamRoute;
 use Antonowano\Chat\Stream\StreamRouter;
 use Antonowano\Chat\Swoole\SwooleHttpRequest;
 use Antonowano\Chat\Swoole\SwooleHttpResponse;
@@ -31,10 +29,7 @@ $chat = new Chat(new NativeClock());
 $apiController = new ApiController($chat);
 $apiRouter = new ApiRouter($apiController);
 $streamController = new StreamController($chat);
-$streamRouter = new StreamRouter([
-    new StreamRoute('NewMessage', [$streamController, 'sendMessage']),
-    new StreamRoute('LastMessages', [$streamController, 'lastMessages']),
-]);
+$streamRouter = new StreamRouter($streamController);
 
 $server->on('Start', function () {
     echo 'OpenSwoole http server is started' . PHP_EOL;

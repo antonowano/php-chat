@@ -4,10 +4,16 @@ namespace Antonowano\Chat\Stream;
 
 readonly class StreamRouter
 {
+    /** @var list<StreamRoute> $routes */
+    private array $routes;
+
     public function __construct(
-        /** @var list<StreamRoute> $routes */
-        private array $routes = [],
+        StreamController $controller,
     ) {
+        $this->routes = [
+            new StreamRoute('NewMessage', [$controller, 'sendMessage']),
+            new StreamRoute('LastMessages', [$controller, 'lastMessages']),
+        ];
     }
 
     public function dispatch(StreamFrame $frame, StreamResponse $response): void
