@@ -23,4 +23,13 @@ class ApiRouterTest extends TestCase
         ]);
         $router->dispatch($request, $response);
     }
+
+    public function testRouteNotFound(): void
+    {
+        $request = $this->createStub(ApiRequest::class);
+        $response = $this->createMock(ApiResponse::class);
+        $response->expects($this->once())->method('sendRouteNotFound');
+        $router = new ApiRouter([]);
+        $router->dispatch($request, $response);
+    }
 }

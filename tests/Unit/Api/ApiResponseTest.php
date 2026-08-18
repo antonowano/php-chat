@@ -22,7 +22,7 @@ class ApiResponseTest extends TestCase
     public function testSendCreated(): void
     {
         $this->httpResponse->expects($this->once())->method('json')->with(
-            $this->anything(),
+            $this->equalTo([]),
             $this->equalTo(HTTPStatusCode::CREATED),
         );
         $this->response->sendCreated();
