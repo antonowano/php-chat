@@ -4,10 +4,18 @@ namespace Antonowano\Chat\Api;
 
 readonly class ApiRouter
 {
+    /** @var list<ApiRoute> */
+    private array $routes;
+
     public function __construct(
-        /** @var list<ApiRoute> */
-        private array $routes,
+        ApiController $apiController,
     ) {
+        $this->routes = [
+            new ApiRoute('POST', '/api/message/send', [$apiController, 'sendMessage']),
+            new ApiRoute('GET', '/api/messages/last', [$apiController, 'lastMessages']),
+            new ApiRoute('GET', '/api/messages/next', [$apiController, 'nextMessages']),
+            new ApiRoute('GET', '/api/messages/previous', [$apiController, 'previousMessages']),
+        ];
     }
 
     public function dispatch(ApiRequest $request, ApiResponse $response): void

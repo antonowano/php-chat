@@ -29,12 +29,7 @@ use Symfony\Component\Clock\NativeClock;
 $server = new Server('0.0.0.0', 9501, SWOOLE_BASE);
 $chat = new Chat(new NativeClock());
 $apiController = new ApiController($chat);
-$apiRouter = new ApiRouter([
-    new ApiRoute('POST', '/api/message/send', [$apiController, 'sendMessage']),
-    new ApiRoute('GET', '/api/messages/last', [$apiController, 'lastMessages']),
-    new ApiRoute('GET', '/api/messages/next', [$apiController, 'nextMessages']),
-    new ApiRoute('GET', '/api/messages/previous', [$apiController, 'previousMessages']),
-]);
+$apiRouter = new ApiRouter($apiController);
 $streamController = new StreamController($chat);
 $streamRouter = new StreamRouter([
     new StreamRoute('NewMessage', [$streamController, 'sendMessage']),
