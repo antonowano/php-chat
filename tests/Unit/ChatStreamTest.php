@@ -72,4 +72,30 @@ class ChatStreamTest extends TestCase
         $this->router->dispatch(new StreamFrame($frame), new StreamResponse($this->response));
         $this->assertMessageListResponse('LastMessages', $expectedMessages);
     }
+
+    public function testNextMessages(): void
+    {
+        $expectedMessages = array_slice($this->fillChat($this->chat, $this->clock), 3);
+        $frame = new StubWsFrame([
+            'type' => 'NextMessages',
+            'data' => [
+                'id' => 3,
+            ]
+        ]);
+        $this->router->dispatch(new StreamFrame($frame), new StreamResponse($this->response));
+        $this->assertMessageListResponse('NextMessages', $expectedMessages);
+    }
+
+    public function testPreviousMessages(): void
+    {
+        $expectedMessages = array_slice($this->fillChat($this->chat, $this->clock), 0, 2);
+        $frame = new StubWsFrame([
+            'type' => 'PreviousMessages',
+            'data' => [
+                'id' => 3,
+            ]
+        ]);
+        $this->router->dispatch(new StreamFrame($frame), new StreamResponse($this->response));
+        $this->assertMessageListResponse('PreviousMessages', $expectedMessages);
+    }
 }

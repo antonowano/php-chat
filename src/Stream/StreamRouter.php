@@ -13,6 +13,8 @@ readonly class StreamRouter
         $this->routes = [
             new StreamRoute('NewMessage', [$controller, 'sendMessage']),
             new StreamRoute('LastMessages', [$controller, 'lastMessages']),
+            new StreamRoute('NextMessages', [$controller, 'nextMessages']),
+            new StreamRoute('PreviousMessages', [$controller, 'previousMessages']),
         ];
     }
 

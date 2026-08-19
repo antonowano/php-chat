@@ -26,4 +26,18 @@ readonly class StreamController
         $messages = $this->chat->getLastMessages(30);
         $response->sendMessageList('LastMessages', $messages);
     }
+
+    public function nextMessages(StreamFrame $frame, StreamResponse $response): void
+    {
+        $afterId = $frame->data()->get('id', 0);
+        $messages = $this->chat->getMessagesAfterId($afterId, 30);
+        $response->sendMessageList('NextMessages', $messages);
+    }
+
+    public function previousMessages(StreamFrame $frame, StreamResponse $response): void
+    {
+        $beforeId = $frame->data()->get('id', 0);
+        $messages = $this->chat->getMessagesBeforeId($beforeId, 30);
+        $response->sendMessageList('PreviousMessages', $messages);
+    }
 }

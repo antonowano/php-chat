@@ -6,7 +6,7 @@ use Antonowano\Chat\Stream\WsResponse;
 
 class StubWsResponse implements WsResponse
 {
-    private array $data;
+    private array $data = [];
 
     public function push(array $data): void
     {
