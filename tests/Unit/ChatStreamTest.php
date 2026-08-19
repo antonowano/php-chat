@@ -2,17 +2,23 @@
 
 namespace Tests\Antonowano\Chat\Unit;
 
+use Antonowano\Chat\Chat;
 use Antonowano\Chat\Message;
 use Antonowano\Chat\Stream\StreamController;
 use Antonowano\Chat\Stream\StreamFrame;
 use Antonowano\Chat\Stream\StreamResponse;
 use Antonowano\Chat\Stream\StreamRouter;
+use Antonowano\Chat\Stream\WsResponse;
 use Antonowano\Chat\Stubs\StubWsFrame;
 use Antonowano\Chat\Stubs\StubWsResponse;
 use Symfony\Component\Clock\MockClock;
 
 class ChatStreamTest extends TestCase
 {
+    private MockClock $clock;
+    private Chat $chat;
+    private StreamRouter $router;
+    private WsResponse $response;
 
     protected function setUp(): void
     {
