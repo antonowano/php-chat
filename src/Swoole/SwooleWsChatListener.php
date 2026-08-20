@@ -4,13 +4,12 @@ namespace Antonowano\Chat\Swoole;
 
 use Antonowano\Chat\ChatListener;
 use Antonowano\Chat\Message;
-use OpenSwoole\WebSocket\Server;
+use Antonowano\Chat\Stream\WsResponse;
 
 readonly class SwooleWsChatListener implements ChatListener
 {
     public function __construct(
-        private Server $server,
-        private int $fd,
+        private WsResponse $response,
     ) {
     }
 
@@ -21,9 +20,9 @@ readonly class SwooleWsChatListener implements ChatListener
 
     public function onMessageSent(Message $message): void
     {
-        $this->server->push($this->fd, json_encode([
+        $this->response->push([
             'type' => 'Message',
             'data' => $message->toChatPayload(),
-        ]));
+        ]);
     }
 }

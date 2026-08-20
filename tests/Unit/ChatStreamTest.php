@@ -11,6 +11,7 @@ use Antonowano\Chat\Stream\StreamRouter;
 use Antonowano\Chat\Stream\WsResponse;
 use Antonowano\Chat\Stubs\StubWsFrame;
 use Antonowano\Chat\Stubs\StubWsResponse;
+use Antonowano\Chat\Swoole\SwooleWsChatListener;
 use Symfony\Component\Clock\MockClock;
 
 class ChatStreamTest extends TestCase
@@ -19,6 +20,7 @@ class ChatStreamTest extends TestCase
     private Chat $chat;
     private StreamRouter $router;
     private WsResponse $response;
+    private WsResponse $listenerResponse;
 
     protected function setUp(): void
     {
@@ -28,6 +30,11 @@ class ChatStreamTest extends TestCase
         $controller = new StreamController($this->chat);
         $this->router = new StreamRouter($controller);
         $this->response = new StubWsResponse();
+        $this->listenerResponse = new StubWsResponse();
+        $this->chat->addListener(
+            SwooleWsChatListener::generateId(1),
+            new SwooleWsChatListener($this->listenerResponse)
+        );
     }
 
     /**
@@ -54,12 +61,19 @@ class ChatStreamTest extends TestCase
             ],
         ]);
         $this->router->dispatch(new StreamFrame($frame), new StreamResponse($this->response));
+        $message = $this->createMessage(1, 'Hello World!', $this->clock->now(), 'John Doe');
 
         $this->assertObjectListEquals(
-            [
-                $this->createMessage(1, 'Hello World!', $this->clock->now(), 'John Doe'),
-            ],
+            [$message],
             $this->chat->getLastMessages(10)
+        );
+
+        $this->assertSame(
+            [
+                'type' => 'Message',
+                'data' => $message->toChatPayload(),
+            ],
+            $this->listenerResponse->data()
         );
     }
 

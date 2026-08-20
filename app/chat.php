@@ -37,7 +37,7 @@ $server->on('Start', function () {
 
 $server->on('Open', function (Server $server, Request $request) use ($chat) {
     echo "server: handshake success with fd{$request->fd}\n";
-    $listener = new SwooleWsChatListener($server, $request->fd);
+    $listener = new SwooleWsChatListener(new SwooleWsResponse($server, $request->fd));
     $chat->addListener(SwooleWsChatListener::generateId($request->fd), $listener);
 });
 
