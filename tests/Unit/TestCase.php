@@ -16,8 +16,10 @@ class TestCase extends BaseTestCase
         string $text = 'Text message',
         ?\DateTimeInterface $createdAt = null,
         string $author = 'User',
+        int $chatId = 1,
     ): Message {
         return new Message(
+            chatId: $chatId,
             id: $id,
             text: $text,
             createdAt: $createdAt ?? new DateTime('now'),
@@ -34,9 +36,10 @@ class TestCase extends BaseTestCase
         return array_map(fn ($id) => $this->createMessage(id: $id), $ids);
     }
 
-    protected function createNewMessage(string $text, string $author): NewMessage
+    protected function createNewMessage(int $chatId, string $text, string $author): NewMessage
     {
         return new NewMessage(
+            chatId: $chatId,
             text: $text,
             author: $author,
         );
@@ -45,11 +48,13 @@ class TestCase extends BaseTestCase
     protected function messageTexts(): array
     {
         return [
-            ['text' => 'Hi! How was your exam today?', 'author' => 'Ivan'],
-            ['text' => 'Hard! I think I failed the last part.', 'author' => 'Olga'],
-            ['text' => 'Oh no! Want to grab some coffee?', 'author' => 'Ivan'],
-            ['text' => 'Sure! I really need a break now.', 'author' => 'Olga'],
-            ['text' => 'Great! See you at 5 pm then.', 'author' => 'Ivan'],
+            ['chatId' => 2, 'text' => 'Hello, World!', 'author' => 'John Doe'],
+            ['chatId' => 1, 'text' => 'Hi! How was your exam today?', 'author' => 'Ivan'],
+            ['chatId' => 1, 'text' => 'Hard! I think I failed the last part.', 'author' => 'Olga'],
+            ['chatId' => 1, 'text' => 'Oh no! Want to grab some coffee?', 'author' => 'Ivan'],
+            ['chatId' => 1, 'text' => 'Sure! I really need a break now.', 'author' => 'Olga'],
+            ['chatId' => 1, 'text' => 'Great! See you at 5 pm then.', 'author' => 'Ivan'],
+            ['chatId' => 2, 'text' => 'Good buy, World!', 'author' => 'John Doe'],
         ];
     }
 
@@ -61,7 +66,7 @@ class TestCase extends BaseTestCase
         $messages = [];
 
         foreach ($this->messageTexts() as $i => $message) {
-            $chat->sendMessage($this->createNewMessage($message['text'], $message['author']));
+            $chat->sendMessage($this->createNewMessage($message['chatId'], $message['text'], $message['author']));
             $messages[] = $this->createMessage($i + 1, $message['text'], $clock->now(), $message['author']);
         }
 

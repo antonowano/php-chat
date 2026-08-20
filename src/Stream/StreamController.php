@@ -16,6 +16,7 @@ readonly class StreamController
     {
         $data = $frame->data();
         $this->chat->sendMessage(new NewMessage(
+            chatId: $data->get('chatId'),
             text: $data->get('text'),
             author: $data->get('author'),
         ));
@@ -23,21 +24,30 @@ readonly class StreamController
 
     public function lastMessages(StreamFrame $frame, StreamResponse $response): void
     {
-        $messages = $this->chat->getLastMessages(30);
+        $chatId = $frame->data()->get('chatId', 0);
+        $messages = $this->chat->getLastMessages($chatId, 30);
         $response->sendMessageList('LastMessages', $messages);
     }
 
     public function nextMessages(StreamFrame $frame, StreamResponse $response): void
     {
-        $afterId = $frame->data()->get('id', 0);
-        $messages = $this->chat->getMessagesAfterId($afterId, 30);
+        $data = $frame->data();
+        $messages = $this->chat->getMessagesAfterId(
+            $data->get('chatId', 0),
+            $data->get('id', 0),
+            30
+        );
         $response->sendMessageList('NextMessages', $messages);
     }
 
     public function previousMessages(StreamFrame $frame, StreamResponse $response): void
     {
-        $beforeId = $frame->data()->get('id', 0);
-        $messages = $this->chat->getMessagesBeforeId($beforeId, 30);
+        $data = $frame->data();
+        $messages = $this->chat->getMessagesBeforeId(
+            $data->get('chatId', 0),
+            $data->get('id', 0),
+            30
+        );
         $response->sendMessageList('PreviousMessages', $messages);
     }
 }

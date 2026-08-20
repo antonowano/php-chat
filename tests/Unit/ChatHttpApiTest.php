@@ -54,8 +54,15 @@ class ChatHttpApiTest extends TestCase
     public function testSendMessage(): void
     {
         $request = new StubHttpRequest('POST', '/api/message/send', [], [
+            'chatId' => 1,
             'author' => 'John Doe',
             'text' => 'Hello World!',
+        ]);
+        $this->router->dispatch(new ApiRequest($request), new ApiResponse($this->response));
+        $request = new StubHttpRequest('POST', '/api/message/send', [], [
+            'chatId' => 2,
+            'author' => 'Alex',
+            'text' => 'See you later',
         ]);
         $this->router->dispatch(new ApiRequest($request), new ApiResponse($this->response));
 
@@ -65,30 +72,48 @@ class ChatHttpApiTest extends TestCase
             [
                 $this->createMessage(1, 'Hello World!', $this->clock->now(), 'John Doe'),
             ],
-            $this->chat->getLastMessages(10)
+            $this->chat->getLastMessages(1, 10)
+        );
+        $this->assertObjectListEquals(
+            [
+                $this->createMessage(2, 'See you later', $this->clock->now(), 'Alex'),
+            ],
+            $this->chat->getLastMessages(2, 10)
+        );
+        $this->assertObjectListEquals(
+            [],
+            $this->chat->getLastMessages(3, 10)
         );
     }
 
     public function testLastMessages(): void
     {
-        $expectedMessages = $this->fillChat($this->chat, $this->clock);
-        $request = new StubHttpRequest('GET', '/api/messages/last');
+        $expectedMessages = array_slice($this->fillChat($this->chat, $this->clock), 1, 5);
+        $request = new StubHttpRequest('GET', '/api/messages/last', [
+            'chatId' => 1,
+        ]);
         $this->router->dispatch(new ApiRequest($request), new ApiResponse($this->response));
         $this->assertMessageListResponse($expectedMessages);
     }
 
     public function testNextMessages(): void
     {
-        $expectedMessages = array_slice($this->fillChat($this->chat, $this->clock), 3);
-        $request = new StubHttpRequest('GET', '/api/messages/next', ['id' => 3]);
+        $expectedMessages = array_slice($this->fillChat($this->chat, $this->clock), 3, 3);
+        $request = new StubHttpRequest('GET', '/api/messages/next', [
+            'chatId' => 1,
+            'id' => 3,
+        ]);
         $this->router->dispatch(new ApiRequest($request), new ApiResponse($this->response));
         $this->assertMessageListResponse($expectedMessages);
     }
 
     public function testPreviousMessages(): void
     {
-        $expectedMessages = array_slice($this->fillChat($this->chat, $this->clock), 0, 2);
-        $request = new StubHttpRequest('GET', '/api/messages/previous', ['id' => 3]);
+        $expectedMessages = array_slice($this->fillChat($this->chat, $this->clock), 1, 1);
+        $request = new StubHttpRequest('GET', '/api/messages/previous', [
+            'chatId' => 1,
+            'id' => 3,
+        ]);
         $this->router->dispatch(new ApiRequest($request), new ApiResponse($this->response));
         $this->assertMessageListResponse($expectedMessages);
     }

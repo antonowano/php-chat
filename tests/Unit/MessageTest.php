@@ -84,10 +84,12 @@ class MessageTest extends TestCase
             text: 'Hello World',
             createdAt: new DateTime('2027-08-05 21:22:13'),
             author: 'Ivan',
+            chatId: 5,
         );
 
         $this->assertSame(
             [
+                'chatId' => 5,
                 'id' => 11,
                 'text' => 'Hello World',
                 'author' => 'Ivan',

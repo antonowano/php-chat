@@ -56,6 +56,7 @@ class ChatStreamTest extends TestCase
         $frame = new StubWsFrame([
             'type' => 'NewMessage',
             'data' => [
+                'chatId' => 1,
                 'text' => 'Hello World!',
                 'author' => 'John Doe',
             ],
@@ -65,7 +66,7 @@ class ChatStreamTest extends TestCase
 
         $this->assertObjectListEquals(
             [$message],
-            $this->chat->getLastMessages(10)
+            $this->chat->getLastMessages(1, 10)
         );
 
         $this->assertSame(
@@ -79,9 +80,12 @@ class ChatStreamTest extends TestCase
 
     public function testLastMessages(): void
     {
-        $expectedMessages = $this->fillChat($this->chat, $this->clock);
+        $expectedMessages = array_slice($this->fillChat($this->chat, $this->clock), 1, 5);
         $frame = new StubWsFrame([
             'type' => 'LastMessages',
+            'data' => [
+                'chatId' => 1,
+            ],
         ]);
         $this->router->dispatch(new StreamFrame($frame), new StreamResponse($this->response));
         $this->assertMessageListResponse('LastMessages', $expectedMessages);
@@ -89,10 +93,11 @@ class ChatStreamTest extends TestCase
 
     public function testNextMessages(): void
     {
-        $expectedMessages = array_slice($this->fillChat($this->chat, $this->clock), 3);
+        $expectedMessages = array_slice($this->fillChat($this->chat, $this->clock), 3, 3);
         $frame = new StubWsFrame([
             'type' => 'NextMessages',
             'data' => [
+                'chatId' => 1,
                 'id' => 3,
             ]
         ]);
@@ -102,10 +107,11 @@ class ChatStreamTest extends TestCase
 
     public function testPreviousMessages(): void
     {
-        $expectedMessages = array_slice($this->fillChat($this->chat, $this->clock), 0, 2);
+        $expectedMessages = array_slice($this->fillChat($this->chat, $this->clock), 1, 1);
         $frame = new StubWsFrame([
             'type' => 'PreviousMessages',
             'data' => [
+                'chatId' => 1,
                 'id' => 3,
             ]
         ]);

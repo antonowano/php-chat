@@ -16,6 +16,7 @@ readonly class ApiController
     {
         $data = $request->json();
         $this->chat->sendMessage(new NewMessage(
+            chatId: $data->get('chatId'),
             text: $data->get('text'),
             author: $data->get('author'),
         ));
@@ -24,21 +25,30 @@ readonly class ApiController
 
     public function lastMessages(ApiRequest $request, ApiResponse $response): void
     {
-        $messages = $this->chat->getLastMessages(30);
+        $chatId = $request->query()->get('chatId', 0);
+        $messages = $this->chat->getLastMessages($chatId, 30);
         $response->sendMessageList($messages);
     }
 
     public function nextMessages(ApiRequest $request, ApiResponse $response): void
     {
-        $afterId = $request->query()->get('id', 0);
-        $messages = $this->chat->getMessagesAfterId($afterId, 30);
+        $query = $request->query();
+        $messages = $this->chat->getMessagesAfterId(
+            $query->get('chatId', 0),
+            $query->get('id', 0),
+            30
+        );
         $response->sendMessageList($messages);
     }
 
     public function previousMessages(ApiRequest $request, ApiResponse $response): void
     {
-        $beforeId = $request->query()->get('id', 0);
-        $messages = $this->chat->getMessagesBeforeId($beforeId, 30);
+        $query = $request->query();
+        $messages = $this->chat->getMessagesBeforeId(
+            $query->get('chatId', 0),
+            $query->get('id', 0),
+            30
+        );
         $response->sendMessageList($messages);
     }
 }
