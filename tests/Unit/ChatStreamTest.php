@@ -26,7 +26,7 @@ class ChatStreamTest extends TestCase
     {
         parent::setUp();
         $this->clock = new MockClock();
-        $this->chat = $this->createChat([], $this->clock);
+        $this->chat = new Chat($this->clock);
         $controller = new StreamController($this->chat);
         $this->router = new StreamRouter($controller);
         $this->response = new StubWsResponse();

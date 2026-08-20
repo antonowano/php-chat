@@ -8,7 +8,6 @@ use Antonowano\Chat\NewMessage;
 use DateTime;
 use PHPUnit\Framework\TestCase as BaseTestCase;
 use Psr\Clock\ClockInterface;
-use Symfony\Component\Clock\NativeClock;
 
 class TestCase extends BaseTestCase
 {
@@ -33,14 +32,6 @@ class TestCase extends BaseTestCase
     protected function createMessages(array $ids): array
     {
         return array_map(fn ($id) => $this->createMessage(id: $id), $ids);
-    }
-
-    protected function createChat(array $messages = [], ?ClockInterface $clock = null): Chat
-    {
-        return new Chat(
-            clock: $clock ?? new NativeClock(),
-            messages: $messages,
-        );
     }
 
     protected function createNewMessage(string $text, string $author): NewMessage

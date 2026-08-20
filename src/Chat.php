@@ -9,14 +9,13 @@ class Chat
     /** @var array<string, ChatListener> */
     private array $listeners = [];
 
-    private int $autoIncrement;
+    private array $messages = [];
+
+    private int $autoIncrement = 1;
 
     public function __construct(
         private readonly ClockInterface $clock,
-        /** @var list<Message> */
-        private array $messages = [],
     ) {
-        $this->autoIncrement = count($this->messages) + 1;
     }
 
     public function sendMessage(NewMessage $newMessage): void

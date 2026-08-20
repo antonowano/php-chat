@@ -25,7 +25,7 @@ class ChatHttpApiTest extends TestCase
     {
         parent::setUp();
         $this->clock = new MockClock();
-        $this->chat = $this->createChat([], $this->clock);
+        $this->chat = new Chat($this->clock);
         $controller = new ApiController($this->chat);
         $this->router = new ApiRouter($controller);
         $this->response = new StubHttpResponse();
