@@ -29,8 +29,7 @@
         "unit": "Runs unit tests"
     },
     "require-dev": {
-        "pestphp/pest": "^5.1",
-        "pestphp/pest-plugin-drift": "^5.0"
+        "pestphp/pest": "^5.1"
     },
     "config": {
         "allow-plugins": {
