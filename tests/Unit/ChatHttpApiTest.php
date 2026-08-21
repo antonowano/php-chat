@@ -13,13 +13,13 @@ use Tests\Antonowano\Chat\Unit\TestCase;
 
 uses(TestCase::class);
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->clock = new MockClock();
     $this->chat = new Chat($this->clock);
     $this->router = new ApiRouter(new ApiController($this->chat));
 });
 
-test('route not found', function () {
+test('route not found', function (): void {
     $request = new StubHttpRequest('POST', '/not-found');
     $response = new StubHttpResponse();
     $this->router->dispatch(new ApiRequest($request), new ApiResponse($response));
@@ -27,7 +27,7 @@ test('route not found', function () {
         ->and($response->data())->toHaveKey('error');
 });
 
-test('send message', function () {
+test('send message', function (): void {
     $request = new StubHttpRequest('POST', '/api/message/send', [], [
         'chatId' => 1,
         'author' => 'John Doe',
@@ -62,7 +62,7 @@ test('send message', function () {
     );
 });
 
-test('last messages', function () {
+test('last messages', function (): void {
     $expectedMessages = array_slice($this->fillChat($this->chat, $this->clock), 1, 5);
     $request = new StubHttpRequest('GET', '/api/messages/last', [
         'chatId' => 1,
@@ -75,7 +75,7 @@ test('last messages', function () {
         ->toBe(['messages' => array_map(fn($m) => $m->toChatPayload(), $expectedMessages)]);
 });
 
-test('next messages', function () {
+test('next messages', function (): void {
     $expectedMessages = array_slice($this->fillChat($this->chat, $this->clock), 3, 3);
     $request = new StubHttpRequest('GET', '/api/messages/next', [
         'chatId' => 1,
@@ -89,7 +89,7 @@ test('next messages', function () {
         ->toBe(['messages' => array_map(fn($m) => $m->toChatPayload(), $expectedMessages)]);
 });
 
-test('previous messages', function () {
+test('previous messages', function (): void {
     $expectedMessages = array_slice($this->fillChat($this->chat, $this->clock), 1, 1);
     $request = new StubHttpRequest('GET', '/api/messages/previous', [
         'chatId' => 1,

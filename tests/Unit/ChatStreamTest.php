@@ -13,13 +13,13 @@ use Tests\Antonowano\Chat\Unit\TestCase;
 
 uses(TestCase::class);
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->clock = new MockClock();
     $this->chat = new Chat($this->clock);
     $this->router = new StreamRouter(new StreamController($this->chat));
 });
 
-test('send message', function () {
+test('send message', function (): void {
     $listenerResponse = new StubWsResponse();
     $this->chat->addListener(
         SwooleWsChatListener::generateId(1),
@@ -49,7 +49,7 @@ test('send message', function () {
     ]);
 });
 
-test('last messages', function () {
+test('last messages', function (): void {
     $expectedMessages = array_slice($this->fillChat($this->chat, $this->clock), 1, 5);
     $frame = new StubWsFrame([
         'type' => 'LastMessages',
@@ -66,7 +66,7 @@ test('last messages', function () {
     ]);
 });
 
-test('next messages', function () {
+test('next messages', function (): void {
     $expectedMessages = array_slice($this->fillChat($this->chat, $this->clock), 3, 3);
     $frame = new StubWsFrame([
         'type' => 'NextMessages',
@@ -84,7 +84,7 @@ test('next messages', function () {
     ]);
 });
 
-test('previous messages', function () {
+test('previous messages', function (): void {
     $expectedMessages = array_slice($this->fillChat($this->chat, $this->clock), 1, 1);
     $frame = new StubWsFrame([
         'type' => 'PreviousMessages',

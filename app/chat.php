@@ -31,17 +31,17 @@ $apiRouter = new ApiRouter($apiController);
 $streamController = new StreamController($chat);
 $streamRouter = new StreamRouter($streamController);
 
-$server->on('Start', function () {
+$server->on('Start', function (): void {
     echo 'OpenSwoole http server is started' . PHP_EOL;
 });
 
-$server->on('Open', function (Server $server, Request $request) use ($chat) {
+$server->on('Open', function (Server $server, Request $request) use ($chat): void {
     echo "server: handshake success with fd{$request->fd}\n";
     $listener = new SwooleWsChatListener(new SwooleWsResponse($server, $request->fd));
     $chat->addListener(SwooleWsChatListener::generateId($request->fd), $listener);
 });
 
-$server->on('Message', function (Server $server, Frame $rawFrame) use ($streamRouter) {
+$server->on('Message', function (Server $server, Frame $rawFrame) use ($streamRouter): void {
     if (!$rawFrame->finish) {
         return;
     }
@@ -51,12 +51,12 @@ $server->on('Message', function (Server $server, Frame $rawFrame) use ($streamRo
     );
 });
 
-$server->on('Close', function (Server $server, int $fd) use ($chat) {
+$server->on('Close', function (Server $server, int $fd) use ($chat): void {
     echo "client {$fd} closed\n";
     $chat->removeListenerById(SwooleWsChatListener::generateId($fd));
 });
 
-$server->on('Request', function (Request $rawRequest, Response $rawResponse) use ($apiRouter) {
+$server->on('Request', function (Request $rawRequest, Response $rawResponse) use ($apiRouter): void {
     $apiRouter->dispatch(
         new ApiRequest(new SwooleHttpRequest($rawRequest)),
         new ApiResponse(new SwooleHttpResponse($rawResponse))
