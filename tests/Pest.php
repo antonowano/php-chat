@@ -1,5 +1,8 @@
 <?php
 
+use Antonowano\Chat\Message;
+use Antonowano\Chat\NewMessage;
+
 require_once __DIR__ . '/../vendor/autoload.php';
 
 /*
@@ -41,7 +44,44 @@ expect()->extend('toBeOne', function () {
 |
 */
 
-function something()
+/**
+ * @param list<Message> $messages
+ */
+function payloadOfMessages(array $messages): array
 {
-    // ..
+    return array_map(fn($m) => $m->toChatPayload(), $messages);
+}
+
+function createMessage(
+    int $id = 0,
+    string $text = 'Text message',
+    ?\DateTimeInterface $createdAt = null,
+    string $author = 'User',
+    int $chatId = 1,
+): Message {
+    return new Message(
+        chatId: $chatId,
+        id: $id,
+        text: $text,
+        createdAt: $createdAt ?? new DateTime('now'),
+        author: $author,
+    );
+}
+
+/**
+ * @param list<int> $ids
+ * @return list<Message>
+ */
+function createMessages(array $ids): array
+{
+    return array_map(fn ($id) => $this->createMessage(id: $id), $ids);
+}
+
+function createNewMessage(int $chatId, string $text, string $author): NewMessage
+{
+    return new NewMessage(
+        chatId: $chatId,
+        text: $text,
+        author: $author,
+    );
 }

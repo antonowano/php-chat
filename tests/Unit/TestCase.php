@@ -67,7 +67,7 @@ class TestCase extends BaseTestCase
 
         foreach ($this->messageTexts() as $i => $message) {
             $chat->sendMessage($this->createNewMessage($message['chatId'], $message['text'], $message['author']));
-            $messages[] = $this->createMessage($i + 1, $message['text'], $clock->now(), $message['author']);
+            $messages[] = $this->createMessage($i + 1, $message['text'], $clock->now(), $message['author'], $message['chatId']);
         }
 
         return $messages;

@@ -6,6 +6,7 @@ use Antonowano\Chat\Api\ApiResponse;
 use Antonowano\Chat\Api\ApiRouter;
 use Antonowano\Chat\Chat;
 use Antonowano\Chat\Enums\HttpStatusCode;
+use Antonowano\Chat\Message;
 use Antonowano\Chat\Stubs\StubHttpRequest;
 use Antonowano\Chat\Stubs\StubHttpResponse;
 use Symfony\Component\Clock\MockClock;
@@ -19,86 +20,137 @@ beforeEach(function (): void {
     $this->router = new ApiRouter(new ApiController($this->chat));
 });
 
-test('route not found', function (): void {
-    $request = new StubHttpRequest('POST', '/not-found');
-    $response = new StubHttpResponse();
-    $this->router->dispatch(new ApiRequest($request), new ApiResponse($response));
-    expect($response->statusCode())->toBe(HttpStatusCode::NOT_FOUND)
-        ->and($response->data())->toHaveKey('error');
+describe('Sending a message', function (): void {
+    beforeEach(function (): void {
+        $request = new StubHttpRequest('POST', '/api/message/send', [], [
+            'chatId' => 1,
+            'author' => 'John Doe',
+            'text' => 'Hello World!',
+        ]);
+        $this->response = new StubHttpResponse();
+        $this->router->dispatch(new ApiRequest($request), new ApiResponse($this->response));
+        $this->messageInChat1 = $this->chat->getLastMessages(1, 10);
+        $this->messageInChat2 = $this->chat->getLastMessages(2, 10);
+    });
+
+    it('should return 201 Created', function (): void {
+        expect($this->response->statusCode())->toBe(HttpStatusCode::CREATED);
+    });
+
+    it('should matches the sent message', function (): void {
+        $expected = createMessage(1, 'Hello World!', $this->clock->now(), 'John Doe');
+        expect($expected)->toEqual($this->messageInChat1[0]);
+    });
+
+    it('should store exactly one message in the chat', function (): void {
+        expect($this->messageInChat1)->toHaveCount(1);
+    });
+
+    it('should not store message in another chat', function (): void {
+        expect($this->messageInChat2)->toHaveCount(0);
+    });
 });
 
-test('send message', function (): void {
-    $request = new StubHttpRequest('POST', '/api/message/send', [], [
-        'chatId' => 1,
-        'author' => 'John Doe',
-        'text' => 'Hello World!',
-    ]);
-    $response = new StubHttpResponse();
-    $this->router->dispatch(new ApiRequest($request), new ApiResponse($response));
-    $request = new StubHttpRequest('POST', '/api/message/send', [], [
-        'chatId' => 2,
-        'author' => 'Alex',
-        'text' => 'See you later',
-    ]);
-    $this->router->dispatch(new ApiRequest($request), new ApiResponse($response));
+describe('Fetching latest messages', function (): void {
+    $chatId = 1;
+    $limit = 30;
 
-    expect($response->statusCode())->toBe(HttpStatusCode::CREATED)
-        ->and($response->data())->toBe([]);
-    $this->assertObjectListEquals(
-        [
-            $this->createMessage(1, 'Hello World!', $this->clock->now(), 'John Doe'),
-        ],
-        $this->chat->getLastMessages(1, 10)
+    beforeEach(function () use ($chatId): void {
+        $this->messages = $this->fillChat($this->chat, $this->clock);
+        $request = new StubHttpRequest('GET', '/api/messages/last', [
+            'chatId' => $chatId,
+        ]);
+        $this->response = new StubHttpResponse();
+        $this->router->dispatch(new ApiRequest($request), new ApiResponse($this->response));
+    });
+
+    it('should return 200 OK', function (): void {
+        expect($this->response->statusCode())->toBe(HttpStatusCode::OK);
+    });
+
+    it("should return the last {$limit} messages", function () use ($limit, $chatId): void {
+        $expectedMessages = array_filter($this->messages, fn (Message $m): bool => $m->chatId() === $chatId);
+        $expectedMessages = array_slice($expectedMessages, -$limit);
+        expect($this->response->data())->toBe(['messages' => payloadOfMessages($expectedMessages)]);
+    });
+});
+
+describe('Fetching next messages', function (): void {
+    $chatId = 1;
+    $afterId = 3;
+    $limit = 30;
+
+    beforeEach(function () use ($chatId, $afterId): void {
+        $this->messages = $this->fillChat($this->chat, $this->clock);
+        $request = new StubHttpRequest('GET', '/api/messages/next', [
+            'chatId' => $chatId,
+            'id' => $afterId,
+        ]);
+        $this->response = new StubHttpResponse();
+        $this->router->dispatch(new ApiRequest($request), new ApiResponse($this->response));
+    });
+
+    it('should return 200 OK', function (): void {
+        expect($this->response->statusCode())->toBe(HttpStatusCode::OK);
+    });
+
+    it(
+        "should return {$limit} messages with an ID greater than {$afterId}",
+        function () use ($limit, $chatId, $afterId): void {
+            $expectedMessages = array_filter(
+                $this->messages,
+                fn (Message $m): bool => $m->chatId() === $chatId && $m->id() > $afterId
+            );
+            $expectedMessages = array_slice($expectedMessages, 0, $limit);
+            expect($this->response->data())->toBe(['messages' => payloadOfMessages($expectedMessages)]);
+        }
     );
-    $this->assertObjectListEquals(
-        [
-            $this->createMessage(2, 'See you later', $this->clock->now(), 'Alex'),
-        ],
-        $this->chat->getLastMessages(2, 10)
+});
+
+describe('Fetching previous messages', function (): void {
+    $chatId = 1;
+    $beforeId = 3;
+    $limit = 30;
+
+    beforeEach(function () use ($chatId, $beforeId): void {
+        $this->messages = $this->fillChat($this->chat, $this->clock);
+        $request = new StubHttpRequest('GET', '/api/messages/previous', [
+            'chatId' => $chatId,
+            'id' => $beforeId,
+        ]);
+        $this->response = new StubHttpResponse();
+        $this->router->dispatch(new ApiRequest($request), new ApiResponse($this->response));
+    });
+
+    it('should return 200 OK', function (): void {
+        expect($this->response->statusCode())->toBe(HttpStatusCode::OK);
+    });
+
+    it(
+        "should return {$limit} messages with an ID less than {$beforeId}",
+        function () use ($limit, $chatId, $beforeId): void {
+            $expectedMessages = array_filter(
+                $this->messages,
+                fn (Message $m): bool => $m->chatId() === $chatId && $m->id() < $beforeId
+            );
+            $expectedMessages = array_slice($expectedMessages, -$limit);
+            expect($this->response->data())->toBe(['messages' => payloadOfMessages($expectedMessages)]);
+        }
     );
-    $this->assertObjectListEquals(
-        [],
-        $this->chat->getLastMessages(3, 10)
-    );
 });
 
-test('last messages', function (): void {
-    $expectedMessages = array_slice($this->fillChat($this->chat, $this->clock), 1, 5);
-    $request = new StubHttpRequest('GET', '/api/messages/last', [
-        'chatId' => 1,
-    ]);
-    $response = new StubHttpResponse();
-    $this->router->dispatch(new ApiRequest($request), new ApiResponse($response));
+describe('Accessing non-existent route', function (): void {
+    beforeEach(function (): void {
+        $request = new StubHttpRequest('POST', '/not-found');
+        $this->response = new StubHttpResponse();
+        $this->router->dispatch(new ApiRequest($request), new ApiResponse($this->response));
+    });
 
-    expect($response->statusCode())->toBe(HttpStatusCode::OK)
-        ->and($response->data())
-        ->toBe(['messages' => array_map(fn($m) => $m->toChatPayload(), $expectedMessages)]);
-});
+    it('should return 404 Not Found', function (): void {
+        expect($this->response->statusCode())->toBe(HttpStatusCode::NOT_FOUND);
+    });
 
-test('next messages', function (): void {
-    $expectedMessages = array_slice($this->fillChat($this->chat, $this->clock), 3, 3);
-    $request = new StubHttpRequest('GET', '/api/messages/next', [
-        'chatId' => 1,
-        'id' => 3,
-    ]);
-    $response = new StubHttpResponse();
-    $this->router->dispatch(new ApiRequest($request), new ApiResponse($response));
-
-    expect($response->statusCode())->toBe(HttpStatusCode::OK)
-        ->and($response->data())
-        ->toBe(['messages' => array_map(fn($m) => $m->toChatPayload(), $expectedMessages)]);
-});
-
-test('previous messages', function (): void {
-    $expectedMessages = array_slice($this->fillChat($this->chat, $this->clock), 1, 1);
-    $request = new StubHttpRequest('GET', '/api/messages/previous', [
-        'chatId' => 1,
-        'id' => 3,
-    ]);
-    $response = new StubHttpResponse();
-    $this->router->dispatch(new ApiRequest($request), new ApiResponse($response));
-
-    expect($response->statusCode())->toBe(HttpStatusCode::OK)
-        ->and($response->data())
-        ->toBe(['messages' => array_map(fn($m) => $m->toChatPayload(), $expectedMessages)]);
+    it('should contains a error message', function (): void {
+        expect($this->response->data())->toHaveKey('error');
+    });
 });
