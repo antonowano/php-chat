@@ -22,13 +22,19 @@
         "php": "^8.4",
         "symfony/clock": "^8.1"
     },
-    "require-dev": {
-        "phpunit/phpunit": "^11"
-    },
     "scripts": {
-        "test": "phpunit --colors=always"
+        "test": "pest"
     },
     "scripts-descriptions": {
         "unit": "Runs unit tests"
+    },
+    "require-dev": {
+        "pestphp/pest": "^5.1",
+        "pestphp/pest-plugin-drift": "^5.0"
+    },
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
     }
 }

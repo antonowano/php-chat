@@ -1,66 +1,57 @@
 <?php
 
-namespace Tests\Antonowano\Chat\Unit;
-
 use Antonowano\Chat\DataBag;
+use Tests\Antonowano\Chat\Unit\TestCase;
 
-class DataBagTest extends TestCase
-{
-    public function testJsonEquals(): void
-    {
-        $json1 = DataBag::fromJson('{"name": "John", "text":   "Hello, World!"}' . PHP_EOL);
-        $json2 = DataBag::fromJson('{"name": "John", "text": "Hello, World!"  }');
+uses(TestCase::class);
 
-        $this->assertObjectEquals($json1, $json2);
-    }
+test('json equals', function () {
+    $json1 = DataBag::fromJson('{"name": "John", "text":   "Hello, World!"}' . PHP_EOL);
+    $json2 = DataBag::fromJson('{"name": "John", "text": "Hello, World!"  }');
 
-    public function testJsonNotEquals(): void
-    {
-        $json1 = DataBag::fromJson('{"name": "John", "text": "Hello, World!"}');
-        $json2 = DataBag::fromJson('{"name": "John2", "text": "Hello, World!"}');
+    $this->assertObjectEquals($json1, $json2);
+});
 
-        $this->assertObjectNotEquals($json1, $json2);
-    }
+test('json not equals', function () {
+    $json1 = DataBag::fromJson('{"name": "John", "text": "Hello, World!"}');
+    $json2 = DataBag::fromJson('{"name": "John2", "text": "Hello, World!"}');
 
-    public function testGetReturnsValueFromData(): void
-    {
-        $json = DataBag::fromJson('{"name": "John", "text": "Hello, World!"}');
+    $this->assertObjectNotEquals($json1, $json2);
+});
 
-        $this->assertSame('John', $json->get('name'));
-    }
+test('get returns value from data', function () {
+    $json = DataBag::fromJson('{"name": "John", "text": "Hello, World!"}');
 
-    public function testGetReturnsDefaultValueWhenKeyNotPresentInData(): void
-    {
-        $json = DataBag::fromJson('{"text": "Hello, World!"}');
+    expect($json->get('name'))->toBe('John');
+});
 
-        $this->assertSame('Ivan', $json->get('name', 'Ivan'));
-    }
+test('get returns default value when key not present in data', function () {
+    $json = DataBag::fromJson('{"text": "Hello, World!"}');
 
-    public function testGetFromQueryReturnsValueFromData(): void
-    {
-        $json = DataBag::fromQuery('id=84303&limit=30');
+    expect($json->get('name', 'Ivan'))->toBe('Ivan');
+});
 
-        $this->assertSame('84303', $json->get('id'));
-        $this->assertSame('30', $json->get('limit'));
-    }
+test('get from query returns value from data', function () {
+    $json = DataBag::fromQuery('id=84303&limit=30');
 
-    public function testGetFromQueryReturnsDefaultValueWhenKeyNotPresentInData(): void
-    {
-        $json = DataBag::fromQuery('id=84303');
+    expect($json->get('id'))->toBe('84303')
+        ->and($json->get('limit'))->toBe('30');
+});
 
-        $this->assertSame('30', $json->get('limit', 30));
-    }
+test('get from query returns default value when key not present in data', function () {
+    $json = DataBag::fromQuery('id=84303');
 
-    public function testNestedGet(): void
-    {
-        $data = new DataBag([
-            'newMessage' => [
-                'text' => 'Hello, World!',
-                'author' => 'John',
-            ]
-        ]);
+    expect($json->get('limit', 30))->toBe('30');
+});
 
-        $this->assertSame('Hello, World!', $data->get('newMessage.text'));
-        $this->assertSame('John', $data->get('newMessage.author'));
-    }
-}
+test('nested get', function () {
+    $data = new DataBag([
+        'newMessage' => [
+            'text' => 'Hello, World!',
+            'author' => 'John',
+        ]
+    ]);
+
+    expect($data->get('newMessage.text'))->toBe('Hello, World!')
+        ->and($data->get('newMessage.author'))->toBe('John');
+});

@@ -1,102 +1,86 @@
 <?php
 
-namespace Tests\Antonowano\Chat\Unit;
+use Tests\Antonowano\Chat\Unit\TestCase;
 
-use DateTime;
+uses(TestCase::class);
 
-class MessageTest extends TestCase
-{
-    public function testToString()
-    {
-        $message = $this->createMessage(id: 15432, createdAt: new DateTime('2026-08-05 21:22:13'));
+test('to string', function () {
+    $message = $this->createMessage(id: 15432, createdAt: new DateTime('2026-08-05 21:22:13'));
 
-        $this->assertSame('[21:22:13 05.08.2026] [#15432] User: Text message', (string) $message);
-    }
+    expect((string) $message)->toBe('[21:22:13 05.08.2026] [#15432] User: Text message');
+});
 
-    public function testObjectEquals(): void
-    {
-        $message1 = $this->createMessage(id: 10, createdAt: new DateTime('2026-08-07 21:00:00'));
-        $message2 = $this->createMessage(id: 10, createdAt: new DateTime('2026-08-07 21:00:00'));
+test('object equals', function () {
+    $message1 = $this->createMessage(id: 10, createdAt: new DateTime('2026-08-07 21:00:00'));
+    $message2 = $this->createMessage(id: 10, createdAt: new DateTime('2026-08-07 21:00:00'));
 
-        $this->assertObjectEquals($message1, $message2);
-    }
+    $this->assertObjectEquals($message1, $message2);
+});
 
-    public function testObjectNotEquals(): void
-    {
-        $message1 = $this->createMessage(id: 10);
-        $message2 = $this->createMessage(id: 11);
+test('object not equals', function () {
+    $message1 = $this->createMessage(id: 10);
+    $message2 = $this->createMessage(id: 11);
 
-        $this->assertObjectNotEquals($message1, $message2);
-    }
+    $this->assertObjectNotEquals($message1, $message2);
+});
 
-    public function testHasIdLessThanReturnsTrueWhenMessageIdIsLess(): void
-    {
-        $message = $this->createMessage(id: 10);
+test('has id less than returns true when message id is less', function () {
+    $message = $this->createMessage(id: 10);
 
-        $this->assertTrue($message->hasIdLessThan(11));
-        $this->assertTrue($message->hasIdLessThan(100));
-    }
+    expect($message->hasIdLessThan(11))->toBeTrue()
+        ->and($message->hasIdLessThan(100))->toBeTrue();
+});
 
-    public function testHasIdLessThanReturnsFalseWhenMessageIdIsEqual(): void
-    {
-        $message = $this->createMessage(id: 10);
+test('has id less than returns false when message id is equal', function () {
+    $message = $this->createMessage(id: 10);
 
-        $this->assertFalse($message->hasIdLessThan(10));
-    }
+    expect($message->hasIdLessThan(10))->toBeFalse();
+});
 
-    public function testHasIdLessThanReturnsFalseWhenMessageIdIsGreater(): void
-    {
-        $message = $this->createMessage(id: 10);
+test('has id less than returns false when message id is greater', function () {
+    $message = $this->createMessage(id: 10);
 
-        $this->assertFalse($message->hasIdLessThan(9));
-        $this->assertFalse($message->hasIdLessThan(1));
-        $this->assertFalse($message->hasIdLessThan(-10));
-    }
+    expect($message->hasIdLessThan(9))->toBeFalse()
+        ->and($message->hasIdLessThan(1))->toBeFalse()
+        ->and($message->hasIdLessThan(-10))->toBeFalse();
+});
 
-    public function testHasIdGreaterThanReturnsTrueWhenMessageIdIsGreater(): void
-    {
-        $message = $this->createMessage(id: 10);
+test('has id greater than returns true when message id is greater', function () {
+    $message = $this->createMessage(id: 10);
 
-        $this->assertTrue($message->hasIdGreaterThan(5));
-        $this->assertTrue($message->hasIdGreaterThan(9));
-        $this->assertTrue($message->hasIdGreaterThan(-100));
-    }
+    expect($message->hasIdGreaterThan(5))->toBeTrue()
+        ->and($message->hasIdGreaterThan(9))->toBeTrue()
+        ->and($message->hasIdGreaterThan(-100))->toBeTrue();
+});
 
-    public function testHasIdGreaterThanReturnsFalseWhenMessageIdIsEqual(): void
-    {
-        $message = $this->createMessage(id: 10);
+test('has id greater than returns false when message id is equal', function () {
+    $message = $this->createMessage(id: 10);
 
-        $this->assertFalse($message->hasIdGreaterThan(10));
-    }
+    expect($message->hasIdGreaterThan(10))->toBeFalse();
+});
 
-    public function testHasIdGreaterThanReturnsFalseWhenMessageIdIsLess(): void
-    {
-        $message = $this->createMessage(id: 10);
+test('has id greater than returns false when message id is less', function () {
+    $message = $this->createMessage(id: 10);
 
-        $this->assertFalse($message->hasIdGreaterThan(15));
-        $this->assertFalse($message->hasIdGreaterThan(100));
-    }
+    expect($message->hasIdGreaterThan(15))->toBeFalse()
+        ->and($message->hasIdGreaterThan(100))->toBeFalse();
+});
 
-    public function testToChatPayload()
-    {
-        $message = $this->createMessage(
-            id: 11,
-            text: 'Hello World',
-            createdAt: new DateTime('2027-08-05 21:22:13'),
-            author: 'Ivan',
-            chatId: 5,
-        );
+test('to chat payload', function () {
+    $message = $this->createMessage(
+        id: 11,
+        text: 'Hello World',
+        createdAt: new DateTime('2027-08-05 21:22:13'),
+        author: 'Ivan',
+        chatId: 5,
+    );
 
-        $this->assertSame(
-            [
-                'chatId' => 5,
-                'id' => 11,
-                'text' => 'Hello World',
-                'author' => 'Ivan',
-                'date' => '05.08.2027',
-                'time' => '21:22',
-            ],
-            $message->toChatPayload()
-        );
-    }
-}
+    expect($message->toChatPayload())->toBe([
+        'chatId' => 5,
+        'id' => 11,
+        'text' => 'Hello World',
+        'author' => 'Ivan',
+        'date' => '05.08.2027',
+        'time' => '21:22',
+    ]);
+});
