@@ -6,7 +6,6 @@ use Antonowano\Chat\Api\ApiResponse;
 use Antonowano\Chat\Api\ApiRouter;
 use Antonowano\Chat\Chat;
 use Antonowano\Chat\Enums\HttpStatusCode;
-use Antonowano\Chat\Message;
 use Antonowano\Chat\Stubs\StubHttpRequest;
 use Antonowano\Chat\Stubs\StubHttpResponse;
 use Symfony\Component\Clock\MockClock;
@@ -17,16 +16,15 @@ uses(TestCase::class);
 beforeEach(function () {
     $this->clock = new MockClock();
     $this->chat = new Chat($this->clock);
-    $controller = new ApiController($this->chat);
-    $this->router = new ApiRouter($controller);
-    $this->response = new StubHttpResponse();
+    $this->router = new ApiRouter(new ApiController($this->chat));
 });
 
 test('route not found', function () {
     $request = new StubHttpRequest('POST', '/not-found');
-    $this->router->dispatch(new ApiRequest($request), new ApiResponse($this->response));
-    expect($this->response->statusCode())->toBe(HttpStatusCode::NOT_FOUND)
-        ->and($this->response->data())->toHaveKey('error');
+    $response = new StubHttpResponse();
+    $this->router->dispatch(new ApiRequest($request), new ApiResponse($response));
+    expect($response->statusCode())->toBe(HttpStatusCode::NOT_FOUND)
+        ->and($response->data())->toHaveKey('error');
 });
 
 test('send message', function () {
@@ -35,16 +33,17 @@ test('send message', function () {
         'author' => 'John Doe',
         'text' => 'Hello World!',
     ]);
-    $this->router->dispatch(new ApiRequest($request), new ApiResponse($this->response));
+    $response = new StubHttpResponse();
+    $this->router->dispatch(new ApiRequest($request), new ApiResponse($response));
     $request = new StubHttpRequest('POST', '/api/message/send', [], [
         'chatId' => 2,
         'author' => 'Alex',
         'text' => 'See you later',
     ]);
-    $this->router->dispatch(new ApiRequest($request), new ApiResponse($this->response));
+    $this->router->dispatch(new ApiRequest($request), new ApiResponse($response));
 
-    expect($this->response->statusCode())->toBe(HttpStatusCode::CREATED)
-        ->and($this->response->data())->toBe([]);
+    expect($response->statusCode())->toBe(HttpStatusCode::CREATED)
+        ->and($response->data())->toBe([]);
     $this->assertObjectListEquals(
         [
             $this->createMessage(1, 'Hello World!', $this->clock->now(), 'John Doe'),
@@ -68,10 +67,11 @@ test('last messages', function () {
     $request = new StubHttpRequest('GET', '/api/messages/last', [
         'chatId' => 1,
     ]);
-    $this->router->dispatch(new ApiRequest($request), new ApiResponse($this->response));
+    $response = new StubHttpResponse();
+    $this->router->dispatch(new ApiRequest($request), new ApiResponse($response));
 
-    expect($this->response->statusCode())->toBe(HttpStatusCode::OK)
-        ->and($this->response->data())
+    expect($response->statusCode())->toBe(HttpStatusCode::OK)
+        ->and($response->data())
         ->toBe(['messages' => array_map(fn($m) => $m->toChatPayload(), $expectedMessages)]);
 });
 
@@ -81,10 +81,11 @@ test('next messages', function () {
         'chatId' => 1,
         'id' => 3,
     ]);
-    $this->router->dispatch(new ApiRequest($request), new ApiResponse($this->response));
+    $response = new StubHttpResponse();
+    $this->router->dispatch(new ApiRequest($request), new ApiResponse($response));
 
-    expect($this->response->statusCode())->toBe(HttpStatusCode::OK)
-        ->and($this->response->data())
+    expect($response->statusCode())->toBe(HttpStatusCode::OK)
+        ->and($response->data())
         ->toBe(['messages' => array_map(fn($m) => $m->toChatPayload(), $expectedMessages)]);
 });
 
@@ -94,9 +95,10 @@ test('previous messages', function () {
         'chatId' => 1,
         'id' => 3,
     ]);
-    $this->router->dispatch(new ApiRequest($request), new ApiResponse($this->response));
+    $response = new StubHttpResponse();
+    $this->router->dispatch(new ApiRequest($request), new ApiResponse($response));
 
-    expect($this->response->statusCode())->toBe(HttpStatusCode::OK)
-        ->and($this->response->data())
+    expect($response->statusCode())->toBe(HttpStatusCode::OK)
+        ->and($response->data())
         ->toBe(['messages' => array_map(fn($m) => $m->toChatPayload(), $expectedMessages)]);
 });

@@ -1,12 +1,10 @@
 <?php
 
 use Antonowano\Chat\Chat;
-use Antonowano\Chat\Message;
 use Antonowano\Chat\Stream\StreamController;
 use Antonowano\Chat\Stream\StreamFrame;
 use Antonowano\Chat\Stream\StreamResponse;
 use Antonowano\Chat\Stream\StreamRouter;
-use Antonowano\Chat\Stream\WsResponse;
 use Antonowano\Chat\Stubs\StubWsFrame;
 use Antonowano\Chat\Stubs\StubWsResponse;
 use Antonowano\Chat\Swoole\SwooleWsChatListener;
@@ -18,17 +16,16 @@ uses(TestCase::class);
 beforeEach(function () {
     $this->clock = new MockClock();
     $this->chat = new Chat($this->clock);
-    $controller = new StreamController($this->chat);
-    $this->router = new StreamRouter($controller);
-    $this->response = new StubWsResponse();
-    $this->listenerResponse = new StubWsResponse();
-    $this->chat->addListener(
-        SwooleWsChatListener::generateId(1),
-        new SwooleWsChatListener($this->listenerResponse)
-    );
+    $this->router = new StreamRouter(new StreamController($this->chat));
 });
 
 test('send message', function () {
+    $listenerResponse = new StubWsResponse();
+    $this->chat->addListener(
+        SwooleWsChatListener::generateId(1),
+        new SwooleWsChatListener($listenerResponse)
+    );
+
     $frame = new StubWsFrame([
         'type' => 'NewMessage',
         'data' => [
@@ -37,7 +34,8 @@ test('send message', function () {
             'author' => 'John Doe',
         ],
     ]);
-    $this->router->dispatch(new StreamFrame($frame), new StreamResponse($this->response));
+    $response = new StubWsResponse();
+    $this->router->dispatch(new StreamFrame($frame), new StreamResponse($response));
     $message = $this->createMessage(1, 'Hello World!', $this->clock->now(), 'John Doe');
 
     $this->assertObjectListEquals(
@@ -45,7 +43,7 @@ test('send message', function () {
         $this->chat->getLastMessages(1, 10)
     );
 
-    expect($this->listenerResponse->data())->toBe([
+    expect($listenerResponse->data())->toBe([
         'type' => 'Message',
         'data' => $message->toChatPayload(),
     ]);
@@ -59,9 +57,10 @@ test('last messages', function () {
             'chatId' => 1,
         ],
     ]);
-    $this->router->dispatch(new StreamFrame($frame), new StreamResponse($this->response));
+    $response = new StubWsResponse();
+    $this->router->dispatch(new StreamFrame($frame), new StreamResponse($response));
 
-    expect($this->response->data())->toBe([
+    expect($response->data())->toBe([
         'type' => 'LastMessages',
         'data' => array_map(fn($message) => $message->toChatPayload(), $expectedMessages),
     ]);
@@ -76,9 +75,10 @@ test('next messages', function () {
             'id' => 3,
         ]
     ]);
-    $this->router->dispatch(new StreamFrame($frame), new StreamResponse($this->response));
+    $response = new StubWsResponse();
+    $this->router->dispatch(new StreamFrame($frame), new StreamResponse($response));
 
-    expect($this->response->data())->toBe([
+    expect($response->data())->toBe([
         'type' => 'NextMessages',
         'data' => array_map(fn($message) => $message->toChatPayload(), $expectedMessages),
     ]);
@@ -93,9 +93,10 @@ test('previous messages', function () {
             'id' => 3,
         ]
     ]);
-    $this->router->dispatch(new StreamFrame($frame), new StreamResponse($this->response));
+    $response = new StubWsResponse();
+    $this->router->dispatch(new StreamFrame($frame), new StreamResponse($response));
 
-    expect($this->response->data())->toBe([
+    expect($response->data())->toBe([
         'type' => 'PreviousMessages',
         'data' => array_map(fn($message) => $message->toChatPayload(), $expectedMessages),
     ]);
