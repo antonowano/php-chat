@@ -26,11 +26,10 @@ describe('Sending a message', function (): void {
             'data' => [
                 'chatId' => 1,
                 'text' => 'Hello World!',
-                'author' => 'John Doe',
             ],
         ]);
         $this->response = new StubWsResponse();
-        $this->router->dispatch(new StreamFrame($frame), new StreamResponse($this->response));
+        $this->router->dispatch(new StreamFrame($frame, 'John Doe'), new StreamResponse($this->response));
         $this->messageInChat1 = $this->chat->getLastMessages(1, 10);
         $this->messageInChat2 = $this->chat->getLastMessages(2, 10);
     });

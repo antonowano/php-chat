@@ -10,6 +10,7 @@ readonly class StreamFrame
 
     public function __construct(
         WsFrame $frame,
+        private string $user = '',
     ) {
         $this->data = DataBag::fromJson($frame->data());
     }
@@ -22,5 +23,10 @@ readonly class StreamFrame
     public function data(): DataBag
     {
         return new DataBag($this->data->get('data'));
+    }
+
+    public function user(): string
+    {
+        return $this->user;
     }
 }

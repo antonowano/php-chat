@@ -18,7 +18,7 @@ readonly class StreamController
         $this->chat->sendMessage(new NewMessage(
             chatId: $data->get('chatId'),
             text: $data->get('text'),
-            author: $data->get('author'),
+            author: $data->get('author', $frame->user()),
         ));
     }
 
