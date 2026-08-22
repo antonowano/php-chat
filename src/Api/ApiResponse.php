@@ -33,4 +33,11 @@ readonly class ApiResponse
             'error' => 'Route not found',
         ], HttpStatusCode::NOT_FOUND);
     }
+
+    public function sendAccessToken(string $accessToken): void
+    {
+        $this->httpResponse->json([
+            'accessToken' => $accessToken,
+        ], HttpStatusCode::CREATED);
+    }
 }

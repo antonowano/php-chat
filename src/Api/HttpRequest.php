@@ -11,4 +11,6 @@ interface HttpRequest
     public function content(): string;
 
     public function queryString(): string;
+
+    public function header(string $name): ?string;
 }

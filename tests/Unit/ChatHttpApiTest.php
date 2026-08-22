@@ -9,6 +9,7 @@ use Antonowano\Chat\Enums\HttpStatusCode;
 use Antonowano\Chat\Message;
 use Antonowano\Chat\Stubs\StubHttpRequest;
 use Antonowano\Chat\Stubs\StubHttpResponse;
+use Antonowano\Chat\UserStorage;
 use Symfony\Component\Clock\MockClock;
 use Tests\Antonowano\Chat\Unit\TestCase;
 
@@ -17,15 +18,41 @@ uses(TestCase::class);
 beforeEach(function (): void {
     $this->clock = new MockClock();
     $this->chat = new Chat($this->clock);
-    $this->router = new ApiRouter(new ApiController($this->chat));
+    $this->userStorage = new UserStorage();
+    $this->router = new ApiRouter(new ApiController($this->chat, $this->userStorage));
+});
+
+describe('User registration', function (): void {
+    beforeEach(function (): void {
+        $request = new StubHttpRequest('POST', '/api/user/register', [], [
+            'name' => 'Ivan',
+        ]);
+        $this->response = new StubHttpResponse();
+        $this->router->dispatch(new ApiRequest($request), new ApiResponse($this->response));
+    });
+
+    it('should return 201 Created', function (): void {
+        expect($this->response->statusCode())->toBe(HttpStatusCode::CREATED);
+    });
+
+    it('should return access token', function (): void {
+        expect($this->response->data()['accessToken'] ?? '')->not()->toBeEmpty();
+    });
+
+    it('should be accessible from the user storage', function (): void {
+        $accessToken = $this->response->data()['accessToken'] ?? '';
+        expect($this->userStorage->findNameByToken($accessToken))->toBe('Ivan');
+    });
 });
 
 describe('Sending a message', function (): void {
     beforeEach(function (): void {
+        $accessToken = $this->userStorage->register('John Doe');
         $request = new StubHttpRequest('POST', '/api/message/send', [], [
             'chatId' => 1,
-            'author' => 'John Doe',
             'text' => 'Hello World!',
+        ], [
+            'Authorization' => 'Bearer ' . $accessToken,
         ]);
         $this->response = new StubHttpResponse();
         $this->router->dispatch(new ApiRequest($request), new ApiResponse($this->response));

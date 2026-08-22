@@ -11,6 +11,7 @@ readonly class StubHttpRequest implements HttpRequest
         private string $path = '/',
         private array $queryString = [],
         private array $content = [],
+        private array $headers = [],
     ) {
     }
 
@@ -32,5 +33,10 @@ readonly class StubHttpRequest implements HttpRequest
     public function queryString(): string
     {
         return http_build_query($this->queryString);
+    }
+
+    public function header(string $name): ?string
+    {
+        return $this->headers[$name] ?? null;
     }
 }

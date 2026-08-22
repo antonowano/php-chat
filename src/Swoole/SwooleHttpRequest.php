@@ -31,4 +31,9 @@ readonly class SwooleHttpRequest implements HttpRequest
     {
         return $this->swooleRequest->server['query_string'];
     }
+
+    public function header(string $name): ?string
+    {
+        return $this->swooleRequest->header[strtolower($name)] ?? null;
+    }
 }

@@ -26,4 +26,13 @@ readonly class ApiRequest
     {
         return DataBag::fromQuery($this->httpRequest->queryString());
     }
+
+    public function accessToken(): ?string
+    {
+        $authentication = $this->httpRequest->header('Authorization');
+        if (empty($authentication)) {
+            return null;
+        }
+        return str_replace('Bearer ', '', $authentication);
+    }
 }

@@ -18,6 +18,7 @@ use Antonowano\Chat\Swoole\SwooleHttpResponse;
 use Antonowano\Chat\Swoole\SwooleWsChatListener;
 use Antonowano\Chat\Swoole\SwooleWsFrame;
 use Antonowano\Chat\Swoole\SwooleWsResponse;
+use Antonowano\Chat\UserStorage;
 use OpenSwoole\Http\Request;
 use OpenSwoole\Http\Response;
 use OpenSwoole\WebSocket\Frame;
@@ -26,7 +27,8 @@ use Symfony\Component\Clock\NativeClock;
 
 $server = new Server('0.0.0.0', 9501, SWOOLE_BASE);
 $chat = new Chat(new NativeClock());
-$apiController = new ApiController($chat);
+$userStorage = new UserStorage();
+$apiController = new ApiController($chat, $userStorage);
 $apiRouter = new ApiRouter($apiController);
 $streamController = new StreamController($chat);
 $streamRouter = new StreamRouter($streamController);
@@ -45,10 +47,14 @@ $server->on('Message', function (Server $server, Frame $rawFrame) use ($streamRo
     if (!$rawFrame->finish) {
         return;
     }
-    $streamRouter->dispatch(
-        new StreamFrame(new SwooleWsFrame($rawFrame)),
-        new StreamResponse(new SwooleWsResponse($server, $rawFrame->fd))
-    );
+    try {
+        $streamRouter->dispatch(
+            new StreamFrame(new SwooleWsFrame($rawFrame)),
+            new StreamResponse(new SwooleWsResponse($server, $rawFrame->fd))
+        );
+    } catch (Throwable $e) {
+        echo $e . PHP_EOL;
+    }
 });
 
 $server->on('Close', function (Server $server, int $fd) use ($chat): void {
@@ -57,10 +63,14 @@ $server->on('Close', function (Server $server, int $fd) use ($chat): void {
 });
 
 $server->on('Request', function (Request $rawRequest, Response $rawResponse) use ($apiRouter): void {
-    $apiRouter->dispatch(
-        new ApiRequest(new SwooleHttpRequest($rawRequest)),
-        new ApiResponse(new SwooleHttpResponse($rawResponse))
-    );
+    try {
+        $apiRouter->dispatch(
+            new ApiRequest(new SwooleHttpRequest($rawRequest)),
+            new ApiResponse(new SwooleHttpResponse($rawResponse))
+        );
+    } catch (Throwable $e) {
+        echo $e . PHP_EOL;
+    }
 });
 
 $server->start();

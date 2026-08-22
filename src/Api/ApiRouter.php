@@ -11,6 +11,7 @@ readonly class ApiRouter
         ApiController $apiController,
     ) {
         $this->routes = [
+            new ApiRoute('POST', '/api/user/register', [$apiController, 'registerUser']),
             new ApiRoute('POST', '/api/message/send', [$apiController, 'sendMessage']),
             new ApiRoute('GET', '/api/messages/last', [$apiController, 'lastMessages']),
             new ApiRoute('GET', '/api/messages/next', [$apiController, 'nextMessages']),
