@@ -7,7 +7,7 @@ readonly class NewMessage
     public function __construct(
         private int $chatId,
         private string $text,
-        private string $author,
+        private User $author,
     ) {
     }
 
@@ -21,7 +21,7 @@ readonly class NewMessage
         return $this->text;
     }
 
-    public function author(): string
+    public function author(): User
     {
         return $this->author;
     }

@@ -19,6 +19,7 @@ use Antonowano\Chat\Swoole\SwooleHttpResponse;
 use Antonowano\Chat\Swoole\SwooleWsChatListener;
 use Antonowano\Chat\Swoole\SwooleWsFrame;
 use Antonowano\Chat\Swoole\SwooleWsResponse;
+use Antonowano\Chat\User;
 use Antonowano\Chat\UserStorage;
 use OpenSwoole\Http\Request;
 use OpenSwoole\Http\Response;
@@ -35,7 +36,7 @@ $apiRouter = new ApiRouter($apiController);
 $streamController = new StreamController($chat);
 $streamRouter = new StreamRouter($streamController);
 
-echo 'Admin token: ' . $userStorage->register('Ivan') . PHP_EOL;
+echo 'Admin token: ' . $userStorage->register(new User('Admin')) . PHP_EOL;
 
 $server->on('Start', function (): void {
     echo 'OpenSwoole http server is started' . PHP_EOL;
@@ -53,7 +54,7 @@ $server->on('Handshake', function (Request $request, Response $response) use ($c
         }
 
         $apiRequest = new ApiRequest(new SwooleHttpRequest($request));
-        $user = $userStorage->findNameByToken($apiRequest->accessToken());
+        $user = $userStorage->findByToken($apiRequest->accessToken());
 
         if (!$user) {
             $response->status(401);

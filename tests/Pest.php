@@ -2,6 +2,7 @@
 
 use Antonowano\Chat\Message;
 use Antonowano\Chat\NewMessage;
+use Antonowano\Chat\User;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
@@ -52,36 +53,34 @@ function payloadOfMessages(array $messages): array
     return array_map(fn($m) => $m->toChatPayload(), $messages);
 }
 
+function createUser(string $name = 'User'): User
+{
+    return new User(
+        name: $name,
+    );
+}
+
 function createMessage(
     int $id = 0,
     string $text = 'Text message',
     ?\DateTimeInterface $createdAt = null,
-    string $author = 'User',
-    int $chatId = 1,
+    int $chatId = 0,
+    ?User $author = null,
 ): Message {
     return new Message(
         chatId: $chatId,
         id: $id,
         text: $text,
         createdAt: $createdAt ?? new DateTime('now'),
-        author: $author,
+        author: $author ?? createUser(),
     );
 }
 
-/**
- * @param list<int> $ids
- * @return list<Message>
- */
-function createMessages(array $ids): array
-{
-    return array_map(fn ($id) => $this->createMessage(id: $id), $ids);
-}
-
-function createNewMessage(int $chatId, string $text, string $author): NewMessage
+function createNewMessage(int $chatId, string $text, ?User $author = null): NewMessage
 {
     return new NewMessage(
         chatId: $chatId,
         text: $text,
-        author: $author,
+        author: $author ?? createUser(),
     );
 }

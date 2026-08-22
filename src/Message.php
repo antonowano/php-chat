@@ -11,7 +11,7 @@ readonly class Message
         private int $id,
         private string $text,
         private DateTimeInterface $createdAt,
-        private string $author,
+        private User $author,
     ) {
     }
 
@@ -20,7 +20,7 @@ readonly class Message
         return $this->id === $message->id
             && $this->text === $message->text
             && $this->createdAt == $message->createdAt
-            && $this->author === $message->author;
+            && $this->author->equals($message->author);
     }
 
     public function id(): int
@@ -49,7 +49,7 @@ readonly class Message
             '[%s] [#%d] %s: %s',
             $this->createdAt->format('H:i:s d.m.Y'),
             $this->id,
-            $this->author,
+            $this->author->name(),
             $this->text
         );
     }
@@ -60,7 +60,7 @@ readonly class Message
             'chatId' => $this->chatId,
             'id' => $this->id,
             'text' => $this->text,
-            'author' => $this->author,
+            'author' => $this->author->name(),
             'date' => $this->createdAt->format('d.m.Y'),
             'time' => $this->createdAt->format('H:i'),
         ];

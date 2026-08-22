@@ -20,7 +20,9 @@ beforeEach(function (): void {
 });
 
 describe('Sending a message', function (): void {
-    beforeEach(function (): void {
+    $user = createUser('John Doe');
+
+    beforeEach(function () use ($user): void {
         $frame = new StubWsFrame([
             'type' => 'NewMessage',
             'data' => [
@@ -29,13 +31,13 @@ describe('Sending a message', function (): void {
             ],
         ]);
         $this->response = new StubWsResponse();
-        $this->router->dispatch(new StreamFrame($frame, 'John Doe'), new StreamResponse($this->response));
+        $this->router->dispatch(new StreamFrame($frame, $user), new StreamResponse($this->response));
         $this->messageInChat1 = $this->chat->getLastMessages(1, 10);
         $this->messageInChat2 = $this->chat->getLastMessages(2, 10);
     });
 
-    it('should matches the sent message', function (): void {
-        $expected = createMessage(1, 'Hello World!', $this->clock->now(), 'John Doe');
+    it('should matches the sent message', function () use ($user): void {
+        $expected = createMessage(1, 'Hello World!', $this->clock->now(), 1, $user);
         expect($expected)->toEqual($this->messageInChat1[0]);
     });
 
@@ -61,7 +63,10 @@ describe('Fetching latest messages', function (): void {
             ],
         ]);
         $this->response = new StubWsResponse();
-        $this->router->dispatch(new StreamFrame($frame), new StreamResponse($this->response));
+        $this->router->dispatch(
+            new StreamFrame($frame, createUser()),
+            new StreamResponse($this->response)
+        );
     });
 
     it("should return the last {$limit} messages", function () use ($limit, $chatId): void {
@@ -89,7 +94,10 @@ describe('Fetching next messages', function (): void {
             ]
         ]);
         $this->response = new StubWsResponse();
-        $this->router->dispatch(new StreamFrame($frame), new StreamResponse($this->response));
+        $this->router->dispatch(
+            new StreamFrame($frame, createUser()),
+            new StreamResponse($this->response)
+        );
     });
 
     it(
@@ -123,7 +131,10 @@ describe('Fetching previous messages', function (): void {
             ]
         ]);
         $this->response = new StubWsResponse();
-        $this->router->dispatch(new StreamFrame($frame), new StreamResponse($this->response));
+        $this->router->dispatch(
+            new StreamFrame($frame, createUser()),
+            new StreamResponse($this->response)
+        );
     });
 
     it(

@@ -6,21 +6,21 @@ uses(TestCase::class);
 
 it('equals', function (): void {
     $this->assertEquals(
-        $this->createNewMessage(1, 'Hello, World!', 'Ivan'),
-        $this->createNewMessage(1, 'Hello, World!', 'Ivan')
+        createNewMessage(1, 'Hello, World!'),
+        createNewMessage(1, 'Hello, World!')
     );
 });
 
 it('not equals', function (): void {
     $this->assertNotEquals(
-        $this->createNewMessage(2, 'Hello, World!1', 'Ivan'),
-        $this->createNewMessage(2, 'Hello, World!', 'Ivan')
+        createNewMessage(2, 'Hello, World!1'),
+        createNewMessage(2, 'Hello, World!')
     );
 });
 
 it('not equals2', function (): void {
     $this->assertNotEquals(
-        $this->createNewMessage(3, 'Hello, World!', 'Ivan'),
-        $this->createNewMessage(3, 'Hello, World!', 'Olga')
+        createNewMessage(3, 'Hello, World!', createUser('Ivan')),
+        createNewMessage(3, 'Hello, World!', createUser('Olga'))
     );
 });

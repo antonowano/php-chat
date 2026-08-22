@@ -4,20 +4,21 @@ namespace Antonowano\Chat;
 
 class UserStorage
 {
-    private array $namesByTokens = [];
+    /** @var array<string, User> */
+    private array $usersByTokens = [];
 
-    public function register(string $name): string
+    public function register(User $user): string
     {
         $token = uniqid();
-        $this->namesByTokens[$token] = $name;
+        $this->usersByTokens[$token] = $user;
         return $token;
     }
 
-    public function findNameByToken(?string $token): ?string
+    public function findByToken(?string $token): ?User
     {
         if (empty($token)) {
             return null;
         }
-        return $this->namesByTokens[$token] ?? null;
+        return $this->usersByTokens[$token] ?? null;
     }
 }

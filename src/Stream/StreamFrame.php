@@ -3,6 +3,7 @@
 namespace Antonowano\Chat\Stream;
 
 use Antonowano\Chat\DataBag;
+use Antonowano\Chat\User;
 
 readonly class StreamFrame
 {
@@ -10,7 +11,7 @@ readonly class StreamFrame
 
     public function __construct(
         WsFrame $frame,
-        private string $user = '',
+        private User $user,
     ) {
         $this->data = DataBag::fromJson($frame->data());
     }
@@ -25,7 +26,7 @@ readonly class StreamFrame
         return new DataBag($this->data->get('data'));
     }
 
-    public function user(): string
+    public function user(): User
     {
         return $this->user;
     }
