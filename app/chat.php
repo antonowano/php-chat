@@ -40,52 +40,59 @@ $server->on('Start', function (): void {
 });
 
 $server->on('Handshake', function (Request $request, Response $response) use ($chat, $server, $userStorage): void {
-    $secWebSocketKey = $request->header['sec-websocket-key'] ?? '';
+    try {
+        $secWebSocketKey = $request->header['sec-websocket-key'] ?? '';
 
-    if (0 === preg_match('#^[+/0-9A-Za-z]{21}[AQgw]==$#', $secWebSocketKey) || 16 !== strlen(base64_decode($secWebSocketKey))) {
+        if (0 === preg_match('#^[+/0-9A-Za-z]{21}[AQgw]==$#', $secWebSocketKey)
+            || 16 !== strlen(base64_decode($secWebSocketKey))) {
+            $response->status(400);
+            $response->end();
+            return;
+        }
+
+        $apiRequest = new ApiRequest(new SwooleHttpRequest($request));
+
+        if (!$userStorage->findNameByToken($apiRequest->accessToken())) {
+            $response->status(401);
+            $response->end();
+            return;
+        }
+
+        $key = base64_encode(sha1($secWebSocketKey . '258EAFA5-E914-47DA-95CA-C5AB0DC85B11', true));
+
+        $headers = [
+            'Upgrade' => 'websocket',
+            'Connection' => 'Upgrade',
+            'Sec-WebSocket-Accept' => $key,
+            'Sec-WebSocket-Version' => '13',
+        ];
+
+        if(isset($request->header['sec-websocket-protocol'])) {
+            $headers['Sec-WebSocket-Protocol'] = $request->header['sec-websocket-protocol'];
+        }
+
+        foreach($headers as $key => $val) {
+            $response->header($key, $val);
+        }
+
+        $response->status(101);
         $response->end();
-        return;
+
+        $server->defer(function () use ($chat, $server, $request): void {
+            echo "server: handshake success with fd{$request->fd}\n";
+            $listener = new SwooleWsChatListener(new SwooleWsResponse($server, $request->fd));
+            $chat->addListener(SwooleWsChatListener::generateId($request->fd), $listener);
+        });
+    } catch (Throwable $e) {
+        echo $e . PHP_EOL;
     }
-
-    $apiRequest = new ApiRequest(new SwooleHttpRequest($request));
-
-    if (!$userStorage->findNameByToken($apiRequest->accessToken())) {
-        $response->end();
-        return;
-    }
-
-    $key = base64_encode(sha1($secWebSocketKey . '258EAFA5-E914-47DA-95CA-C5AB0DC85B11', true));
-
-    $headers = [
-        'Upgrade' => 'websocket',
-        'Connection' => 'Upgrade',
-        'Sec-WebSocket-Accept' => $key,
-        'Sec-WebSocket-Version' => '13',
-    ];
-
-    if(isset($request->header['sec-websocket-protocol'])) {
-        $headers['Sec-WebSocket-Protocol'] = $request->header['sec-websocket-protocol'];
-    }
-
-    foreach($headers as $key => $val) {
-        $response->header($key, $val);
-    }
-
-    $response->status(101);
-    $response->end();
-
-    $server->defer(function() use ($chat, $server, $request): void {
-        echo "server: handshake success with fd{$request->fd}\n";
-        $listener = new SwooleWsChatListener(new SwooleWsResponse($server, $request->fd));
-        $chat->addListener(SwooleWsChatListener::generateId($request->fd), $listener);
-    });
 });
 
 $server->on('Message', function (Server $server, Frame $rawFrame) use ($streamRouter): void {
-    if (!$rawFrame->finish) {
-        return;
-    }
     try {
+        if (!$rawFrame->finish) {
+            return;
+        }
         $streamRouter->dispatch(
             new StreamFrame(new SwooleWsFrame($rawFrame)),
             new StreamResponse(new SwooleWsResponse($server, $rawFrame->fd))
@@ -96,8 +103,12 @@ $server->on('Message', function (Server $server, Frame $rawFrame) use ($streamRo
 });
 
 $server->on('Close', function (Server $server, int $fd) use ($chat): void {
-    echo "client {$fd} closed\n";
-    $chat->removeListenerById(SwooleWsChatListener::generateId($fd));
+    try {
+        echo "client {$fd} closed\n";
+        $chat->removeListenerById(SwooleWsChatListener::generateId($fd));
+    } catch (Throwable $e) {
+        echo $e . PHP_EOL;
+    }
 });
 
 $server->on('Request', function (Request $rawRequest, Response $rawResponse) use ($apiRouter): void {
