@@ -29,6 +29,7 @@ describe('User registration', function (): void {
         ]);
         $this->response = new StubHttpResponse();
         $this->router->dispatch(new ApiRequest($request), new ApiResponse($this->response));
+        $this->accessToken = $this->response->data()['accessToken'] ?? '';
     });
 
     it('should return 201 Created', function (): void {
@@ -36,12 +37,11 @@ describe('User registration', function (): void {
     });
 
     it('should return access token', function (): void {
-        expect($this->response->data()['accessToken'] ?? '')->not()->toBeEmpty();
+        expect($this->accessToken)->not()->toBeEmpty();
     });
 
     it('should be accessible from the user storage', function (): void {
-        $accessToken = $this->response->data()['accessToken'] ?? '';
-        expect($this->userStorage->findNameByToken($accessToken))->toBe('Ivan');
+        expect($this->userStorage->findNameByToken($this->accessToken))->toBe('Ivan');
     });
 });
 
