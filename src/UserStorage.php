@@ -13,8 +13,11 @@ class UserStorage
         return $token;
     }
 
-    public function findNameByToken(string $token): ?string
+    public function findNameByToken(?string $token): ?string
     {
+        if (empty($token)) {
+            return null;
+        }
         return $this->namesByTokens[$token] ?? null;
     }
 }

@@ -17,6 +17,8 @@ namespace OpenSwoole\Http {
                 'request_uri' => '',
             ];
 
+            public array $header = [];
+
             public function getMethod(): string { return 'GET'; }
 
             public function getContent(): string { return ''; }
@@ -29,7 +31,7 @@ namespace OpenSwoole\Http {
 
             public function status(int $status): void { }
 
-            public function end(string $content): void { }
+            public function end(string $content = ''): void { }
         }
     }
 }
@@ -47,6 +49,8 @@ namespace OpenSwoole\WebSocket {
             public function push($fd, $data, $opcode = null, $flags = null) {}
 
             public function isEstablished(int $fd): bool { return true; }
+
+            public function defer(\Closure $param): void {}
         }
     }
     if (!class_exists('OpenSwoole\WebSocket\Frame')) {
