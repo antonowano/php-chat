@@ -10,9 +10,8 @@ class AccessControl
             return true;
         }
 
-        if (str_starts_with($permission, 'chat.') && $subject instanceof Chat) {
-            // TODO this is a stub. The implementation of rooms is required to continue.
-            return $user->id() === 1;
+        if (str_starts_with($permission, 'room.') && $subject instanceof Room) {
+            return $subject->hasMember($user);
         }
 
         return false;

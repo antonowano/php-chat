@@ -5,6 +5,7 @@ use Antonowano\Chat\Message;
 use Antonowano\Chat\NewMessage;
 use Antonowano\Chat\NewUser;
 use Antonowano\Chat\Role;
+use Antonowano\Chat\Room;
 use Antonowano\Chat\User;
 use Psr\Clock\ClockInterface;
 use Symfony\Component\Clock\MockClock;
@@ -104,5 +105,13 @@ function createNewMessage(int $roomId, string $text, ?User $author = null): NewM
         roomId: $roomId,
         text: $text,
         author: $author ?? createUser(),
+    );
+}
+
+function createRoom(int $id = 0, array $memberIds = []): Room
+{
+    return new Room(
+        id: $id,
+        memberIds: $memberIds,
     );
 }
