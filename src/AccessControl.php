@@ -2,7 +2,7 @@
 
 namespace Antonowano\Chat;
 
-class AccessControl
+readonly class AccessControl
 {
     public function isGranted(User $user, string $permission, mixed $subject = null): bool
     {
