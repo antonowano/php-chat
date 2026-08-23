@@ -2,32 +2,19 @@
 
 namespace Antonowano\Chat;
 
-use Psr\Clock\ClockInterface;
-
 class Chat
 {
     /** @var array<string, ChatListener> */
     private array $listeners = [];
 
-    private array $messages = [];
-
-    private int $autoIncrement = 1;
-
     public function __construct(
-        private readonly ClockInterface $clock,
+        private readonly MessageStorage $messageStorage,
     ) {
     }
 
     public function sendMessage(NewMessage $newMessage): void
     {
-        $message = new Message(
-            roomId: $newMessage->roomId(),
-            id: $this->autoIncrement++,
-            text: $newMessage->text(),
-            createdAt: $this->clock->now(),
-            author: $newMessage->author(),
-        );
-        $this->messages[$newMessage->roomId()][] = $message;
+        $message = $this->messageStorage->create($newMessage);
 
         foreach ($this->listeners as $listener) {
             $listener->onMessageSent($message);
@@ -39,7 +26,7 @@ class Chat
      */
     public function getLastMessages(int $roomId, int $count): array
     {
-        return array_slice($this->messages[$roomId] ?? [], -$count);
+        return $this->messageStorage->getLastMessages($roomId, $count);
     }
 
     /**
@@ -47,12 +34,7 @@ class Chat
      */
     public function getMessagesBeforeId(int $roomId, int $id, int $count): array
     {
-        $messages = array_values(array_filter(
-            $this->messages[$roomId] ?? [],
-            static fn (Message $message) => $message->hasIdLessThan($id)
-        ));
-
-        return array_slice($messages, -$count);
+        return $this->messageStorage->getMessagesBeforeId($roomId, $id, $count);
     }
 
     /**
@@ -60,12 +42,7 @@ class Chat
      */
     public function getMessagesAfterId(int $roomId, int $id, int $count): array
     {
-        $messages = array_values(array_filter(
-            $this->messages[$roomId] ?? [],
-            static fn (Message $message) => $message->hasIdGreaterThan($id)
-        ));
-
-        return array_slice($messages, 0, $count);
+        return $this->messageStorage->getMessagesAfterId($roomId, $id, $count);
     }
 
     public function addListener(string $id, ChatListener $listener): void

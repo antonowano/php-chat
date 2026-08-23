@@ -1,6 +1,5 @@
 <?php
 
-use Antonowano\Chat\Chat;
 use Antonowano\Chat\Message;
 use Antonowano\Chat\Stream\StreamController;
 use Antonowano\Chat\Stream\StreamFrame;
@@ -15,7 +14,7 @@ uses(TestCase::class);
 
 beforeEach(function (): void {
     $this->clock = new MockClock();
-    $this->chat = new Chat($this->clock);
+    $this->chat = createChat($this->clock);
     $this->router = new StreamRouter(new StreamController($this->chat));
 });
 

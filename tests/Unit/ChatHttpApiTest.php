@@ -4,7 +4,6 @@ use Antonowano\Chat\Api\ApiController;
 use Antonowano\Chat\Api\ApiRequest;
 use Antonowano\Chat\Api\ApiResponse;
 use Antonowano\Chat\Api\ApiRouter;
-use Antonowano\Chat\Chat;
 use Antonowano\Chat\Enums\HttpStatusCode;
 use Antonowano\Chat\Message;
 use Antonowano\Chat\Stubs\StubHttpRequest;
@@ -17,7 +16,7 @@ uses(TestCase::class);
 
 beforeEach(function (): void {
     $this->clock = new MockClock();
-    $this->chat = new Chat($this->clock);
+    $this->chat = createChat($this->clock);
     $this->userStorage = new UserStorage();
     $this->router = new ApiRouter(new ApiController($this->chat, $this->userStorage));
 });

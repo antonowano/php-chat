@@ -2,6 +2,7 @@
 
 use Antonowano\Chat\Chat;
 use Antonowano\Chat\Message;
+use Antonowano\Chat\MessageStorage;
 use Antonowano\Chat\NewMessage;
 use Antonowano\Chat\NewUser;
 use Antonowano\Chat\Role;
@@ -79,7 +80,9 @@ function createNewUser(string $name = 'User', Role $role = Role::USER): NewUser
 function createChat(?ClockInterface $clock = null): Chat
 {
     return new Chat(
-        clock: $clock ?? new MockClock(),
+        messageStorage: new MessageStorage(
+            clock: $clock ?? new MockClock(),
+        ),
     );
 }
 
