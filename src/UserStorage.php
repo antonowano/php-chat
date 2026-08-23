@@ -7,10 +7,16 @@ class UserStorage
     /** @var array<string, User> */
     private array $usersByTokens = [];
 
-    public function register(User $user): string
+    private int $autoIncrement = 1;
+
+    public function register(NewUser $user): string
     {
         $token = uniqid();
-        $this->usersByTokens[$token] = $user;
+        $this->usersByTokens[$token] = new User(
+            id: $this->autoIncrement++,
+            name: $user->name(),
+            role: $user->role(),
+        );
         return $token;
     }
 

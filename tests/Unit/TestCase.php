@@ -11,9 +11,9 @@ class TestCase extends BaseTestCase
 {
     protected function messageTexts(): array
     {
-        $john = createUser('John Doe');
-        $olga = createUser('Olga');
-        $ivan = createUser('Ivan');
+        $john = createUser(name: 'John Doe');
+        $olga = createUser(name: 'Olga');
+        $ivan = createUser(name: 'Ivan');
 
         return [
             ['chatId' => 2, 'text' => 'Hello, World!', 'author' => $john],

@@ -20,7 +20,7 @@ beforeEach(function (): void {
 });
 
 describe('Sending a message', function (): void {
-    $user = createUser('John Doe');
+    $user = createUser(name: 'John Doe');
 
     beforeEach(function () use ($user): void {
         $frame = new StubWsFrame([

@@ -4,7 +4,8 @@ namespace Antonowano\Chat\Api;
 
 use Antonowano\Chat\Chat;
 use Antonowano\Chat\NewMessage;
-use Antonowano\Chat\User;
+use Antonowano\Chat\NewUser;
+use Antonowano\Chat\Role;
 use Antonowano\Chat\UserStorage;
 
 readonly class ApiController
@@ -18,8 +19,9 @@ readonly class ApiController
     public function registerUser(ApiRequest $request, ApiResponse $response): void
     {
         $data = $request->json();
-        $accessToken = $this->userStorage->register(new User(
+        $accessToken = $this->userStorage->register(new NewUser(
             name: $data->get('name'),
+            role: Role::USER,
         ));
         $response->sendAccessToken($accessToken);
     }

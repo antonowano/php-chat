@@ -9,7 +9,6 @@ use Antonowano\Chat\Enums\HttpStatusCode;
 use Antonowano\Chat\Message;
 use Antonowano\Chat\Stubs\StubHttpRequest;
 use Antonowano\Chat\Stubs\StubHttpResponse;
-use Antonowano\Chat\User;
 use Antonowano\Chat\UserStorage;
 use Symfony\Component\Clock\MockClock;
 use Tests\Antonowano\Chat\Unit\TestCase;
@@ -42,15 +41,13 @@ describe('User registration', function (): void {
     });
 
     it('should be accessible from the user storage', function (): void {
-        expect($this->userStorage->findByToken($this->accessToken))->toEqual(new User('Ivan'));
+        expect($this->userStorage->findByToken($this->accessToken))->toEqual(createUser(id: 1, name: 'Ivan'));
     });
 });
 
 describe('Sending a message', function (): void {
-    $user = createUser('John Doe');
-
-    beforeEach(function () use ($user): void {
-        $accessToken = $this->userStorage->register($user);
+    beforeEach(function (): void {
+        $accessToken = $this->userStorage->register(createNewUser(name: 'John Doe'));
         $request = new StubHttpRequest('POST', '/api/message/send', [], [
             'chatId' => 1,
             'text' => 'Hello World!',
@@ -67,9 +64,13 @@ describe('Sending a message', function (): void {
         expect($this->response->statusCode())->toBe(HttpStatusCode::CREATED);
     });
 
-    it('should matches the sent message', function () use ($user): void {
-        $expected = createMessage(1, 'Hello World!', $this->clock->now(), 1, $user);
-        expect($expected)->toEqual($this->messageInChat1[0]);
+    it('should matches the sent message', function (): void {
+        /** @var Message $message */
+        $message = $this->messageInChat1[0];
+        expect($message->id())->toBe(1)
+            ->and($message->text())->toBe('Hello World!')
+            ->and($message->chatId())->toBe(1)
+            ->and($message->author()->name())->toBe('John Doe');
     });
 
     it('should store exactly one message in the chat', function (): void {

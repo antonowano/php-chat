@@ -9,6 +9,8 @@ use Antonowano\Chat\Api\ApiRequest;
 use Antonowano\Chat\Api\ApiResponse;
 use Antonowano\Chat\Api\ApiRouter;
 use Antonowano\Chat\Chat;
+use Antonowano\Chat\NewUser;
+use Antonowano\Chat\Role;
 use Antonowano\Chat\SessionStorage;
 use Antonowano\Chat\Stream\StreamController;
 use Antonowano\Chat\Stream\StreamFrame;
@@ -19,7 +21,6 @@ use Antonowano\Chat\Swoole\SwooleHttpResponse;
 use Antonowano\Chat\Swoole\SwooleWsChatListener;
 use Antonowano\Chat\Swoole\SwooleWsFrame;
 use Antonowano\Chat\Swoole\SwooleWsResponse;
-use Antonowano\Chat\User;
 use Antonowano\Chat\UserStorage;
 use OpenSwoole\Http\Request;
 use OpenSwoole\Http\Response;
@@ -36,7 +37,7 @@ $apiRouter = new ApiRouter($apiController);
 $streamController = new StreamController($chat);
 $streamRouter = new StreamRouter($streamController);
 
-echo 'Admin token: ' . $userStorage->register(new User('Admin')) . PHP_EOL;
+echo 'Admin token: ' . $userStorage->register(new NewUser('Admin', Role::ADMIN)) . PHP_EOL;
 
 $server->on('Start', function (): void {
     echo 'OpenSwoole http server is started' . PHP_EOL;

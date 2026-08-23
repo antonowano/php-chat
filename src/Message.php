@@ -33,6 +33,16 @@ readonly class Message
         return $this->chatId;
     }
 
+    public function text(): string
+    {
+        return $this->text;
+    }
+
+    public function author(): User
+    {
+        return $this->author;
+    }
+
     public function hasIdLessThan(int $id): bool
     {
         return $this->id < $id;

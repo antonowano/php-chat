@@ -1,8 +1,13 @@
 <?php
 
+use Antonowano\Chat\Chat;
 use Antonowano\Chat\Message;
 use Antonowano\Chat\NewMessage;
+use Antonowano\Chat\NewUser;
+use Antonowano\Chat\Role;
 use Antonowano\Chat\User;
+use Psr\Clock\ClockInterface;
+use Symfony\Component\Clock\MockClock;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
@@ -53,10 +58,27 @@ function payloadOfMessages(array $messages): array
     return array_map(fn($m) => $m->toChatPayload(), $messages);
 }
 
-function createUser(string $name = 'User'): User
+function createUser(int $id = 0, string $name = 'User', Role $role = Role::USER): User
 {
     return new User(
+        id: $id,
         name: $name,
+        role: $role,
+    );
+}
+
+function createNewUser(string $name = 'User', Role $role = Role::USER): NewUser
+{
+    return new NewUser(
+        name: $name,
+        role: $role,
+    );
+}
+
+function createChat(?ClockInterface $clock = null): Chat
+{
+    return new Chat(
+        clock: $clock ?? new MockClock(),
     );
 }
 

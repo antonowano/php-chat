@@ -20,7 +20,7 @@ it('not equals', function (): void {
 
 it('not equals2', function (): void {
     $this->assertNotEquals(
-        createNewMessage(3, 'Hello, World!', createUser('Ivan')),
-        createNewMessage(3, 'Hello, World!', createUser('Olga'))
+        createNewMessage(3, 'Hello, World!', createUser(name: 'Ivan')),
+        createNewMessage(3, 'Hello, World!', createUser(name: 'Olga'))
     );
 });
