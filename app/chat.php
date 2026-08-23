@@ -9,6 +9,7 @@ use Antonowano\Chat\Api\ApiRequest;
 use Antonowano\Chat\Api\ApiResponse;
 use Antonowano\Chat\Api\ApiRouter;
 use Antonowano\Chat\Chat;
+use Antonowano\Chat\MessageStorage;
 use Antonowano\Chat\NewUser;
 use Antonowano\Chat\Role;
 use Antonowano\Chat\SessionStorage;
@@ -29,7 +30,8 @@ use OpenSwoole\WebSocket\Server;
 use Symfony\Component\Clock\NativeClock;
 
 $server = new Server('0.0.0.0', 9501, SWOOLE_BASE);
-$chat = new Chat(new NativeClock());
+$messageStorage = new MessageStorage(new NativeClock());
+$chat = new Chat($messageStorage);
 $userStorage = new UserStorage();
 $sessionStorage = new SessionStorage();
 $apiController = new ApiController($chat, $userStorage);
