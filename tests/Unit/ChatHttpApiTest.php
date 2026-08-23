@@ -2,8 +2,6 @@
 
 use Antonowano\Chat\AccessControl;
 use Antonowano\Chat\Api\ApiController;
-use Antonowano\Chat\Api\ApiRequest;
-use Antonowano\Chat\Api\ApiResponse;
 use Antonowano\Chat\Api\ApiRouter;
 use Antonowano\Chat\Enums\HttpStatusCode;
 use Antonowano\Chat\Events;
@@ -12,7 +10,6 @@ use Antonowano\Chat\MessageStorage;
 use Antonowano\Chat\Role;
 use Antonowano\Chat\RoomStorage;
 use Antonowano\Chat\Stubs\StubHttpRequest;
-use Antonowano\Chat\Stubs\StubHttpResponse;
 use Antonowano\Chat\UserStorage;
 use Symfony\Component\Clock\MockClock;
 use Tests\Antonowano\Chat\Unit\TestCase;
@@ -38,8 +35,7 @@ describe('User registration by admin', function (): void {
         $request = new StubHttpRequest('POST', '/api/user/register', [], [
             'name' => 'Ivan',
         ]);
-        $this->response = new StubHttpResponse();
-        $this->router->dispatch(new ApiRequest($request, createUser(role: Role::ADMIN)), new ApiResponse($this->response));
+        $this->response = sendRequestToApi($this->router, $request, createUser(role: Role::ADMIN));
         $this->accessToken = $this->response->data()['accessToken'] ?? '';
     });
 
@@ -61,8 +57,7 @@ describe('User registration by another user', function (): void {
         $request = new StubHttpRequest('POST', '/api/user/register', [], [
             'name' => 'Olga',
         ]);
-        $this->response = new StubHttpResponse();
-        $this->router->dispatch(new ApiRequest($request, createUser()), new ApiResponse($this->response));
+        $this->response = sendRequestToApi($this->router, $request);
     });
 
     it('should return 403 Forbidden', function (): void {
@@ -77,8 +72,7 @@ describe('Room registration', function (): void {
         $request = new StubHttpRequest('POST', '/api/room/register', [], [
             'memberIds' => [1, 2],
         ]);
-        $this->response = new StubHttpResponse();
-        $this->router->dispatch(new ApiRequest($request, createUser(role: Role::ADMIN)), new ApiResponse($this->response));
+        $this->response = sendRequestToApi($this->router, $request, createUser(role: Role::ADMIN));
     });
 
     it('should return 201 Created', function (): void {
@@ -96,8 +90,7 @@ describe('Sending a message', function (): void {
             'roomId' => 1,
             'text' => 'Hello World!',
         ]);
-        $this->response = new StubHttpResponse();
-        $this->router->dispatch(new ApiRequest($request, createUser(name: 'John Doe')), new ApiResponse($this->response));
+        $this->response = sendRequestToApi($this->router, $request, createUser(name: 'John Doe'));
         $this->messageInChat1 = $this->messageStorage->getLastMessages(1, 10);
         $this->messageInChat2 = $this->messageStorage->getLastMessages(2, 10);
     });
@@ -133,8 +126,7 @@ describe('Fetching latest messages', function (): void {
         $request = new StubHttpRequest('GET', '/api/messages/last', [
             'roomId' => $roomId,
         ]);
-        $this->response = new StubHttpResponse();
-        $this->router->dispatch(new ApiRequest($request, createUser()), new ApiResponse($this->response));
+        $this->response = sendRequestToApi($this->router, $request);
     });
 
     it('should return 200 OK', function (): void {
@@ -159,8 +151,7 @@ describe('Fetching next messages', function (): void {
             'roomId' => $roomId,
             'id' => $afterId,
         ]);
-        $this->response = new StubHttpResponse();
-        $this->router->dispatch(new ApiRequest($request, createUser()), new ApiResponse($this->response));
+        $this->response = sendRequestToApi($this->router, $request);
     });
 
     it('should return 200 OK', function (): void {
@@ -191,8 +182,7 @@ describe('Fetching previous messages', function (): void {
             'roomId' => $roomId,
             'id' => $beforeId,
         ]);
-        $this->response = new StubHttpResponse();
-        $this->router->dispatch(new ApiRequest($request, createUser()), new ApiResponse($this->response));
+        $this->response = sendRequestToApi($this->router, $request);
     });
 
     it('should return 200 OK', function (): void {
@@ -215,8 +205,7 @@ describe('Fetching previous messages', function (): void {
 describe('Accessing non-existent route', function (): void {
     beforeEach(function (): void {
         $request = new StubHttpRequest('POST', '/not-found');
-        $this->response = new StubHttpResponse();
-        $this->router->dispatch(new ApiRequest($request, createUser()), new ApiResponse($this->response));
+        $this->response = sendRequestToApi($this->router, $request);
     });
 
     it('should return 404 Not Found', function (): void {

@@ -4,11 +4,8 @@ use Antonowano\Chat\Events;
 use Antonowano\Chat\Message;
 use Antonowano\Chat\MessageStorage;
 use Antonowano\Chat\Stream\StreamController;
-use Antonowano\Chat\Stream\StreamFrame;
-use Antonowano\Chat\Stream\StreamResponse;
 use Antonowano\Chat\Stream\StreamRouter;
 use Antonowano\Chat\Stubs\StubWsFrame;
-use Antonowano\Chat\Stubs\StubWsResponse;
 use Symfony\Component\Clock\MockClock;
 use Tests\Antonowano\Chat\Unit\TestCase;
 
@@ -31,8 +28,7 @@ describe('Sending a message', function (): void {
                 'text' => 'Hello World!',
             ],
         ]);
-        $this->response = new StubWsResponse();
-        $this->router->dispatch(new StreamFrame($frame, $user), new StreamResponse($this->response));
+        $this->response = sendRequestToWs($this->router, $frame, $user);
         $this->messageInChat1 = $this->messageStorage->getLastMessages(1, 10);
         $this->messageInChat2 = $this->messageStorage->getLastMessages(2, 10);
     });
@@ -63,11 +59,7 @@ describe('Fetching latest messages', function (): void {
                 'roomId' => 1,
             ],
         ]);
-        $this->response = new StubWsResponse();
-        $this->router->dispatch(
-            new StreamFrame($frame, createUser()),
-            new StreamResponse($this->response)
-        );
+        $this->response = sendRequestToWs($this->router, $frame);
     });
 
     it("should return the last {$limit} messages", function () use ($limit, $roomId): void {
@@ -94,11 +86,7 @@ describe('Fetching next messages', function (): void {
                 'id' => $afterId,
             ]
         ]);
-        $this->response = new StubWsResponse();
-        $this->router->dispatch(
-            new StreamFrame($frame, createUser()),
-            new StreamResponse($this->response)
-        );
+        $this->response = sendRequestToWs($this->router, $frame);
     });
 
     it(
@@ -131,11 +119,7 @@ describe('Fetching previous messages', function (): void {
                 'id' => $beforeId,
             ]
         ]);
-        $this->response = new StubWsResponse();
-        $this->router->dispatch(
-            new StreamFrame($frame, createUser()),
-            new StreamResponse($this->response)
-        );
+        $this->response = sendRequestToWs($this->router, $frame);
     });
 
     it(

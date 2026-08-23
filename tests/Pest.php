@@ -1,9 +1,19 @@
 <?php
 
+use Antonowano\Chat\Api\ApiRequest;
+use Antonowano\Chat\Api\ApiResponse;
+use Antonowano\Chat\Api\ApiRouter;
+use Antonowano\Chat\Api\HttpRequest;
 use Antonowano\Chat\Message;
 use Antonowano\Chat\NewMessage;
 use Antonowano\Chat\Role;
 use Antonowano\Chat\Room;
+use Antonowano\Chat\Stream\StreamFrame;
+use Antonowano\Chat\Stream\StreamResponse;
+use Antonowano\Chat\Stream\StreamRouter;
+use Antonowano\Chat\Stream\WsFrame;
+use Antonowano\Chat\Stubs\StubHttpResponse;
+use Antonowano\Chat\Stubs\StubWsResponse;
 use Antonowano\Chat\User;
 
 require_once __DIR__ . '/../vendor/autoload.php';
@@ -46,6 +56,20 @@ expect()->extend('toBeOne', function () {
 | global functions to help you to reduce the number of lines of code in your test files.
 |
 */
+
+function sendRequestToApi(ApiRouter $router, HttpRequest $request, ?User $user = null): StubHttpResponse
+{
+    $response = new StubHttpResponse();
+    $router->dispatch(new ApiRequest($request, $user ?? createUser()), new ApiResponse($response));
+    return $response;
+}
+
+function sendRequestToWs(StreamRouter $router, WsFrame $frame, ?User $user = null): StubWsResponse
+{
+    $response = new StubWsResponse();
+    $router->dispatch(new StreamFrame($frame, $user ?? createUser()), new StreamResponse($response));
+    return $response;
+}
 
 /**
  * @param list<Message> $messages
