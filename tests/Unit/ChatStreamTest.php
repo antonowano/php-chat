@@ -1,6 +1,8 @@
 <?php
 
+use Antonowano\Chat\Events;
 use Antonowano\Chat\Message;
+use Antonowano\Chat\MessageStorage;
 use Antonowano\Chat\Stream\StreamController;
 use Antonowano\Chat\Stream\StreamFrame;
 use Antonowano\Chat\Stream\StreamResponse;
@@ -14,8 +16,8 @@ uses(TestCase::class);
 
 beforeEach(function (): void {
     $this->clock = new MockClock();
-    $this->chat = createChat($this->clock);
-    $this->router = new StreamRouter(new StreamController($this->chat));
+    $this->messageStorage = new MessageStorage($this->clock);
+    $this->router = new StreamRouter(new StreamController(new Events(), $this->messageStorage));
 });
 
 describe('Sending a message', function (): void {
@@ -31,8 +33,8 @@ describe('Sending a message', function (): void {
         ]);
         $this->response = new StubWsResponse();
         $this->router->dispatch(new StreamFrame($frame, $user), new StreamResponse($this->response));
-        $this->messageInChat1 = $this->chat->getLastMessages(1, 10);
-        $this->messageInChat2 = $this->chat->getLastMessages(2, 10);
+        $this->messageInChat1 = $this->messageStorage->getLastMessages(1, 10);
+        $this->messageInChat2 = $this->messageStorage->getLastMessages(2, 10);
     });
 
     it('should matches the sent message', function () use ($user): void {
@@ -54,7 +56,7 @@ describe('Fetching latest messages', function (): void {
     $limit = 30;
 
     beforeEach(function () use ($roomId): void {
-        $this->messages = $this->fillChat($this->chat, $this->clock);
+        $this->messages = $this->fillChat($this->messageStorage, $this->clock);
         $frame = new StubWsFrame([
             'type' => 'LastMessages',
             'data' => [
@@ -84,7 +86,7 @@ describe('Fetching next messages', function (): void {
     $limit = 30;
 
     beforeEach(function () use ($roomId, $afterId): void {
-        $this->messages = $this->fillChat($this->chat, $this->clock);
+        $this->messages = $this->fillChat($this->messageStorage, $this->clock);
         $frame = new StubWsFrame([
             'type' => 'NextMessages',
             'data' => [
@@ -121,7 +123,7 @@ describe('Fetching previous messages', function (): void {
     $limit = 30;
 
     beforeEach(function () use ($roomId, $beforeId): void {
-        $this->messages = $this->fillChat($this->chat, $this->clock);
+        $this->messages = $this->fillChat($this->messageStorage, $this->clock);
         $frame = new StubWsFrame([
             'type' => 'PreviousMessages',
             'data' => [

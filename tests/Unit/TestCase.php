@@ -2,8 +2,8 @@
 
 namespace Tests\Antonowano\Chat\Unit;
 
-use Antonowano\Chat\Chat;
 use Antonowano\Chat\Message;
+use Antonowano\Chat\MessageStorage;
 use PHPUnit\Framework\TestCase as BaseTestCase;
 use Psr\Clock\ClockInterface;
 
@@ -29,12 +29,12 @@ class TestCase extends BaseTestCase
     /**
      * @return list<Message>
      */
-    protected function fillChat(Chat $chat, ClockInterface $clock): array
+    protected function fillChat(MessageStorage $messageStorage, ClockInterface $clock): array
     {
         $messages = [];
 
         foreach ($this->messageTexts() as $i => $message) {
-            $chat->sendMessage(createNewMessage($message['roomId'], $message['text'], $message['author']));
+            $messageStorage->create(createNewMessage($message['roomId'], $message['text'], $message['author']));
             $messages[] = createMessage($i + 1, $message['text'], $clock->now(), $message['roomId'], $message['author']);
         }
 
