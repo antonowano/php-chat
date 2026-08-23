@@ -2,6 +2,7 @@
 
 namespace Antonowano\Chat\Api;
 
+use Antonowano\Chat\AccessControl;
 use Antonowano\Chat\Events;
 use Antonowano\Chat\MessageStorage;
 use Antonowano\Chat\NewMessage;
@@ -15,11 +16,17 @@ readonly class ApiController
         private Events $events,
         private UserStorage $userStorage,
         private MessageStorage $messageStorage,
+        private AccessControl $accessControl,
     ) {
     }
 
     public function registerUser(ApiRequest $request, ApiResponse $response): void
     {
+        if (!$this->accessControl->isGranted($request->user(), 'user.register')) {
+            $response->sendForbidden();
+            return;
+        }
+
         $data = $request->json();
         $accessToken = $this->userStorage->register(new NewUser(
             name: $data->get('name'),

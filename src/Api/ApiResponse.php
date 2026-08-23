@@ -40,4 +40,11 @@ readonly class ApiResponse
             'accessToken' => $accessToken,
         ], HttpStatusCode::CREATED);
     }
+
+    public function sendForbidden(): void
+    {
+        $this->httpResponse->json([
+            'error' => 'You dont have permission to access this resource',
+        ], HttpStatusCode::FORBIDDEN);
+    }
 }

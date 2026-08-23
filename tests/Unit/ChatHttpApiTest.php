@@ -1,5 +1,6 @@
 <?php
 
+use Antonowano\Chat\AccessControl;
 use Antonowano\Chat\Api\ApiController;
 use Antonowano\Chat\Api\ApiRequest;
 use Antonowano\Chat\Api\ApiResponse;
@@ -8,6 +9,7 @@ use Antonowano\Chat\Enums\HttpStatusCode;
 use Antonowano\Chat\Events;
 use Antonowano\Chat\Message;
 use Antonowano\Chat\MessageStorage;
+use Antonowano\Chat\Role;
 use Antonowano\Chat\Stubs\StubHttpRequest;
 use Antonowano\Chat\Stubs\StubHttpResponse;
 use Antonowano\Chat\UserStorage;
@@ -20,16 +22,21 @@ beforeEach(function (): void {
     $this->clock = new MockClock();
     $this->messageStorage = new MessageStorage($this->clock);
     $this->userStorage = new UserStorage();
-    $this->router = new ApiRouter(new ApiController(new Events(), $this->userStorage, $this->messageStorage));
+    $this->router = new ApiRouter(new ApiController(
+        new Events(),
+        $this->userStorage,
+        $this->messageStorage,
+        new AccessControl()
+    ));
 });
 
-describe('User registration', function (): void {
+describe('User registration by admin', function (): void {
     beforeEach(function (): void {
         $request = new StubHttpRequest('POST', '/api/user/register', [], [
             'name' => 'Ivan',
         ]);
         $this->response = new StubHttpResponse();
-        $this->router->dispatch(new ApiRequest($request, createUser()), new ApiResponse($this->response));
+        $this->router->dispatch(new ApiRequest($request, createUser(role: Role::ADMIN)), new ApiResponse($this->response));
         $this->accessToken = $this->response->data()['accessToken'] ?? '';
     });
 
@@ -43,6 +50,22 @@ describe('User registration', function (): void {
 
     it('should be accessible from the user storage', function (): void {
         expect($this->userStorage->findByToken($this->accessToken))->toEqual(createUser(id: 1, name: 'Ivan'));
+    });
+});
+
+describe('User registration by another user', function (): void {
+    beforeEach(function (): void {
+        $request = new StubHttpRequest('POST', '/api/user/register', [], [
+            'name' => 'Olga',
+        ]);
+        $this->response = new StubHttpResponse();
+        $this->router->dispatch(new ApiRequest($request, createUser()), new ApiResponse($this->response));
+    });
+
+    it('should return 403 Forbidden', function (): void {
+        expect($this->response)
+            ->statusCode()->toBe(HttpStatusCode::FORBIDDEN)
+            ->data()->toHaveKey('error');
     });
 });
 
