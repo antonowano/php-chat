@@ -14,6 +14,13 @@ class Events
         }
     }
 
+    public function roomCreated(Room $room): void
+    {
+        foreach ($this->listeners as $listener) {
+            $listener->onRoomCreated($room);
+        }
+    }
+
     public function addListener(string $id, ChatListener $listener): void
     {
         $this->listeners[$id] = $listener;

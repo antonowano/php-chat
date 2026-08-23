@@ -4,6 +4,7 @@ error_reporting(E_ALL);
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
+use Antonowano\Chat\AccessControl;
 use Antonowano\Chat\Api\ApiController;
 use Antonowano\Chat\Api\ApiRequest;
 use Antonowano\Chat\Api\ApiResponse;
@@ -12,6 +13,7 @@ use Antonowano\Chat\Events;
 use Antonowano\Chat\MessageStorage;
 use Antonowano\Chat\NewUser;
 use Antonowano\Chat\Role;
+use Antonowano\Chat\RoomStorage;
 use Antonowano\Chat\SessionStorage;
 use Antonowano\Chat\Stream\StreamController;
 use Antonowano\Chat\Stream\StreamFrame;
@@ -34,9 +36,20 @@ $messageStorage = new MessageStorage(new NativeClock());
 $events = new Events();
 $userStorage = new UserStorage();
 $sessionStorage = new SessionStorage();
-$apiController = new ApiController($events, $userStorage, $messageStorage);
+$roomStorage = new RoomStorage();
+$accessControl = new AccessControl();
+$apiController = new ApiController(
+    events: $events,
+    userStorage: $userStorage,
+    messageStorage: $messageStorage,
+    roomStorage: $roomStorage,
+    accessControl: $accessControl
+);
 $apiRouter = new ApiRouter($apiController);
-$streamController = new StreamController($events, $messageStorage);
+$streamController = new StreamController(
+    events: $events,
+    messageStorage: $messageStorage,
+);
 $streamRouter = new StreamRouter($streamController);
 
 echo 'Admin token: ' . $userStorage->register(new NewUser('Admin', Role::ADMIN)) . PHP_EOL;

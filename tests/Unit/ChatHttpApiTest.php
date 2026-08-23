@@ -10,6 +10,7 @@ use Antonowano\Chat\Events;
 use Antonowano\Chat\Message;
 use Antonowano\Chat\MessageStorage;
 use Antonowano\Chat\Role;
+use Antonowano\Chat\RoomStorage;
 use Antonowano\Chat\Stubs\StubHttpRequest;
 use Antonowano\Chat\Stubs\StubHttpResponse;
 use Antonowano\Chat\UserStorage;
@@ -22,10 +23,12 @@ beforeEach(function (): void {
     $this->clock = new MockClock();
     $this->messageStorage = new MessageStorage($this->clock);
     $this->userStorage = new UserStorage();
+    $this->roomStorage = new RoomStorage();
     $this->router = new ApiRouter(new ApiController(
         new Events(),
         $this->userStorage,
         $this->messageStorage,
+        $this->roomStorage,
         new AccessControl()
     ));
 });
@@ -66,6 +69,24 @@ describe('User registration by another user', function (): void {
         expect($this->response)
             ->statusCode()->toBe(HttpStatusCode::FORBIDDEN)
             ->data()->toHaveKey('error');
+    });
+});
+
+describe('Room registration', function (): void {
+    beforeEach(function (): void {
+        $request = new StubHttpRequest('POST', '/api/room/register', [], [
+            'memberIds' => [1, 2],
+        ]);
+        $this->response = new StubHttpResponse();
+        $this->router->dispatch(new ApiRequest($request, createUser(role: Role::ADMIN)), new ApiResponse($this->response));
+    });
+
+    it('should return 201 Created', function (): void {
+        expect($this->response->statusCode())->toBe(HttpStatusCode::CREATED);
+    });
+
+    it('should be accessible from the user storage', function (): void {
+        expect($this->roomStorage->findById(1))->toEqual(createRoom(id: 1, memberIds: [1, 2]));
     });
 });
 

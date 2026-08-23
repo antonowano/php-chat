@@ -9,7 +9,7 @@ class RoomStorage
 
     private int $autoIncrement = 1;
 
-    public function create(NewRoom $room): void
+    public function create(NewRoom $room): Room
     {
         $id = $this->autoIncrement++;
         $room = new Room(
@@ -17,6 +17,7 @@ class RoomStorage
             memberIds: $room->memberIds(),
         );
         $this->rooms[$id] = $room;
+        return $room;
     }
 
     public function findById(int $id): ?Room

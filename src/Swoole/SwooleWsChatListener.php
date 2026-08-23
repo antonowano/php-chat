@@ -4,6 +4,7 @@ namespace Antonowano\Chat\Swoole;
 
 use Antonowano\Chat\ChatListener;
 use Antonowano\Chat\Message;
+use Antonowano\Chat\Room;
 use Antonowano\Chat\Stream\WsResponse;
 
 readonly class SwooleWsChatListener implements ChatListener
@@ -23,6 +24,14 @@ readonly class SwooleWsChatListener implements ChatListener
         $this->response->push([
             'type' => 'Message',
             'data' => $message->toChatPayload(),
+        ]);
+    }
+
+    public function onRoomCreated(Room $room): void
+    {
+        $this->response->push([
+            'type' => 'Room',
+            'data' => $room->toChatPayload(),
         ]);
     }
 }

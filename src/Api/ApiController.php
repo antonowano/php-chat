@@ -6,8 +6,10 @@ use Antonowano\Chat\AccessControl;
 use Antonowano\Chat\Events;
 use Antonowano\Chat\MessageStorage;
 use Antonowano\Chat\NewMessage;
+use Antonowano\Chat\NewRoom;
 use Antonowano\Chat\NewUser;
 use Antonowano\Chat\Role;
+use Antonowano\Chat\RoomStorage;
 use Antonowano\Chat\UserStorage;
 
 readonly class ApiController
@@ -16,8 +18,24 @@ readonly class ApiController
         private Events $events,
         private UserStorage $userStorage,
         private MessageStorage $messageStorage,
+        private RoomStorage $roomStorage,
         private AccessControl $accessControl,
     ) {
+    }
+
+    public function registerRoom(ApiRequest $request, ApiResponse $response): void
+    {
+        if (!$this->accessControl->isGranted($request->user(), 'user.register')) {
+            $response->sendForbidden();
+            return;
+        }
+
+        $data = $request->json();
+        $room = $this->roomStorage->create(new NewRoom(
+            memberIds: $data->get('memberIds'),
+        ));
+        $this->events->roomCreated($room);
+        $response->sendCreated();
     }
 
     public function registerUser(ApiRequest $request, ApiResponse $response): void

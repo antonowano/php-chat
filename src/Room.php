@@ -20,4 +20,12 @@ readonly class Room
     {
         return in_array($user->id(), $this->memberIds);
     }
+
+    public function toChatPayload(): array
+    {
+        return [
+            'id' => $this->id,
+            'memberIds' => $this->memberIds,
+        ];
+    }
 }
