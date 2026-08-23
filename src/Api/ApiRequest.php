@@ -3,11 +3,13 @@
 namespace Antonowano\Chat\Api;
 
 use Antonowano\Chat\DataBag;
+use Antonowano\Chat\User;
 
 readonly class ApiRequest
 {
     public function __construct(
         private HttpRequest $httpRequest,
+        private User $user,
     ) {
     }
 
@@ -27,12 +29,8 @@ readonly class ApiRequest
         return DataBag::fromQuery($this->httpRequest->queryString());
     }
 
-    public function accessToken(): ?string
+    public function user(): User
     {
-        $authentication = $this->httpRequest->header('Authorization');
-        if (empty($authentication)) {
-            return null;
-        }
-        return str_replace('Bearer ', '', $authentication);
+        return $this->user;
     }
 }

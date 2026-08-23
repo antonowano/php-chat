@@ -56,8 +56,8 @@ $server->on('Handshake', function (Request $request, Response $response) use ($c
             return;
         }
 
-        $apiRequest = new ApiRequest(new SwooleHttpRequest($request));
-        $user = $userStorage->findByToken($apiRequest->accessToken());
+        $swooleRequest = new SwooleHttpRequest($request);
+        $user = $userStorage->findByToken($swooleRequest->bearerToken());
 
         if (!$user) {
             $response->status(401);
@@ -121,10 +121,12 @@ $server->on('Close', function (Server $server, int $fd) use ($chat, $sessionStor
     }
 });
 
-$server->on('Request', function (Request $rawRequest, Response $rawResponse) use ($apiRouter): void {
+$server->on('Request', function (Request $rawRequest, Response $rawResponse) use ($apiRouter, $userStorage): void {
     try {
+        $swooleRequest = new SwooleHttpRequest($rawRequest);
+        $user = $userStorage->findByToken($swooleRequest->bearerToken());
         $apiRouter->dispatch(
-            new ApiRequest(new SwooleHttpRequest($rawRequest)),
+            new ApiRequest($swooleRequest, $user),
             new ApiResponse(new SwooleHttpResponse($rawResponse))
         );
     } catch (Throwable $e) {

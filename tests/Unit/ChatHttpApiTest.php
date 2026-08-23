@@ -27,7 +27,7 @@ describe('User registration', function (): void {
             'name' => 'Ivan',
         ]);
         $this->response = new StubHttpResponse();
-        $this->router->dispatch(new ApiRequest($request), new ApiResponse($this->response));
+        $this->router->dispatch(new ApiRequest($request, createUser()), new ApiResponse($this->response));
         $this->accessToken = $this->response->data()['accessToken'] ?? '';
     });
 
@@ -46,15 +46,12 @@ describe('User registration', function (): void {
 
 describe('Sending a message', function (): void {
     beforeEach(function (): void {
-        $accessToken = $this->userStorage->register(createNewUser(name: 'John Doe'));
         $request = new StubHttpRequest('POST', '/api/message/send', [], [
             'roomId' => 1,
             'text' => 'Hello World!',
-        ], [
-            'Authorization' => 'Bearer ' . $accessToken,
         ]);
         $this->response = new StubHttpResponse();
-        $this->router->dispatch(new ApiRequest($request), new ApiResponse($this->response));
+        $this->router->dispatch(new ApiRequest($request, createUser(name: 'John Doe')), new ApiResponse($this->response));
         $this->messageInChat1 = $this->chat->getLastMessages(1, 10);
         $this->messageInChat2 = $this->chat->getLastMessages(2, 10);
     });
@@ -91,7 +88,7 @@ describe('Fetching latest messages', function (): void {
             'roomId' => $roomId,
         ]);
         $this->response = new StubHttpResponse();
-        $this->router->dispatch(new ApiRequest($request), new ApiResponse($this->response));
+        $this->router->dispatch(new ApiRequest($request, createUser()), new ApiResponse($this->response));
     });
 
     it('should return 200 OK', function (): void {
@@ -117,7 +114,7 @@ describe('Fetching next messages', function (): void {
             'id' => $afterId,
         ]);
         $this->response = new StubHttpResponse();
-        $this->router->dispatch(new ApiRequest($request), new ApiResponse($this->response));
+        $this->router->dispatch(new ApiRequest($request, createUser()), new ApiResponse($this->response));
     });
 
     it('should return 200 OK', function (): void {
@@ -149,7 +146,7 @@ describe('Fetching previous messages', function (): void {
             'id' => $beforeId,
         ]);
         $this->response = new StubHttpResponse();
-        $this->router->dispatch(new ApiRequest($request), new ApiResponse($this->response));
+        $this->router->dispatch(new ApiRequest($request, createUser()), new ApiResponse($this->response));
     });
 
     it('should return 200 OK', function (): void {
@@ -173,7 +170,7 @@ describe('Accessing non-existent route', function (): void {
     beforeEach(function (): void {
         $request = new StubHttpRequest('POST', '/not-found');
         $this->response = new StubHttpResponse();
-        $this->router->dispatch(new ApiRequest($request), new ApiResponse($this->response));
+        $this->router->dispatch(new ApiRequest($request, createUser()), new ApiResponse($this->response));
     });
 
     it('should return 404 Not Found', function (): void {

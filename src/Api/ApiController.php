@@ -28,12 +28,11 @@ readonly class ApiController
 
     public function sendMessage(ApiRequest $request, ApiResponse $response): void
     {
-        $accessToken = $request->accessToken();
         $data = $request->json();
         $this->chat->sendMessage(new NewMessage(
             roomId: $data->get('roomId'),
             text: $data->get('text'),
-            author: $this->userStorage->findByToken($accessToken),
+            author: $request->user(),
         ));
         $response->sendCreated();
     }

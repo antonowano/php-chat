@@ -36,4 +36,13 @@ readonly class SwooleHttpRequest implements HttpRequest
     {
         return $this->swooleRequest->header[strtolower($name)] ?? null;
     }
+
+    public function bearerToken(): ?string
+    {
+        $authentication = $this->header('Authorization');
+        if (empty($authentication)) {
+            return null;
+        }
+        return str_replace('Bearer ', '', $authentication);
+    }
 }
