@@ -86,11 +86,11 @@ function createMessage(
     int $id = 0,
     string $text = 'Text message',
     ?\DateTimeInterface $createdAt = null,
-    int $chatId = 0,
+    int $roomId = 0,
     ?User $author = null,
 ): Message {
     return new Message(
-        chatId: $chatId,
+        roomId: $roomId,
         id: $id,
         text: $text,
         createdAt: $createdAt ?? new DateTime('now'),
@@ -98,10 +98,10 @@ function createMessage(
     );
 }
 
-function createNewMessage(int $chatId, string $text, ?User $author = null): NewMessage
+function createNewMessage(int $roomId, string $text, ?User $author = null): NewMessage
 {
     return new NewMessage(
-        chatId: $chatId,
+        roomId: $roomId,
         text: $text,
         author: $author ?? createUser(),
     );

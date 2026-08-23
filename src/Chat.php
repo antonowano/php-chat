@@ -21,13 +21,13 @@ class Chat
     public function sendMessage(NewMessage $newMessage): void
     {
         $message = new Message(
-            chatId: $newMessage->chatId(),
+            roomId: $newMessage->roomId(),
             id: $this->autoIncrement++,
             text: $newMessage->text(),
             createdAt: $this->clock->now(),
             author: $newMessage->author(),
         );
-        $this->messages[$newMessage->chatId()][] = $message;
+        $this->messages[$newMessage->roomId()][] = $message;
 
         foreach ($this->listeners as $listener) {
             $listener->onMessageSent($message);
@@ -37,18 +37,18 @@ class Chat
     /**
      * @return list<Message>
      */
-    public function getLastMessages(int $chatId, int $count): array
+    public function getLastMessages(int $roomId, int $count): array
     {
-        return array_slice($this->messages[$chatId] ?? [], -$count);
+        return array_slice($this->messages[$roomId] ?? [], -$count);
     }
 
     /**
      * @return list<Message>
      */
-    public function getMessagesBeforeId(int $chatId, int $id, int $count): array
+    public function getMessagesBeforeId(int $roomId, int $id, int $count): array
     {
         $messages = array_values(array_filter(
-            $this->messages[$chatId] ?? [],
+            $this->messages[$roomId] ?? [],
             static fn (Message $message) => $message->hasIdLessThan($id)
         ));
 
@@ -58,10 +58,10 @@ class Chat
     /**
      * @return list<Message>
      */
-    public function getMessagesAfterId(int $chatId, int $id, int $count): array
+    public function getMessagesAfterId(int $roomId, int $id, int $count): array
     {
         $messages = array_values(array_filter(
-            $this->messages[$chatId] ?? [],
+            $this->messages[$roomId] ?? [],
             static fn (Message $message) => $message->hasIdGreaterThan($id)
         ));
 

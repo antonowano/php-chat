@@ -31,7 +31,7 @@ readonly class ApiController
         $accessToken = $request->accessToken();
         $data = $request->json();
         $this->chat->sendMessage(new NewMessage(
-            chatId: $data->get('chatId'),
+            roomId: $data->get('roomId'),
             text: $data->get('text'),
             author: $this->userStorage->findByToken($accessToken),
         ));
@@ -40,8 +40,8 @@ readonly class ApiController
 
     public function lastMessages(ApiRequest $request, ApiResponse $response): void
     {
-        $chatId = $request->query()->get('chatId', 0);
-        $messages = $this->chat->getLastMessages($chatId, 30);
+        $roomId = $request->query()->get('roomId', 0);
+        $messages = $this->chat->getLastMessages($roomId, 30);
         $response->sendMessageList($messages);
     }
 
@@ -49,7 +49,7 @@ readonly class ApiController
     {
         $query = $request->query();
         $messages = $this->chat->getMessagesAfterId(
-            $query->get('chatId', 0),
+            $query->get('roomId', 0),
             $query->get('id', 0),
             30
         );
@@ -60,7 +60,7 @@ readonly class ApiController
     {
         $query = $request->query();
         $messages = $this->chat->getMessagesBeforeId(
-            $query->get('chatId', 0),
+            $query->get('roomId', 0),
             $query->get('id', 0),
             30
         );

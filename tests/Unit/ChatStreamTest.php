@@ -26,7 +26,7 @@ describe('Sending a message', function (): void {
         $frame = new StubWsFrame([
             'type' => 'NewMessage',
             'data' => [
-                'chatId' => 1,
+                'roomId' => 1,
                 'text' => 'Hello World!',
             ],
         ]);
@@ -51,15 +51,15 @@ describe('Sending a message', function (): void {
 });
 
 describe('Fetching latest messages', function (): void {
-    $chatId = 1;
+    $roomId = 1;
     $limit = 30;
 
-    beforeEach(function () use ($chatId): void {
+    beforeEach(function () use ($roomId): void {
         $this->messages = $this->fillChat($this->chat, $this->clock);
         $frame = new StubWsFrame([
             'type' => 'LastMessages',
             'data' => [
-                'chatId' => 1,
+                'roomId' => 1,
             ],
         ]);
         $this->response = new StubWsResponse();
@@ -69,8 +69,8 @@ describe('Fetching latest messages', function (): void {
         );
     });
 
-    it("should return the last {$limit} messages", function () use ($limit, $chatId): void {
-        $expectedMessages = array_filter($this->messages, fn (Message $m): bool => $m->chatId() === $chatId);
+    it("should return the last {$limit} messages", function () use ($limit, $roomId): void {
+        $expectedMessages = array_filter($this->messages, fn (Message $m): bool => $m->roomId() === $roomId);
         $expectedMessages = array_slice($expectedMessages, -$limit);
         expect($this->response->data())->toBe([
             'type' => 'LastMessages',
@@ -80,16 +80,16 @@ describe('Fetching latest messages', function (): void {
 });
 
 describe('Fetching next messages', function (): void {
-    $chatId = 1;
+    $roomId = 1;
     $afterId = 3;
     $limit = 30;
 
-    beforeEach(function () use ($chatId, $afterId): void {
+    beforeEach(function () use ($roomId, $afterId): void {
         $this->messages = $this->fillChat($this->chat, $this->clock);
         $frame = new StubWsFrame([
             'type' => 'NextMessages',
             'data' => [
-                'chatId' => $chatId,
+                'roomId' => $roomId,
                 'id' => $afterId,
             ]
         ]);
@@ -102,10 +102,10 @@ describe('Fetching next messages', function (): void {
 
     it(
         "should return {$limit} messages with an ID greater than {$afterId}",
-        function () use ($limit, $chatId, $afterId): void {
+        function () use ($limit, $roomId, $afterId): void {
             $expectedMessages = array_filter(
                 $this->messages,
-                fn (Message $m): bool => $m->chatId() === $chatId && $m->id() > $afterId
+                fn (Message $m): bool => $m->roomId() === $roomId && $m->id() > $afterId
             );
             $expectedMessages = array_slice($expectedMessages, 0, $limit);
             expect($this->response->data())->toBe([
@@ -117,16 +117,16 @@ describe('Fetching next messages', function (): void {
 });
 
 describe('Fetching previous messages', function (): void {
-    $chatId = 1;
+    $roomId = 1;
     $beforeId = 3;
     $limit = 30;
 
-    beforeEach(function () use ($chatId, $beforeId): void {
+    beforeEach(function () use ($roomId, $beforeId): void {
         $this->messages = $this->fillChat($this->chat, $this->clock);
         $frame = new StubWsFrame([
             'type' => 'PreviousMessages',
             'data' => [
-                'chatId' => $chatId,
+                'roomId' => $roomId,
                 'id' => $beforeId,
             ]
         ]);
@@ -139,10 +139,10 @@ describe('Fetching previous messages', function (): void {
 
     it(
         "should return {$limit} messages with an ID less than {$beforeId}",
-        function () use ($limit, $chatId, $beforeId): void {
+        function () use ($limit, $roomId, $beforeId): void {
             $expectedMessages = array_filter(
                 $this->messages,
-                fn (Message $m): bool => $m->chatId() === $chatId && $m->id() < $beforeId
+                fn (Message $m): bool => $m->roomId() === $roomId && $m->id() < $beforeId
             );
             $expectedMessages = array_slice($expectedMessages, -$limit);
             expect($this->response->data())->toBe([

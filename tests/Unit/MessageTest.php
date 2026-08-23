@@ -71,12 +71,12 @@ test('to chat payload', function (): void {
         id: 11,
         text: 'Hello World',
         createdAt: new DateTime('2027-08-05 21:22:13'),
-        chatId: 5,
+        roomId: 5,
         author: createUser(name: 'Ivan'),
     );
 
     expect($message->toChatPayload())->toBe([
-        'chatId' => 5,
+        'roomId' => 5,
         'id' => 11,
         'text' => 'Hello World',
         'author' => 'Ivan',

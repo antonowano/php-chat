@@ -49,7 +49,7 @@ describe('Sending a message', function (): void {
     beforeEach(function (): void {
         $accessToken = $this->userStorage->register(createNewUser(name: 'John Doe'));
         $request = new StubHttpRequest('POST', '/api/message/send', [], [
-            'chatId' => 1,
+            'roomId' => 1,
             'text' => 'Hello World!',
         ], [
             'Authorization' => 'Bearer ' . $accessToken,
@@ -69,7 +69,7 @@ describe('Sending a message', function (): void {
         $message = $this->messageInChat1[0];
         expect($message->id())->toBe(1)
             ->and($message->text())->toBe('Hello World!')
-            ->and($message->chatId())->toBe(1)
+            ->and($message->roomId())->toBe(1)
             ->and($message->author()->name())->toBe('John Doe');
     });
 
@@ -83,13 +83,13 @@ describe('Sending a message', function (): void {
 });
 
 describe('Fetching latest messages', function (): void {
-    $chatId = 1;
+    $roomId = 1;
     $limit = 30;
 
-    beforeEach(function () use ($chatId): void {
+    beforeEach(function () use ($roomId): void {
         $this->messages = $this->fillChat($this->chat, $this->clock);
         $request = new StubHttpRequest('GET', '/api/messages/last', [
-            'chatId' => $chatId,
+            'roomId' => $roomId,
         ]);
         $this->response = new StubHttpResponse();
         $this->router->dispatch(new ApiRequest($request), new ApiResponse($this->response));
@@ -99,22 +99,22 @@ describe('Fetching latest messages', function (): void {
         expect($this->response->statusCode())->toBe(HttpStatusCode::OK);
     });
 
-    it("should return the last {$limit} messages", function () use ($limit, $chatId): void {
-        $expectedMessages = array_filter($this->messages, fn (Message $m): bool => $m->chatId() === $chatId);
+    it("should return the last {$limit} messages", function () use ($limit, $roomId): void {
+        $expectedMessages = array_filter($this->messages, fn (Message $m): bool => $m->roomId() === $roomId);
         $expectedMessages = array_slice($expectedMessages, -$limit);
         expect($this->response->data())->toBe(['messages' => payloadOfMessages($expectedMessages)]);
     });
 });
 
 describe('Fetching next messages', function (): void {
-    $chatId = 1;
+    $roomId = 1;
     $afterId = 3;
     $limit = 30;
 
-    beforeEach(function () use ($chatId, $afterId): void {
+    beforeEach(function () use ($roomId, $afterId): void {
         $this->messages = $this->fillChat($this->chat, $this->clock);
         $request = new StubHttpRequest('GET', '/api/messages/next', [
-            'chatId' => $chatId,
+            'roomId' => $roomId,
             'id' => $afterId,
         ]);
         $this->response = new StubHttpResponse();
@@ -127,10 +127,10 @@ describe('Fetching next messages', function (): void {
 
     it(
         "should return {$limit} messages with an ID greater than {$afterId}",
-        function () use ($limit, $chatId, $afterId): void {
+        function () use ($limit, $roomId, $afterId): void {
             $expectedMessages = array_filter(
                 $this->messages,
-                fn (Message $m): bool => $m->chatId() === $chatId && $m->id() > $afterId
+                fn (Message $m): bool => $m->roomId() === $roomId && $m->id() > $afterId
             );
             $expectedMessages = array_slice($expectedMessages, 0, $limit);
             expect($this->response->data())->toBe(['messages' => payloadOfMessages($expectedMessages)]);
@@ -139,14 +139,14 @@ describe('Fetching next messages', function (): void {
 });
 
 describe('Fetching previous messages', function (): void {
-    $chatId = 1;
+    $roomId = 1;
     $beforeId = 3;
     $limit = 30;
 
-    beforeEach(function () use ($chatId, $beforeId): void {
+    beforeEach(function () use ($roomId, $beforeId): void {
         $this->messages = $this->fillChat($this->chat, $this->clock);
         $request = new StubHttpRequest('GET', '/api/messages/previous', [
-            'chatId' => $chatId,
+            'roomId' => $roomId,
             'id' => $beforeId,
         ]);
         $this->response = new StubHttpResponse();
@@ -159,10 +159,10 @@ describe('Fetching previous messages', function (): void {
 
     it(
         "should return {$limit} messages with an ID less than {$beforeId}",
-        function () use ($limit, $chatId, $beforeId): void {
+        function () use ($limit, $roomId, $beforeId): void {
             $expectedMessages = array_filter(
                 $this->messages,
-                fn (Message $m): bool => $m->chatId() === $chatId && $m->id() < $beforeId
+                fn (Message $m): bool => $m->roomId() === $roomId && $m->id() < $beforeId
             );
             $expectedMessages = array_slice($expectedMessages, -$limit);
             expect($this->response->data())->toBe(['messages' => payloadOfMessages($expectedMessages)]);

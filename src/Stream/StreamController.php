@@ -16,7 +16,7 @@ readonly class StreamController
     {
         $data = $frame->data();
         $this->chat->sendMessage(new NewMessage(
-            chatId: $data->get('chatId'),
+            roomId: $data->get('roomId'),
             text: $data->get('text'),
             author: $frame->user(),
         ));
@@ -24,8 +24,8 @@ readonly class StreamController
 
     public function lastMessages(StreamFrame $frame, StreamResponse $response): void
     {
-        $chatId = $frame->data()->get('chatId', 0);
-        $messages = $this->chat->getLastMessages($chatId, 30);
+        $roomId = $frame->data()->get('roomId', 0);
+        $messages = $this->chat->getLastMessages($roomId, 30);
         $response->sendMessageList('LastMessages', $messages);
     }
 
@@ -33,7 +33,7 @@ readonly class StreamController
     {
         $data = $frame->data();
         $messages = $this->chat->getMessagesAfterId(
-            $data->get('chatId', 0),
+            $data->get('roomId', 0),
             $data->get('id', 0),
             30
         );
@@ -44,7 +44,7 @@ readonly class StreamController
     {
         $data = $frame->data();
         $messages = $this->chat->getMessagesBeforeId(
-            $data->get('chatId', 0),
+            $data->get('roomId', 0),
             $data->get('id', 0),
             30
         );

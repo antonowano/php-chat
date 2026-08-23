@@ -5,15 +5,15 @@ namespace Antonowano\Chat;
 readonly class NewMessage
 {
     public function __construct(
-        private int $chatId,
+        private int    $roomId,
         private string $text,
-        private User $author,
+        private User   $author,
     ) {
     }
 
-    public function chatId(): int
+    public function roomId(): int
     {
-        return $this->chatId;
+        return $this->roomId;
     }
 
     public function text(): string

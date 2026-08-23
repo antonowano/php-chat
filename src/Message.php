@@ -7,11 +7,11 @@ use DateTimeInterface;
 readonly class Message
 {
     public function __construct(
-        private int $chatId,
-        private int $id,
-        private string $text,
+        private int               $roomId,
+        private int               $id,
+        private string            $text,
         private DateTimeInterface $createdAt,
-        private User $author,
+        private User              $author,
     ) {
     }
 
@@ -28,9 +28,9 @@ readonly class Message
         return $this->id;
     }
 
-    public function chatId(): int
+    public function roomId(): int
     {
-        return $this->chatId;
+        return $this->roomId;
     }
 
     public function text(): string
@@ -67,7 +67,7 @@ readonly class Message
     public function toChatPayload(): array
     {
         return [
-            'chatId' => $this->chatId,
+            'roomId' => $this->roomId,
             'id' => $this->id,
             'text' => $this->text,
             'author' => $this->author->name(),
