@@ -13,22 +13,23 @@ class MessageStorage
 
     public function __construct(
         private readonly ClockInterface $clock,
+        private readonly RoomStorage $roomStorage,
     ) {
     }
 
     public function create(NewMessage $newMessage): Message
     {
+        $roomId = $newMessage->roomId();
         $message = new Message(
-            roomId: $newMessage->roomId(),
+            room: $this->roomStorage->findById($roomId),
             id: $this->autoIncrement++,
             text: $newMessage->text(),
             createdAt: $this->clock->now(),
             author: $newMessage->author(),
         );
-        $this->messages[$newMessage->roomId()][] = $message;
+        $this->messages[$roomId][] = $message;
         return $message;
     }
-
 
     /**
      * @return list<Message>

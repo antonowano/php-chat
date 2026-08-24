@@ -1,9 +1,6 @@
 <?php
 
 use Antonowano\Chat\DataBag;
-use Tests\Antonowano\Chat\Unit\TestCase;
-
-uses(TestCase::class);
 
 test('json equals', function (): void {
     $json1 = DataBag::fromJson('{"name": "John", "text":   "Hello, World!"}' . PHP_EOL);

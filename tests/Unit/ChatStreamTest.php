@@ -4,25 +4,26 @@ use Antonowano\Chat\Chat;
 use Antonowano\Chat\Message;
 use Antonowano\Chat\Stubs\StubWsFrame;
 use Symfony\Component\Clock\MockClock;
-use Tests\Antonowano\Chat\Unit\TestCase;
-
-uses(TestCase::class);
 
 beforeEach(function (): void {
     $this->clock = new MockClock();
     $this->chat = new Chat($this->clock);
     $this->messageStorage = $this->chat->messageStorage();
+    $this->userStorage = $this->chat->userStorage();
+    $this->roomStorage = $this->chat->roomStorage();
     $this->router = $this->chat->streamRouter();
 });
 
 describe('Sending a message', function (): void {
-    $user = createUser(name: 'John Doe');
-
-    beforeEach(function () use ($user): void {
+    beforeEach(function (): void {
+        $user = $this->userStorage->create(createNewUser(name: 'John Doe'));
+        $room = $this->roomStorage->create(createNewRoom(
+            memberIds: [$user->id()],
+        ));
         $frame = new StubWsFrame([
             'type' => 'NewMessage',
             'data' => [
-                'roomId' => 1,
+                'roomId' => $room->id(),
                 'text' => 'Hello World!',
             ],
         ]);
@@ -31,9 +32,13 @@ describe('Sending a message', function (): void {
         $this->messageInChat2 = $this->messageStorage->getLastMessages(2, 10);
     });
 
-    it('should matches the sent message', function () use ($user): void {
-        $expected = createMessage(1, 'Hello World!', $this->clock->now(), 1, $user);
-        expect($expected)->toEqual($this->messageInChat1[0]);
+    it('should matches the sent message', function (): void {
+        /** @var Message $message */
+        $message = $this->messageInChat1[0];
+        expect($message->id())->toBe(1)
+            ->and($message->text())->toBe('Hello World!')
+            ->and($message->roomId())->toBe(1)
+            ->and($message->author()->name())->toBe('John Doe');
     });
 
     it('should store exactly one message in the chat', function (): void {
@@ -50,7 +55,7 @@ describe('Fetching latest messages', function (): void {
     $limit = 30;
 
     beforeEach(function () use ($roomId): void {
-        $this->messages = $this->fillChat($this->messageStorage, $this->clock);
+        $this->messages = createFullChat($this->userStorage, $this->roomStorage, $this->messageStorage);
         $frame = new StubWsFrame([
             'type' => 'LastMessages',
             'data' => [
@@ -76,7 +81,7 @@ describe('Fetching next messages', function (): void {
     $limit = 30;
 
     beforeEach(function () use ($roomId, $afterId): void {
-        $this->messages = $this->fillChat($this->messageStorage, $this->clock);
+        $this->messages = createFullChat($this->userStorage, $this->roomStorage, $this->messageStorage);
         $frame = new StubWsFrame([
             'type' => 'NextMessages',
             'data' => [
@@ -109,7 +114,7 @@ describe('Fetching previous messages', function (): void {
     $limit = 30;
 
     beforeEach(function () use ($roomId, $beforeId): void {
-        $this->messages = $this->fillChat($this->messageStorage, $this->clock);
+        $this->messages = createFullChat($this->userStorage, $this->roomStorage, $this->messageStorage);
         $frame = new StubWsFrame([
             'type' => 'PreviousMessages',
             'data' => [

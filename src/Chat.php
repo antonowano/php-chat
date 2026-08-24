@@ -23,11 +23,11 @@ readonly class Chat
     public function __construct(
         ClockInterface $clock,
     ) {
-        $this->messageStorage = new MessageStorage($clock);
         $this->events = new Events();
         $this->userStorage = new UserStorage();
         $this->sessionStorage = new SessionStorage();
         $this->roomStorage = new RoomStorage($this->userStorage);
+        $this->messageStorage = new MessageStorage($clock, $this->roomStorage);
         $accessControl = new AccessControl();
         $this->apiRouter = new ApiRouter(
             new ApiMessageController(

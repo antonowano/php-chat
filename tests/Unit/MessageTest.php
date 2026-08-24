@@ -1,9 +1,5 @@
 <?php
 
-use Tests\Antonowano\Chat\Unit\TestCase;
-
-uses(TestCase::class);
-
 test('to string', function (): void {
     $message = createMessage(id: 15432, createdAt: new DateTime('2026-08-05 21:22:13'));
 
@@ -71,7 +67,7 @@ test('to chat payload', function (): void {
         id: 11,
         text: 'Hello World',
         createdAt: new DateTime('2027-08-05 21:22:13'),
-        roomId: 5,
+        room: createRoom(id: 5),
         author: createUser(name: 'Ivan'),
     );
 

@@ -7,11 +7,11 @@ use DateTimeInterface;
 readonly class Message
 {
     public function __construct(
-        private int               $roomId,
-        private int               $id,
-        private string            $text,
+        private Room $room,
+        private int $id,
+        private string $text,
         private DateTimeInterface $createdAt,
-        private User              $author,
+        private User $author,
     ) {
     }
 
@@ -20,6 +20,7 @@ readonly class Message
         return $this->id === $message->id
             && $this->text === $message->text
             && $this->createdAt == $message->createdAt
+            && $this->room->equals($message->room)
             && $this->author->equals($message->author);
     }
 
@@ -30,7 +31,7 @@ readonly class Message
 
     public function roomId(): int
     {
-        return $this->roomId;
+        return $this->room->id();
     }
 
     public function text(): string
@@ -67,7 +68,7 @@ readonly class Message
     public function toChatPayload(): array
     {
         return [
-            'roomId' => $this->roomId,
+            'roomId' => $this->room->id(),
             'id' => $this->id,
             'text' => $this->text,
             'author' => $this->author->name(),

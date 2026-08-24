@@ -3,11 +3,9 @@
 use Antonowano\Chat\Chat;
 use Antonowano\Chat\Enums\HttpStatusCode;
 use Antonowano\Chat\Message;
+use Antonowano\Chat\NewRoom;
 use Antonowano\Chat\Stubs\StubHttpRequest;
 use Symfony\Component\Clock\MockClock;
-use Tests\Antonowano\Chat\Unit\TestCase;
-
-uses(TestCase::class);
 
 beforeEach(function (): void {
     $this->clock = new MockClock();
@@ -20,11 +18,15 @@ beforeEach(function (): void {
 
 describe('Sending a message', function (): void {
     beforeEach(function (): void {
+        $user = $this->userStorage->create(createNewUser(name: 'John Doe'));
+        $room = $this->roomStorage->create(new NewRoom(
+            memberIds: [$user->id()],
+        ));
         $request = new StubHttpRequest('POST', '/api/message/send', [], [
-            'roomId' => 1,
+            'roomId' => $room->id(),
             'text' => 'Hello World!',
         ]);
-        $this->response = sendRequestToApi($this->router, $request, createUser(name: 'John Doe'));
+        $this->response = sendRequestToApi($this->router, $request, $user);
         $this->messageInChat1 = $this->messageStorage->getLastMessages(1, 10);
         $this->messageInChat2 = $this->messageStorage->getLastMessages(2, 10);
     });
@@ -56,7 +58,7 @@ describe('Fetching latest messages', function (): void {
     $limit = 30;
 
     beforeEach(function () use ($roomId): void {
-        $this->messages = $this->fillChat($this->messageStorage, $this->clock);
+        $this->messages = createFullChat($this->userStorage, $this->roomStorage, $this->messageStorage);
         $request = new StubHttpRequest('GET', '/api/messages/last', [
             'roomId' => $roomId,
         ]);
@@ -80,7 +82,7 @@ describe('Fetching next messages', function (): void {
     $limit = 30;
 
     beforeEach(function () use ($roomId, $afterId): void {
-        $this->messages = $this->fillChat($this->messageStorage, $this->clock);
+        $this->messages = createFullChat($this->userStorage, $this->roomStorage, $this->messageStorage);
         $request = new StubHttpRequest('GET', '/api/messages/next', [
             'roomId' => $roomId,
             'id' => $afterId,
@@ -111,7 +113,7 @@ describe('Fetching previous messages', function (): void {
     $limit = 30;
 
     beforeEach(function () use ($roomId, $beforeId): void {
-        $this->messages = $this->fillChat($this->messageStorage, $this->clock);
+        $this->messages = createFullChat($this->userStorage, $this->roomStorage, $this->messageStorage);
         $request = new StubHttpRequest('GET', '/api/messages/previous', [
             'roomId' => $roomId,
             'id' => $beforeId,

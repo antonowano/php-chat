@@ -1,9 +1,5 @@
 <?php
 
-use Tests\Antonowano\Chat\Unit\TestCase;
-
-uses(TestCase::class);
-
 it('equals', function (): void {
     $this->assertEquals(
         createNewMessage(1, 'Hello, World!'),

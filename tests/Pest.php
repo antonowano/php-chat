@@ -5,10 +5,13 @@ use Antonowano\Chat\Api\ApiResponse;
 use Antonowano\Chat\Api\ApiRouter;
 use Antonowano\Chat\Api\HttpRequest;
 use Antonowano\Chat\Message;
+use Antonowano\Chat\MessageStorage;
 use Antonowano\Chat\NewMessage;
+use Antonowano\Chat\NewRoom;
 use Antonowano\Chat\NewUser;
 use Antonowano\Chat\Role;
 use Antonowano\Chat\Room;
+use Antonowano\Chat\RoomStorage;
 use Antonowano\Chat\Stream\StreamFrame;
 use Antonowano\Chat\Stream\StreamResponse;
 use Antonowano\Chat\Stream\StreamRouter;
@@ -16,6 +19,7 @@ use Antonowano\Chat\Stream\WsFrame;
 use Antonowano\Chat\Stubs\StubHttpResponse;
 use Antonowano\Chat\Stubs\StubWsResponse;
 use Antonowano\Chat\User;
+use Antonowano\Chat\UserStorage;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
@@ -102,11 +106,11 @@ function createMessage(
     int $id = 0,
     string $text = 'Text message',
     ?\DateTimeInterface $createdAt = null,
-    int $roomId = 0,
+    ?Room $room = null,
     ?User $author = null,
 ): Message {
     return new Message(
-        roomId: $roomId,
+        room: $room ?? createRoom(),
         id: $id,
         text: $text,
         createdAt: $createdAt ?? new DateTime('now'),
@@ -132,4 +136,45 @@ function createRoom(int $id = 0, array $members = []): Room
         id: $id,
         members: $members,
     );
+}
+
+/**
+ * @param list<int> $memberIds
+ */
+function createNewRoom(array $memberIds = []): NewRoom
+{
+    return new NewRoom(
+        memberIds: $memberIds,
+    );
+}
+
+/**
+ * @return list<Message>
+ */
+function createFullChat(UserStorage $userStorage, RoomStorage $roomStorage, MessageStorage $messageStorage): array
+{
+    $ivan = $userStorage->create(createNewUser(name: 'Ivan'));
+    $olga = $userStorage->create(createNewUser(name: 'Olga'));
+    $john = $userStorage->create(createNewUser(name: 'John Doe'));
+    $room1 = $roomStorage->create(createNewRoom(memberIds: [$ivan->id(), $olga->id()]));
+    $room2 = $roomStorage->create(createNewRoom(memberIds: [$john->id()]));
+    $messages = [];
+
+    foreach (range(1, 70) as $i) {
+        if ($i % 3) {
+            $room = $room2;
+            $author = $john;
+        } else {
+            $room = $room1;
+            $author = ($i % 2) ? $ivan : $olga;
+        }
+
+        $messages[] = $messageStorage->create(createNewMessage(
+            roomId: $room->id(),
+            text: 'test message ' . $i,
+            author: $author,
+        ));
+    }
+
+    return $messages;
 }
