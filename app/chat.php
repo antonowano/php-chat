@@ -36,7 +36,7 @@ $messageStorage = new MessageStorage(new NativeClock());
 $events = new Events();
 $userStorage = new UserStorage();
 $sessionStorage = new SessionStorage();
-$roomStorage = new RoomStorage();
+$roomStorage = new RoomStorage($userStorage);
 $accessControl = new AccessControl();
 $apiController = new ApiController(
     events: $events,
@@ -52,7 +52,7 @@ $streamController = new StreamController(
 );
 $streamRouter = new StreamRouter($streamController);
 
-echo 'Admin token: ' . $userStorage->register(new NewUser('Admin', Role::ADMIN)) . PHP_EOL;
+echo 'Admin token: ' . $userStorage->create(new NewUser('Admin', Role::ADMIN))->accessToken() . PHP_EOL;
 
 $server->on('Start', function (): void {
     echo 'OpenSwoole http server is started' . PHP_EOL;

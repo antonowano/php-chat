@@ -9,12 +9,17 @@ class RoomStorage
 
     private int $autoIncrement = 1;
 
-    public function create(NewRoom $room): Room
+    public function __construct(
+        private readonly UserStorage $userStorage,
+    ) {
+    }
+
+    public function create(NewRoom $newRoom): Room
     {
         $id = $this->autoIncrement++;
         $room = new Room(
             id: $id,
-            memberIds: $room->memberIds(),
+            members: $this->userStorage->findAllById($newRoom->memberIds()),
         );
         $this->rooms[$id] = $room;
         return $room;

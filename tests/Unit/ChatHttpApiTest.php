@@ -20,7 +20,7 @@ beforeEach(function (): void {
     $this->clock = new MockClock();
     $this->messageStorage = new MessageStorage($this->clock);
     $this->userStorage = new UserStorage();
-    $this->roomStorage = new RoomStorage();
+    $this->roomStorage = new RoomStorage($this->userStorage);
     $this->router = new ApiRouter(new ApiController(
         new Events(),
         $this->userStorage,
@@ -48,7 +48,8 @@ describe('User registration by admin', function (): void {
     });
 
     it('should be accessible from the user storage', function (): void {
-        expect($this->userStorage->findByToken($this->accessToken))->toEqual(createUser(id: 1, name: 'Ivan'));
+        $expectedUser = createUser(id: 1, name: 'Ivan', accessToken: $this->accessToken);
+        expect($this->userStorage->findByToken($this->accessToken))->toEqual($expectedUser);
     });
 });
 
@@ -69,8 +70,10 @@ describe('User registration by another user', function (): void {
 
 describe('Room registration', function (): void {
     beforeEach(function (): void {
+        $this->user1 = $this->userStorage->create(createNewUser());
+        $this->user2 = $this->userStorage->create(createNewUser());
         $request = new StubHttpRequest('POST', '/api/room/register', [], [
-            'memberIds' => [1, 2],
+            'memberIds' => [$this->user1->id(), $this->user2->id()],
         ]);
         $this->response = sendRequestToApi($this->router, $request, createUser(role: Role::ADMIN));
     });
@@ -80,7 +83,11 @@ describe('Room registration', function (): void {
     });
 
     it('should be accessible from the user storage', function (): void {
-        expect($this->roomStorage->findById(1))->toEqual(createRoom(id: 1, memberIds: [1, 2]));
+        $expectedRoom = createRoom(
+            id: 1,
+            members: [$this->user1, $this->user2],
+        );
+        expect($this->roomStorage->findById(1))->toEqual($expectedRoom);
     });
 });
 

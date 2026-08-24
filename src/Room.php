@@ -6,9 +6,14 @@ readonly class Room
 {
     public function __construct(
         private int $id,
-        /** @var list<int> $memberIds */
-        private array $memberIds,
+        /** @var list<User> $members */
+        private array $members,
     ) {
+    }
+
+    public function equals(Room $room): bool
+    {
+        return $this->id === $room->id;
     }
 
     public function id(): int
@@ -18,14 +23,14 @@ readonly class Room
 
     public function hasMember(User $user): bool
     {
-        return in_array($user->id(), $this->memberIds);
+        return array_any($this->members, fn($member) => $member->equals($user));
     }
 
     public function toChatPayload(): array
     {
         return [
             'id' => $this->id,
-            'memberIds' => $this->memberIds,
+            'members' => array_map(fn (User $member) => $member->toChatPayload(), $this->members),
         ];
     }
 }

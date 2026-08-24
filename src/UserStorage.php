@@ -9,15 +9,17 @@ class UserStorage
 
     private int $autoIncrement = 1;
 
-    public function register(NewUser $user): string
+    public function create(NewUser $user): User
     {
         $token = uniqid();
-        $this->usersByTokens[$token] = new User(
+        $user = new User(
             id: $this->autoIncrement++,
             name: $user->name(),
             role: $user->role(),
+            accessToken: $token,
         );
-        return $token;
+        $this->usersByTokens[$token] = $user;
+        return $user;
     }
 
     public function findByToken(?string $token): ?User
@@ -26,5 +28,20 @@ class UserStorage
             return null;
         }
         return $this->usersByTokens[$token] ?? null;
+    }
+
+    /**
+     * @param list<int> $ids
+     * @return list<User>
+     */
+    public function findAllById(array $ids): array
+    {
+        $result = [];
+        foreach ($this->usersByTokens as $user) {
+            if (in_array($user->id(), $ids)) {
+                $result[] = $user;
+            }
+        }
+        return $result;
     }
 }

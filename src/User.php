@@ -8,6 +8,7 @@ readonly class User
         private int $id,
         private string $name,
         private Role $role,
+        private string $accessToken,
     ) {
     }
 
@@ -15,6 +16,7 @@ readonly class User
     {
         return $this->name === $message->name
             && $this->role === $message->role
+            && $this->accessToken === $message->accessToken
             && $this->id === $message->id;
     }
 
@@ -31,5 +33,18 @@ readonly class User
     public function role(): Role
     {
         return $this->role;
+    }
+
+    public function accessToken(): string
+    {
+        return $this->accessToken;
+    }
+
+    public function toChatPayload(): array
+    {
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+        ];
     }
 }

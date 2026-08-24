@@ -6,6 +6,7 @@ use Antonowano\Chat\Api\ApiRouter;
 use Antonowano\Chat\Api\HttpRequest;
 use Antonowano\Chat\Message;
 use Antonowano\Chat\NewMessage;
+use Antonowano\Chat\NewUser;
 use Antonowano\Chat\Role;
 use Antonowano\Chat\Room;
 use Antonowano\Chat\Stream\StreamFrame;
@@ -79,10 +80,19 @@ function payloadOfMessages(array $messages): array
     return array_map(fn($m) => $m->toChatPayload(), $messages);
 }
 
-function createUser(int $id = 0, string $name = 'User', Role $role = Role::USER): User
+function createUser(int $id = 0, string $name = 'User', Role $role = Role::USER, string $accessToken = ''): User
 {
     return new User(
         id: $id,
+        name: $name,
+        role: $role,
+        accessToken: $accessToken,
+    );
+}
+
+function createNewUser(string $name = 'User', Role $role = Role::USER): NewUser
+{
+    return new NewUser(
         name: $name,
         role: $role,
     );
@@ -113,10 +123,13 @@ function createNewMessage(int $roomId, string $text, ?User $author = null): NewM
     );
 }
 
-function createRoom(int $id = 0, array $memberIds = []): Room
+/**
+ * @param list<User> $members
+ */
+function createRoom(int $id = 0, array $members = []): Room
 {
     return new Room(
         id: $id,
-        memberIds: $memberIds,
+        members: $members,
     );
 }

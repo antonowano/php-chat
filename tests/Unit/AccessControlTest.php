@@ -27,7 +27,10 @@ describe('Admin User', function (): void {
 
 describe('Standard User', function (): void {
     beforeEach(function (): void {
-        $this->room = createRoom(1, [1, 2]);
+        $this->user1 = createUser(id: 1);
+        $this->user2 = createUser(id: 2);
+        $this->user3 = createUser(id: 3);
+        $this->room = createRoom(1, [$this->user1, $this->user2]);
     });
 
     it('cannot register users', function (): void {
@@ -36,22 +39,18 @@ describe('Standard User', function (): void {
     });
 
     it('can read chats it is part of', function (): void {
-        $user = createUser(id: 1);
-        expect($this->accessControl->isGranted($user, 'room.read', $this->room))->toBeTrue();
+        expect($this->accessControl->isGranted($this->user1, 'room.read', $this->room))->toBeTrue();
     });
 
     it('cannot read chats it is not part of', function (): void {
-        $user = createUser();
-        expect($this->accessControl->isGranted($user, 'room.read', $this->room))->toBeFalse();
+        expect($this->accessControl->isGranted($this->user3, 'room.read', $this->room))->toBeFalse();
     });
 
     it('can write to chats it is part of', function (): void {
-        $user = createUser(id: 2);
-        expect($this->accessControl->isGranted($user, 'room.write', $this->room))->toBeTrue();
+        expect($this->accessControl->isGranted($this->user2, 'room.write', $this->room))->toBeTrue();
     });
 
     it('cannot write chats it is not part of', function (): void {
-        $user = createUser();
-        expect($this->accessControl->isGranted($user, 'room.write', $this->room))->toBeFalse();
+        expect($this->accessControl->isGranted($this->user3, 'room.write', $this->room))->toBeFalse();
     });
 });

@@ -46,10 +46,10 @@ readonly class ApiController
         }
 
         $data = $request->json();
-        $accessToken = $this->userStorage->register(new NewUser(
+        $accessToken = $this->userStorage->create(new NewUser(
             name: $data->get('name'),
             role: Role::USER,
-        ));
+        ))->accessToken();
         $response->sendAccessToken($accessToken);
     }
 
