@@ -1,12 +1,14 @@
 <?php
 
-namespace Antonowano\Chat\Stream;
+namespace Antonowano\Chat\Stream\Controllers;
 
 use Antonowano\Chat\Events;
 use Antonowano\Chat\MessageStorage;
 use Antonowano\Chat\NewMessage;
+use Antonowano\Chat\Stream\StreamFrame;
+use Antonowano\Chat\Stream\StreamResponse;
 
-readonly class StreamController
+readonly class MessageController
 {
     public function __construct(
         private Events $events,
@@ -14,7 +16,7 @@ readonly class StreamController
     ) {
     }
 
-    public function sendMessage(StreamFrame $frame, StreamResponse $response): void
+    public function send(StreamFrame $frame, StreamResponse $response): void
     {
         $data = $frame->data();
         $message = $this->messageStorage->create(new NewMessage(
@@ -25,14 +27,14 @@ readonly class StreamController
         $this->events->messageSent($message);
     }
 
-    public function lastMessages(StreamFrame $frame, StreamResponse $response): void
+    public function last(StreamFrame $frame, StreamResponse $response): void
     {
         $roomId = $frame->data()->get('roomId', 0);
         $messages = $this->messageStorage->getLastMessages($roomId, 30);
         $response->sendMessageList('LastMessages', $messages);
     }
 
-    public function nextMessages(StreamFrame $frame, StreamResponse $response): void
+    public function next(StreamFrame $frame, StreamResponse $response): void
     {
         $data = $frame->data();
         $messages = $this->messageStorage->getMessagesAfterId(
@@ -43,7 +45,7 @@ readonly class StreamController
         $response->sendMessageList('NextMessages', $messages);
     }
 
-    public function previousMessages(StreamFrame $frame, StreamResponse $response): void
+    public function previous(StreamFrame $frame, StreamResponse $response): void
     {
         $data = $frame->data();
         $messages = $this->messageStorage->getMessagesBeforeId(

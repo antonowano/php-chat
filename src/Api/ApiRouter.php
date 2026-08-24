@@ -2,21 +2,27 @@
 
 namespace Antonowano\Chat\Api;
 
+use Antonowano\Chat\Api\Controllers\MessageController;
+use Antonowano\Chat\Api\Controllers\RoomController;
+use Antonowano\Chat\Api\Controllers\UserController;
+
 readonly class ApiRouter
 {
     /** @var list<ApiRoute> */
     private array $routes;
 
     public function __construct(
-        ApiController $apiController,
+        MessageController $messageController,
+        UserController    $userController,
+        RoomController    $roomController,
     ) {
         $this->routes = [
-            new ApiRoute('POST', '/api/room/register', [$apiController, 'registerRoom']),
-            new ApiRoute('POST', '/api/user/register', [$apiController, 'registerUser']),
-            new ApiRoute('POST', '/api/message/send', [$apiController, 'sendMessage']),
-            new ApiRoute('GET', '/api/messages/last', [$apiController, 'lastMessages']),
-            new ApiRoute('GET', '/api/messages/next', [$apiController, 'nextMessages']),
-            new ApiRoute('GET', '/api/messages/previous', [$apiController, 'previousMessages']),
+            new ApiRoute('POST', '/api/room/register', [$roomController, 'register']),
+            new ApiRoute('POST', '/api/user/register', [$userController, 'register']),
+            new ApiRoute('POST', '/api/message/send', [$messageController, 'send']),
+            new ApiRoute('GET', '/api/messages/last', [$messageController, 'last']),
+            new ApiRoute('GET', '/api/messages/next', [$messageController, 'next']),
+            new ApiRoute('GET', '/api/messages/previous', [$messageController, 'previous']),
         ];
     }
 

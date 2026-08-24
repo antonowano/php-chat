@@ -1,10 +1,7 @@
 <?php
 
-use Antonowano\Chat\Events;
+use Antonowano\Chat\Chat;
 use Antonowano\Chat\Message;
-use Antonowano\Chat\MessageStorage;
-use Antonowano\Chat\Stream\StreamController;
-use Antonowano\Chat\Stream\StreamRouter;
 use Antonowano\Chat\Stubs\StubWsFrame;
 use Symfony\Component\Clock\MockClock;
 use Tests\Antonowano\Chat\Unit\TestCase;
@@ -13,8 +10,9 @@ uses(TestCase::class);
 
 beforeEach(function (): void {
     $this->clock = new MockClock();
-    $this->messageStorage = new MessageStorage($this->clock);
-    $this->router = new StreamRouter(new StreamController(new Events(), $this->messageStorage));
+    $this->chat = new Chat($this->clock);
+    $this->messageStorage = $this->chat->messageStorage();
+    $this->router = $this->chat->streamRouter();
 });
 
 describe('Sending a message', function (): void {

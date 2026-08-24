@@ -4,27 +4,18 @@ error_reporting(E_ALL);
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use Antonowano\Chat\AccessControl;
-use Antonowano\Chat\Api\ApiController;
 use Antonowano\Chat\Api\ApiRequest;
 use Antonowano\Chat\Api\ApiResponse;
-use Antonowano\Chat\Api\ApiRouter;
-use Antonowano\Chat\Events;
-use Antonowano\Chat\MessageStorage;
+use Antonowano\Chat\Chat;
 use Antonowano\Chat\NewUser;
 use Antonowano\Chat\Role;
-use Antonowano\Chat\RoomStorage;
-use Antonowano\Chat\SessionStorage;
-use Antonowano\Chat\Stream\StreamController;
 use Antonowano\Chat\Stream\StreamFrame;
 use Antonowano\Chat\Stream\StreamResponse;
-use Antonowano\Chat\Stream\StreamRouter;
 use Antonowano\Chat\Swoole\SwooleHttpRequest;
 use Antonowano\Chat\Swoole\SwooleHttpResponse;
 use Antonowano\Chat\Swoole\SwooleWsChatListener;
 use Antonowano\Chat\Swoole\SwooleWsFrame;
 use Antonowano\Chat\Swoole\SwooleWsResponse;
-use Antonowano\Chat\UserStorage;
 use OpenSwoole\Http\Request;
 use OpenSwoole\Http\Response;
 use OpenSwoole\WebSocket\Frame;
@@ -32,33 +23,15 @@ use OpenSwoole\WebSocket\Server;
 use Symfony\Component\Clock\NativeClock;
 
 $server = new Server('0.0.0.0', 9501, SWOOLE_BASE);
-$messageStorage = new MessageStorage(new NativeClock());
-$events = new Events();
-$userStorage = new UserStorage();
-$sessionStorage = new SessionStorage();
-$roomStorage = new RoomStorage($userStorage);
-$accessControl = new AccessControl();
-$apiController = new ApiController(
-    events: $events,
-    userStorage: $userStorage,
-    messageStorage: $messageStorage,
-    roomStorage: $roomStorage,
-    accessControl: $accessControl
-);
-$apiRouter = new ApiRouter($apiController);
-$streamController = new StreamController(
-    events: $events,
-    messageStorage: $messageStorage,
-);
-$streamRouter = new StreamRouter($streamController);
+$chat = new Chat(new NativeClock());
 
-echo 'Admin token: ' . $userStorage->create(new NewUser('Admin', Role::ADMIN))->accessToken() . PHP_EOL;
+echo 'Admin token: ' . $chat->userStorage()->create(new NewUser('Admin', Role::ADMIN))->accessToken() . PHP_EOL;
 
 $server->on('Start', function (): void {
     echo 'OpenSwoole http server is started' . PHP_EOL;
 });
 
-$server->on('Handshake', function (Request $request, Response $response) use ($events, $server, $userStorage, $sessionStorage): void {
+$server->on('Handshake', function (Request $request, Response $response) use ($chat, $server): void {
     try {
         $secWebSocketKey = $request->header['sec-websocket-key'] ?? '';
 
@@ -70,7 +43,7 @@ $server->on('Handshake', function (Request $request, Response $response) use ($e
         }
 
         $swooleRequest = new SwooleHttpRequest($request);
-        $user = $userStorage->findByToken($swooleRequest->bearerToken());
+        $user = $chat->userStorage()->findByToken($swooleRequest->bearerToken());
 
         if (!$user) {
             $response->status(401);
@@ -98,24 +71,24 @@ $server->on('Handshake', function (Request $request, Response $response) use ($e
         $response->status(101);
         $response->end();
 
-        $server->defer(function () use ($events, $server, $request, $user, $sessionStorage): void {
+        $server->defer(function () use ($chat, $server, $request, $user): void {
             echo "server: handshake success with fd{$request->fd}\n";
-            $sessionStorage->add($request->fd, $user);
+            $chat->sessionStorage()->add($request->fd, $user);
             $listener = new SwooleWsChatListener(new SwooleWsResponse($server, $request->fd));
-            $events->addListener(SwooleWsChatListener::generateId($request->fd), $listener);
+            $chat->events()->addListener(SwooleWsChatListener::generateId($request->fd), $listener);
         });
     } catch (Throwable $e) {
         echo $e . PHP_EOL;
     }
 });
 
-$server->on('Message', function (Server $server, Frame $rawFrame) use ($streamRouter, $sessionStorage): void {
+$server->on('Message', function (Server $server, Frame $rawFrame) use ($chat): void {
     try {
         if (!$rawFrame->finish) {
             return;
         }
-        $user = $sessionStorage->get($rawFrame->fd);
-        $streamRouter->dispatch(
+        $user = $chat->sessionStorage()->get($rawFrame->fd);
+        $chat->streamRouter()->dispatch(
             new StreamFrame(new SwooleWsFrame($rawFrame), $user),
             new StreamResponse(new SwooleWsResponse($server, $rawFrame->fd))
         );
@@ -124,21 +97,21 @@ $server->on('Message', function (Server $server, Frame $rawFrame) use ($streamRo
     }
 });
 
-$server->on('Close', function (Server $server, int $fd) use ($events, $sessionStorage): void {
+$server->on('Close', function (Server $server, int $fd) use ($chat): void {
     try {
         echo "client {$fd} closed\n";
-        $sessionStorage->remove($fd);
-        $events->removeListenerById(SwooleWsChatListener::generateId($fd));
+        $chat->sessionStorage()->remove($fd);
+        $chat->events()->removeListenerById(SwooleWsChatListener::generateId($fd));
     } catch (Throwable $e) {
         echo $e . PHP_EOL;
     }
 });
 
-$server->on('Request', function (Request $rawRequest, Response $rawResponse) use ($apiRouter, $userStorage): void {
+$server->on('Request', function (Request $rawRequest, Response $rawResponse) use ($chat): void {
     try {
         $swooleRequest = new SwooleHttpRequest($rawRequest);
-        $user = $userStorage->findByToken($swooleRequest->bearerToken());
-        $apiRouter->dispatch(
+        $user = $chat->userStorage()->findByToken($swooleRequest->bearerToken());
+        $chat->apiRouter()->dispatch(
             new ApiRequest($swooleRequest, $user),
             new ApiResponse(new SwooleHttpResponse($rawResponse))
         );
