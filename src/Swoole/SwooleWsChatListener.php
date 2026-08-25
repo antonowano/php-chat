@@ -6,11 +6,13 @@ use Antonowano\Chat\ChatListener;
 use Antonowano\Chat\Message;
 use Antonowano\Chat\Room;
 use Antonowano\Chat\Stream\WsResponse;
+use Antonowano\Chat\User;
 
 readonly class SwooleWsChatListener implements ChatListener
 {
     public function __construct(
         private WsResponse $response,
+        private User $user,
     ) {
     }
 
@@ -21,17 +23,21 @@ readonly class SwooleWsChatListener implements ChatListener
 
     public function onMessageSent(Message $message): void
     {
-        $this->response->push([
-            'type' => 'Message',
-            'data' => $message->toChatPayload(),
-        ]);
+        if ($message->room()->hasMember($this->user)) {
+            $this->response->push([
+                'type' => 'Message',
+                'data' => $message->toChatPayload(),
+            ]);
+        }
     }
 
     public function onRoomCreated(Room $room): void
     {
-        $this->response->push([
-            'type' => 'Room',
-            'data' => $room->toChatPayload(),
-        ]);
+        if ($room->hasMember($this->user)) {
+            $this->response->push([
+                'type' => 'Room',
+                'data' => $room->toChatPayload(),
+            ]);
+        }
     }
 }

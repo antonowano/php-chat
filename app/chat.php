@@ -74,7 +74,7 @@ $server->on('Handshake', function (Request $request, Response $response) use ($c
         $server->defer(function () use ($chat, $server, $request, $user): void {
             echo "server: handshake success with fd{$request->fd}\n";
             $chat->sessionStorage()->add($request->fd, $user);
-            $listener = new SwooleWsChatListener(new SwooleWsResponse($server, $request->fd));
+            $listener = new SwooleWsChatListener(new SwooleWsResponse($server, $request->fd), $user);
             $chat->events()->addListener(SwooleWsChatListener::generateId($request->fd), $listener);
         });
     } catch (Throwable $e) {

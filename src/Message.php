@@ -44,6 +44,11 @@ readonly class Message
         return $this->author;
     }
 
+    public function room(): Room
+    {
+        return $this->room;
+    }
+
     public function hasIdLessThan(int $id): bool
     {
         return $this->id < $id;
