@@ -3,6 +3,7 @@
 namespace Antonowano\Chat\Stream;
 
 use Antonowano\Chat\Stream\Controllers\MessageController;
+use Antonowano\Chat\Stream\Controllers\RoomController;
 
 readonly class StreamRouter
 {
@@ -10,13 +11,15 @@ readonly class StreamRouter
     private array $routes;
 
     public function __construct(
-        MessageController $controller,
+        MessageController $messageController,
+        RoomController $roomController,
     ) {
         $this->routes = [
-            new StreamRoute('NewMessage', [$controller, 'send']),
-            new StreamRoute('LastMessages', [$controller, 'last']),
-            new StreamRoute('NextMessages', [$controller, 'next']),
-            new StreamRoute('PreviousMessages', [$controller, 'previous']),
+            new StreamRoute('NewMessage', [$messageController, 'send']),
+            new StreamRoute('LastMessages', [$messageController, 'last']),
+            new StreamRoute('NextMessages', [$messageController, 'next']),
+            new StreamRoute('PreviousMessages', [$messageController, 'previous']),
+            new StreamRoute('RoomList', [$roomController, 'list']),
         ];
     }
 

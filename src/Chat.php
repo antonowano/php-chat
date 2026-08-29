@@ -7,6 +7,7 @@ use Antonowano\Chat\Api\Controllers\MessageController as ApiMessageController;
 use Antonowano\Chat\Api\Controllers\RoomController as ApiRoomController;
 use Antonowano\Chat\Api\Controllers\UserController as ApiUserController;
 use Antonowano\Chat\Stream\Controllers\MessageController as StreamMessageController;
+use Antonowano\Chat\Stream\Controllers\RoomController as StreamRoomController;
 use Antonowano\Chat\Stream\StreamRouter;
 use Psr\Clock\ClockInterface;
 
@@ -48,7 +49,10 @@ readonly class Chat
             new StreamMessageController(
                 $this->events,
                 $this->messageStorage,
-            )
+            ),
+            new StreamRoomController(
+                $this->roomStorage,
+            ),
         );
     }
 
