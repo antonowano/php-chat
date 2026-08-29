@@ -13,11 +13,12 @@ readonly class ApiRouter
 
     public function __construct(
         MessageController $messageController,
-        UserController    $userController,
-        RoomController    $roomController,
+        UserController $userController,
+        RoomController $roomController,
     ) {
         $this->routes = [
             new ApiRoute('POST', '/api/room/register', [$roomController, 'register']),
+            new ApiRoute('GET', '/api/rooms', [$roomController, 'list']),
             new ApiRoute('POST', '/api/user/register', [$userController, 'register']),
             new ApiRoute('POST', '/api/message/send', [$messageController, 'send']),
             new ApiRoute('GET', '/api/messages/last', [$messageController, 'last']),

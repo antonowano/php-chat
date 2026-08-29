@@ -4,6 +4,7 @@ namespace Antonowano\Chat\Api;
 
 use Antonowano\Chat\Enums\HttpStatusCode;
 use Antonowano\Chat\Message;
+use Antonowano\Chat\Room;
 
 readonly class ApiResponse
 {
@@ -46,5 +47,16 @@ readonly class ApiResponse
         $this->httpResponse->json([
             'error' => 'You dont have permission to access this resource',
         ], HttpStatusCode::FORBIDDEN);
+    }
+
+    /**
+     * @param array $rooms
+     * @return void
+     */
+    public function sendRoomList(array $rooms): void
+    {
+        $this->httpResponse->json([
+            'rooms' => array_map(fn (Room $r) => $r->toChatPayload(), $rooms),
+        ], HttpStatusCode::OK);
     }
 }

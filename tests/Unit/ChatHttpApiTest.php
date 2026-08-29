@@ -4,6 +4,7 @@ use Antonowano\Chat\Chat;
 use Antonowano\Chat\Enums\HttpStatusCode;
 use Antonowano\Chat\Message;
 use Antonowano\Chat\NewRoom;
+use Antonowano\Chat\Room;
 use Antonowano\Chat\Stubs\StubHttpRequest;
 use Symfony\Component\Clock\MockClock;
 
@@ -50,6 +51,39 @@ describe('Sending a message', function (): void {
 
     it('should not store message in another chat', function (): void {
         expect($this->messageInChat2)->toHaveCount(0);
+    });
+});
+
+describe('Fetching the room list', function (): void {
+    $limit = 3;
+    $offset = 1;
+
+    beforeEach(function () use ($offset, $limit): void {
+        $this->user = $this->userStorage->create(createNewUser());
+        $this->rooms = [
+            $this->roomStorage->create(createNewRoom()),
+            $this->roomStorage->create(createNewRoom([$this->user->id()])),
+            $this->roomStorage->create(createNewRoom([$this->user->id()])),
+            $this->roomStorage->create(createNewRoom([$this->user->id()])),
+            $this->roomStorage->create(createNewRoom([$this->user->id()])),
+            $this->roomStorage->create(createNewRoom([$this->user->id()])),
+            $this->roomStorage->create(createNewRoom()),
+        ];
+        $request = new StubHttpRequest('GET', '/api/rooms', [
+            'offset' => $offset,
+            'limit' => $limit,
+        ]);
+        $this->response = sendRequestToApi($this->router, $request, $this->user);
+    });
+
+    it('should return 200 OK', function (): void {
+        expect($this->response->statusCode())->toBe(HttpStatusCode::OK);
+    });
+
+    it('should return a list of the user\'s rooms', function () use ($offset, $limit): void {
+        $expectedRooms = array_filter($this->rooms, fn (Room $m): bool => $m->hasMember($this->user));
+        $expectedRooms = array_slice($expectedRooms, $offset, $limit);
+        expect($this->response->data())->toBe(['rooms' => payloadOfRooms($expectedRooms)]);
     });
 });
 

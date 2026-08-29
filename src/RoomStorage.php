@@ -29,4 +29,20 @@ class RoomStorage
     {
         return $this->rooms[$id] ?? null;
     }
+
+    /**
+     * @return list<Room>
+     */
+    public function findAllForUser(User $user, int $offset, int $limit): array
+    {
+        $rooms = [];
+
+        foreach ($this->rooms as $room) {
+            if ($room->hasMember($user)) {
+                $rooms[] = $room;
+            }
+        }
+
+        return array_slice($rooms, $offset, $limit);
+    }
 }

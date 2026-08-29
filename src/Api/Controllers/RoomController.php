@@ -32,4 +32,12 @@ readonly class RoomController
         $this->events->roomCreated($room);
         $response->sendCreated();
     }
+
+    public function list(ApiRequest $request, ApiResponse $response): void
+    {
+        $offset = $request->query()->get('offset', 0);
+        $limit = $request->query()->get('limit', 20);
+        $rooms = $this->roomStorage->findAllForUser($request->user(), $offset, $limit);
+        $response->sendRoomList($rooms);
+    }
 }

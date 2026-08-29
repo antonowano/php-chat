@@ -84,6 +84,14 @@ function payloadOfMessages(array $messages): array
     return array_map(fn($m) => $m->toChatPayload(), $messages);
 }
 
+/**
+ * @param list<Room> $rooms
+ */
+function payloadOfRooms(array $rooms): array
+{
+    return array_map(fn($r) => $r->toChatPayload(), $rooms);
+}
+
 function createUser(int $id = 0, string $name = 'User', Role $role = Role::USER, string $accessToken = ''): User
 {
     return new User(
