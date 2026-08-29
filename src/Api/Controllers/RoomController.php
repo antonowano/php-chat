@@ -20,7 +20,7 @@ readonly class RoomController
 
     public function register(ApiRequest $request, ApiResponse $response): void
     {
-        if (!$this->accessControl->isGranted($request->user(), 'user.register')) {
+        if (!$this->accessControl->isGranted($request->user(), 'room.register')) {
             $response->sendForbidden();
             return;
         }
