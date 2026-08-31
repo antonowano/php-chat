@@ -51,7 +51,7 @@ readonly class MessageController
         }
 
         $messages = $this->messageStorage->getLastMessages($roomId, 30);
-        $response->sendMessageList($frame->correlationId(), 'LastMessages', $messages);
+        $response->sendMessageList($frame->correlationId(), $messages);
     }
 
     public function next(StreamFrame $frame, StreamResponse $response): void
@@ -70,7 +70,7 @@ readonly class MessageController
             $data->get('id', 0),
             30
         );
-        $response->sendMessageList($frame->correlationId(), 'NextMessages', $messages);
+        $response->sendMessageList($frame->correlationId(), $messages);
     }
 
     public function previous(StreamFrame $frame, StreamResponse $response): void
@@ -89,6 +89,6 @@ readonly class MessageController
             $data->get('id', 0),
             30
         );
-        $response->sendMessageList($frame->correlationId(), 'PreviousMessages', $messages);
+        $response->sendMessageList($frame->correlationId(), $messages);
     }
 }

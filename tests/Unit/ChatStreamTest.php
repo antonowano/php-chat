@@ -96,7 +96,7 @@ describe('Fetching the room list', function (): void {
         $expectedRooms = array_slice($expectedRooms, $offset, $limit);
         expect($this->response->data())->toBe([
             'correlationId' => $this->correlationId,
-            'type' => 'RoomList',
+            'status' => 'Success',
             'data' => payloadOfRooms($expectedRooms),
         ]);
     });
@@ -125,7 +125,7 @@ describe('Fetching latest messages', function (): void {
         $expectedMessages = array_slice($expectedMessages, -$limit);
         expect($response->data())->toBe([
             'correlationId' => $this->correlationId,
-            'type' => 'LastMessages',
+            'status' => 'Success',
             'data' => payloadOfMessages($expectedMessages),
         ]);
     });
@@ -134,7 +134,7 @@ describe('Fetching latest messages', function (): void {
         $otherUser = $this->userStorage->create(createNewUser());
         $response = sendRequestToWs($this->router, $this->frame, $otherUser);
         $data = $response->data();
-        expect($data['type'])->toBe('Error')
+        expect($data['status'])->toBe('Failure')
             ->and($data['correlationId'])->toBe($this->correlationId)
             ->and($data['data'])->toBeString()->not->toBeEmpty();
     });
@@ -170,7 +170,7 @@ describe('Fetching next messages', function (): void {
             $expectedMessages = array_slice($expectedMessages, 0, $limit);
             expect($response->data())->toBe([
                 'correlationId' => $this->correlationId,
-                'type' => 'NextMessages',
+                'status' => 'Success',
                 'data' => payloadOfMessages($expectedMessages),
             ]);
         }
@@ -180,7 +180,7 @@ describe('Fetching next messages', function (): void {
         $otherUser = $this->userStorage->create(createNewUser());
         $response = sendRequestToWs($this->router, $this->frame, $otherUser);
         $data = $response->data();
-        expect($data['type'])->toBe('Error')
+        expect($data['status'])->toBe('Failure')
             ->and($data['correlationId'])->toBe($this->correlationId)
             ->and($data['data'])->toBeString()->not->toBeEmpty();
     });
@@ -216,7 +216,7 @@ describe('Fetching previous messages', function (): void {
             $expectedMessages = array_slice($expectedMessages, -$limit);
             expect($response->data())->toBe([
                 'correlationId' => $this->correlationId,
-                'type' => 'PreviousMessages',
+                'status' => 'Success',
                 'data' => payloadOfMessages($expectedMessages),
             ]);
         }
@@ -226,7 +226,7 @@ describe('Fetching previous messages', function (): void {
         $otherUser = $this->userStorage->create(createNewUser());
         $response = sendRequestToWs($this->router, $this->frame, $otherUser);
         $data = $response->data();
-        expect($data['type'])->toBe('Error')
+        expect($data['status'])->toBe('Failure')
             ->and($data['correlationId'])->toBe($this->correlationId)
             ->and($data['data'])->toBeString()->not->toBeEmpty();
     });
