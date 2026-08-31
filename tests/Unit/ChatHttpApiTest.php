@@ -3,7 +3,6 @@
 use Antonowano\Chat\Chat;
 use Antonowano\Chat\Enums\HttpStatusCode;
 use Antonowano\Chat\Message;
-use Antonowano\Chat\NewRoom;
 use Antonowano\Chat\Room;
 use Antonowano\Chat\Stubs\StubHttpRequest;
 use Symfony\Component\Clock\MockClock;
@@ -20,7 +19,7 @@ beforeEach(function (): void {
 describe('Sending a message', function (): void {
     beforeEach(function (): void {
         $this->user = $this->userStorage->create(createNewUser(name: 'John Doe'));
-        $this->room = $this->roomStorage->create(new NewRoom(
+        $this->room = $this->roomStorage->create(createNewRoom(
             memberIds: [$this->user->id()],
         ));
         $this->request = new StubHttpRequest('POST', '/api/message/send', [], [
