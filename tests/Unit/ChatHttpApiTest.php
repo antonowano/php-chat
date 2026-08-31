@@ -19,38 +19,55 @@ beforeEach(function (): void {
 
 describe('Sending a message', function (): void {
     beforeEach(function (): void {
-        $user = $this->userStorage->create(createNewUser(name: 'John Doe'));
-        $room = $this->roomStorage->create(new NewRoom(
-            memberIds: [$user->id()],
+        $this->user = $this->userStorage->create(createNewUser(name: 'John Doe'));
+        $this->room = $this->roomStorage->create(new NewRoom(
+            memberIds: [$this->user->id()],
         ));
-        $request = new StubHttpRequest('POST', '/api/message/send', [], [
-            'roomId' => $room->id(),
+        $this->request = new StubHttpRequest('POST', '/api/message/send', [], [
+            'roomId' => $this->room->id(),
             'text' => 'Hello World!',
         ]);
-        $this->response = sendRequestToApi($this->router, $request, $user);
-        $this->messageInChat1 = $this->messageStorage->getLastMessages(1, 10);
-        $this->messageInChat2 = $this->messageStorage->getLastMessages(2, 10);
     });
 
     it('should return 201 Created', function (): void {
-        expect($this->response->statusCode())->toBe(HttpStatusCode::CREATED);
+        $response = sendRequestToApi($this->router, $this->request, $this->user);
+        expect($response)->statusCode()->toBe(HttpStatusCode::CREATED);
     });
 
     it('should matches the sent message', function (): void {
-        /** @var Message $message */
-        $message = $this->messageInChat1[0];
-        expect($message->id())->toBe(1)
-            ->and($message->text())->toBe('Hello World!')
-            ->and($message->roomId())->toBe(1)
+        sendRequestToApi($this->router, $this->request, $this->user);
+        $messages = $this->messageStorage->getLastMessages($this->room->id(), 10);
+        $message = $messages[0];
+        expect($message)->not->toBeNull()
+            ->id()->toBe(1)
+            ->text()->toBe('Hello World!')
+            ->roomId()->toBe(1)
             ->and($message->author()->name())->toBe('John Doe');
     });
 
     it('should store exactly one message in the chat', function (): void {
-        expect($this->messageInChat1)->toHaveCount(1);
+        sendRequestToApi($this->router, $this->request, $this->user);
+        $messages = $this->messageStorage->getLastMessages($this->room->id(), 10);
+        expect($messages)->toHaveCount(1);
     });
 
     it('should not store message in another chat', function (): void {
-        expect($this->messageInChat2)->toHaveCount(0);
+        sendRequestToApi($this->router, $this->request, $this->user);
+        $messages = $this->messageStorage->getLastMessages($this->room->id() + 1, 10);
+        expect($messages)->toHaveCount(0);
+    });
+
+    it('should return 403 Forbidden when user is not a member', function (): void {
+        $otherUser = $this->userStorage->create(createNewUser(name: 'Ivan'));
+        $response = sendRequestToApi($this->router, $this->request, $otherUser);
+        expect($response)->statusCode()->toBe(HttpStatusCode::FORBIDDEN);
+    });
+
+    it('should not send messages when the user is not a member', function (): void {
+        $otherUser = $this->userStorage->create(createNewUser(name: 'Ivan'));
+        sendRequestToApi($this->router, $this->request, $otherUser);
+        $messages = $this->messageStorage->getLastMessages($this->room->id(), 10);
+        expect($messages)->toHaveCount(0);
     });
 });
 

@@ -17,11 +17,11 @@ describe('Admin User', function (): void {
     });
     it('can read any chats', function (): void {
         $room = createRoom();
-        expect($this->accessControl->isGranted($this->user, 'chat.read', $room))->toBeTrue();
+        expect($this->accessControl->isGranted($this->user, 'room.read', $room))->toBeTrue();
     });
     it('can write to any chat', function (): void {
         $room = createRoom();
-        expect($this->accessControl->isGranted($this->user, 'chat.write', $room))->toBeTrue();
+        expect($this->accessControl->isGranted($this->user, 'room.write', $room))->toBeTrue();
     });
 });
 

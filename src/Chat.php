@@ -34,6 +34,8 @@ readonly class Chat
             new ApiMessageController(
                 $this->events,
                 $this->messageStorage,
+                $this->roomStorage,
+                $accessControl,
             ),
             new ApiUserController(
                 $this->userStorage,
@@ -49,6 +51,8 @@ readonly class Chat
             new StreamMessageController(
                 $this->events,
                 $this->messageStorage,
+                $this->roomStorage,
+                $accessControl,
             ),
             new StreamRoomController(
                 $this->roomStorage,

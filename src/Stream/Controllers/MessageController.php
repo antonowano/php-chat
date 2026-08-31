@@ -2,9 +2,11 @@
 
 namespace Antonowano\Chat\Stream\Controllers;
 
+use Antonowano\Chat\AccessControl;
 use Antonowano\Chat\Events;
 use Antonowano\Chat\MessageStorage;
 use Antonowano\Chat\NewMessage;
+use Antonowano\Chat\RoomStorage;
 use Antonowano\Chat\Stream\StreamFrame;
 use Antonowano\Chat\Stream\StreamResponse;
 
@@ -13,14 +15,23 @@ readonly class MessageController
     public function __construct(
         private Events $events,
         private MessageStorage $messageStorage,
+        private RoomStorage $roomStorage,
+        private AccessControl $accessControl,
     ) {
     }
 
     public function send(StreamFrame $frame, StreamResponse $response): void
     {
         $data = $frame->data();
+        $roomId = $data->get('roomId');
+        $room = $this->roomStorage->findById($roomId);
+
+        if (!$this->accessControl->isGranted($frame->user(), 'room.write', $room)) {
+            return;
+        }
+
         $message = $this->messageStorage->create(new NewMessage(
-            roomId: $data->get('roomId'),
+            roomId: $roomId,
             text: $data->get('text'),
             author: $frame->user(),
         ));

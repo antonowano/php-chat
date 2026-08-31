@@ -2,25 +2,37 @@
 
 namespace Antonowano\Chat\Api\Controllers;
 
+use Antonowano\Chat\AccessControl;
 use Antonowano\Chat\Api\ApiRequest;
 use Antonowano\Chat\Api\ApiResponse;
 use Antonowano\Chat\Events;
 use Antonowano\Chat\MessageStorage;
 use Antonowano\Chat\NewMessage;
+use Antonowano\Chat\RoomStorage;
 
 readonly class MessageController
 {
     public function __construct(
         private Events $events,
         private MessageStorage $messageStorage,
+        private RoomStorage $roomStorage,
+        private AccessControl $accessControl,
     ) {
     }
 
     public function send(ApiRequest $request, ApiResponse $response): void
     {
         $data = $request->json();
+        $roomId = $data->get('roomId');
+        $room = $this->roomStorage->findById($roomId);
+
+        if (!$this->accessControl->isGranted($request->user(), 'room.write', $room)) {
+            $response->sendForbidden();
+            return;
+        }
+
         $message = $this->messageStorage->create(new NewMessage(
-            roomId: $data->get('roomId'),
+            roomId: $roomId,
             text: $data->get('text'),
             author: $request->user(),
         ));

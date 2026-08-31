@@ -17,40 +17,49 @@ beforeEach(function (): void {
 
 describe('Sending a message', function (): void {
     beforeEach(function (): void {
-        $user = $this->userStorage->create(createNewUser(name: 'John Doe'));
-        $room = $this->roomStorage->create(createNewRoom(
-            memberIds: [$user->id()],
+        $this->user = $this->userStorage->create(createNewUser(name: 'John Doe'));
+        $this->room = $this->roomStorage->create(createNewRoom(
+            memberIds: [$this->user->id()],
         ));
-        $frame = new StubWsFrame([
+        $this->frame = new StubWsFrame([
             'type' => 'NewMessage',
             'data' => [
-                'roomId' => $room->id(),
+                'roomId' => $this->room->id(),
                 'text' => 'Hello World!',
             ],
         ]);
-        $this->response = sendRequestToWs($this->router, $frame, $user);
-        $this->messageInChat1 = $this->messageStorage->getLastMessages(1, 10);
-        $this->messageInChat2 = $this->messageStorage->getLastMessages(2, 10);
+    });
+
+    it('should not send messages when the user is not a member', function (): void {
+        $otherUser = $this->userStorage->create(createNewUser(name: 'Ivan'));
+        sendRequestToWs($this->router, $this->frame, $otherUser);
+        $messages = $this->messageStorage->getLastMessages($this->room->id(), 10);
+        expect($messages)->toHaveCount(0);
     });
 
     it('should matches the sent message', function (): void {
-        /** @var Message $message */
-        $message = $this->messageInChat1[0];
-        expect($message->id())->toBe(1)
-            ->and($message->text())->toBe('Hello World!')
-            ->and($message->roomId())->toBe(1)
+        sendRequestToWs($this->router, $this->frame, $this->user);
+        $messages = $this->messageStorage->getLastMessages($this->room->id(), 10);
+        $message = $messages[0];
+        expect($message)->not->toBeNull()
+            ->id()->toBe(1)
+            ->text()->toBe('Hello World!')
+            ->roomId()->toBe(1)
             ->and($message->author()->name())->toBe('John Doe');
     });
 
     it('should store exactly one message in the chat', function (): void {
-        expect($this->messageInChat1)->toHaveCount(1);
+        sendRequestToWs($this->router, $this->frame, $this->user);
+        $messages = $this->messageStorage->getLastMessages($this->room->id(), 10);
+        expect($messages)->toHaveCount(1);
     });
 
     it('should not store message in another chat', function (): void {
-        expect($this->messageInChat2)->toHaveCount(0);
+        sendRequestToWs($this->router, $this->frame, $this->user);
+        $messages = $this->messageStorage->getLastMessages($this->room->id() + 1, 10);
+        expect($messages)->toHaveCount(0);
     });
 });
-
 
 describe('Fetching the room list', function (): void {
     $limit = 3;
