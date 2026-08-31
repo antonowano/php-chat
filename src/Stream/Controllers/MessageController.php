@@ -40,7 +40,13 @@ readonly class MessageController
 
     public function last(StreamFrame $frame, StreamResponse $response): void
     {
-        $roomId = $frame->data()->get('roomId', 0);
+        $roomId = $frame->data()->get('roomId');
+        $room = $this->roomStorage->findById($roomId);
+
+        if (!$this->accessControl->isGranted($frame->user(), 'room.read', $room)) {
+            return;
+        }
+
         $messages = $this->messageStorage->getLastMessages($roomId, 30);
         $response->sendMessageList('LastMessages', $messages);
     }
@@ -48,8 +54,15 @@ readonly class MessageController
     public function next(StreamFrame $frame, StreamResponse $response): void
     {
         $data = $frame->data();
+        $roomId = $data->get('roomId');
+        $room = $this->roomStorage->findById($roomId);
+
+        if (!$this->accessControl->isGranted($frame->user(), 'room.read', $room)) {
+            return;
+        }
+
         $messages = $this->messageStorage->getMessagesAfterId(
-            $data->get('roomId', 0),
+            $roomId,
             $data->get('id', 0),
             30
         );
@@ -59,8 +72,15 @@ readonly class MessageController
     public function previous(StreamFrame $frame, StreamResponse $response): void
     {
         $data = $frame->data();
+        $roomId = $data->get('roomId');
+        $room = $this->roomStorage->findById($roomId);
+
+        if (!$this->accessControl->isGranted($frame->user(), 'room.read', $room)) {
+            return;
+        }
+
         $messages = $this->messageStorage->getMessagesBeforeId(
-            $data->get('roomId', 0),
+            $roomId,
             $data->get('id', 0),
             30
         );

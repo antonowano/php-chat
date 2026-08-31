@@ -102,22 +102,29 @@ describe('Fetching latest messages', function (): void {
 
     beforeEach(function () use ($roomId): void {
         $this->messages = createFullChat($this->userStorage, $this->roomStorage, $this->messageStorage);
-        $frame = new StubWsFrame([
+        $this->user = $this->userStorage->findAllById([1])[0];
+        $this->frame = new StubWsFrame([
             'type' => 'LastMessages',
             'data' => [
                 'roomId' => 1,
             ],
         ]);
-        $this->response = sendRequestToWs($this->router, $frame);
     });
 
     it("should return the last {$limit} messages", function () use ($limit, $roomId): void {
+        $response = sendRequestToWs($this->router, $this->frame, $this->user);
         $expectedMessages = array_filter($this->messages, fn (Message $m): bool => $m->roomId() === $roomId);
         $expectedMessages = array_slice($expectedMessages, -$limit);
-        expect($this->response->data())->toBe([
+        expect($response->data())->toBe([
             'type' => 'LastMessages',
             'data' => payloadOfMessages($expectedMessages),
         ]);
+    });
+
+    it('should not return any messages when the user is not a member', function () use ($limit, $roomId): void {
+        $otherUser = $this->userStorage->create(createNewUser());
+        $response = sendRequestToWs($this->router, $this->frame, $otherUser);
+        expect($response->data())->toBeEmpty();
     });
 });
 
@@ -128,30 +135,37 @@ describe('Fetching next messages', function (): void {
 
     beforeEach(function () use ($roomId, $afterId): void {
         $this->messages = createFullChat($this->userStorage, $this->roomStorage, $this->messageStorage);
-        $frame = new StubWsFrame([
+        $this->user = $this->userStorage->findAllById([1])[0];
+        $this->frame = new StubWsFrame([
             'type' => 'NextMessages',
             'data' => [
                 'roomId' => $roomId,
                 'id' => $afterId,
             ]
         ]);
-        $this->response = sendRequestToWs($this->router, $frame);
     });
 
     it(
         "should return {$limit} messages with an ID greater than {$afterId}",
         function () use ($limit, $roomId, $afterId): void {
+            $response = sendRequestToWs($this->router, $this->frame, $this->user);
             $expectedMessages = array_filter(
                 $this->messages,
                 fn (Message $m): bool => $m->roomId() === $roomId && $m->id() > $afterId
             );
             $expectedMessages = array_slice($expectedMessages, 0, $limit);
-            expect($this->response->data())->toBe([
+            expect($response->data())->toBe([
                 'type' => 'NextMessages',
                 'data' => payloadOfMessages($expectedMessages),
             ]);
         }
     );
+
+    it('should not return any messages when the user is not a member', function () use ($limit, $roomId): void {
+        $otherUser = $this->userStorage->create(createNewUser());
+        $response = sendRequestToWs($this->router, $this->frame, $otherUser);
+        expect($response->data())->toBeEmpty();
+    });
 });
 
 describe('Fetching previous messages', function (): void {
@@ -161,28 +175,35 @@ describe('Fetching previous messages', function (): void {
 
     beforeEach(function () use ($roomId, $beforeId): void {
         $this->messages = createFullChat($this->userStorage, $this->roomStorage, $this->messageStorage);
-        $frame = new StubWsFrame([
+        $this->user = $this->userStorage->findAllById([1])[0];
+        $this->frame = new StubWsFrame([
             'type' => 'PreviousMessages',
             'data' => [
                 'roomId' => $roomId,
                 'id' => $beforeId,
             ]
         ]);
-        $this->response = sendRequestToWs($this->router, $frame);
     });
 
     it(
         "should return {$limit} messages with an ID less than {$beforeId}",
         function () use ($limit, $roomId, $beforeId): void {
+            $response = sendRequestToWs($this->router, $this->frame, $this->user);
             $expectedMessages = array_filter(
                 $this->messages,
                 fn (Message $m): bool => $m->roomId() === $roomId && $m->id() < $beforeId
             );
             $expectedMessages = array_slice($expectedMessages, -$limit);
-            expect($this->response->data())->toBe([
+            expect($response->data())->toBe([
                 'type' => 'PreviousMessages',
                 'data' => payloadOfMessages($expectedMessages),
             ]);
         }
     );
+
+    it('should not return any messages when the user is not a member', function () use ($limit, $roomId): void {
+        $otherUser = $this->userStorage->create(createNewUser());
+        $response = sendRequestToWs($this->router, $this->frame, $otherUser);
+        expect($response->data())->toBeEmpty();
+    });
 });

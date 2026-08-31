@@ -42,7 +42,14 @@ readonly class MessageController
 
     public function last(ApiRequest $request, ApiResponse $response): void
     {
-        $roomId = $request->query()->get('roomId', 0);
+        $roomId = $request->query()->get('roomId');
+        $room = $this->roomStorage->findById($roomId);
+
+        if (!$this->accessControl->isGranted($request->user(), 'room.read', $room)) {
+            $response->sendForbidden();
+            return;
+        }
+
         $messages = $this->messageStorage->getLastMessages($roomId, 30);
         $response->sendMessageList($messages);
     }
@@ -50,8 +57,16 @@ readonly class MessageController
     public function next(ApiRequest $request, ApiResponse $response): void
     {
         $query = $request->query();
+        $roomId = $request->query()->get('roomId');
+        $room = $this->roomStorage->findById($roomId);
+
+        if (!$this->accessControl->isGranted($request->user(), 'room.read', $room)) {
+            $response->sendForbidden();
+            return;
+        }
+
         $messages = $this->messageStorage->getMessagesAfterId(
-            $query->get('roomId', 0),
+            $roomId,
             $query->get('id', 0),
             30
         );
@@ -61,8 +76,16 @@ readonly class MessageController
     public function previous(ApiRequest $request, ApiResponse $response): void
     {
         $query = $request->query();
+        $roomId = $request->query()->get('roomId');
+        $room = $this->roomStorage->findById($roomId);
+
+        if (!$this->accessControl->isGranted($request->user(), 'room.read', $room)) {
+            $response->sendForbidden();
+            return;
+        }
+
         $messages = $this->messageStorage->getMessagesBeforeId(
-            $query->get('roomId', 0),
+            $roomId,
             $query->get('id', 0),
             30
         );
