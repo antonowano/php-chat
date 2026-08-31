@@ -37,6 +37,7 @@ readonly class MessageController
             author: $frame->user(),
         ));
         $this->events->messageSent($message);
+        $response->sendCreated($frame->correlationId());
     }
 
     public function last(StreamFrame $frame, StreamResponse $response): void

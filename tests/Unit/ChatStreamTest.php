@@ -33,11 +33,28 @@ describe('Sending a message', function (): void {
         ]);
     });
 
+    it('should return success when the message is created', function (): void {
+        $response = sendRequestToWs($this->router, $this->frame, $this->user);
+        expect($response->data())->toBe([
+            'correlationId' => $this->correlationId,
+            'status' => 'Success',
+        ]);
+    });
+
     it('should not send messages when the user is not a member', function (): void {
         $otherUser = $this->userStorage->create(createNewUser(name: 'Ivan'));
         sendRequestToWs($this->router, $this->frame, $otherUser);
         $messages = $this->messageStorage->getLastMessages($this->room->id(), 10);
         expect($messages)->toHaveCount(0);
+    });
+
+    it('should return an error if the user is not a member', function (): void {
+        $otherUser = $this->userStorage->create(createNewUser());
+        $response = sendRequestToWs($this->router, $this->frame, $otherUser);
+        $data = $response->data();
+        expect($data['status'])->toBe('Failure')
+            ->and($data['correlationId'])->toBe($this->correlationId)
+            ->and($data['data'])->toBeString()->not->toBeEmpty();
     });
 
     it('should matches the sent message', function (): void {
@@ -130,7 +147,7 @@ describe('Fetching latest messages', function (): void {
         ]);
     });
 
-    it('should not return any messages when the user is not a member', function () use ($limit, $roomId): void {
+    it('should return an error if the user is not a member', function () use ($limit, $roomId): void {
         $otherUser = $this->userStorage->create(createNewUser());
         $response = sendRequestToWs($this->router, $this->frame, $otherUser);
         $data = $response->data();
@@ -176,7 +193,7 @@ describe('Fetching next messages', function (): void {
         }
     );
 
-    it('should not return any messages when the user is not a member', function () use ($limit, $roomId): void {
+    it('should return an error if the user is not a member', function () use ($limit, $roomId): void {
         $otherUser = $this->userStorage->create(createNewUser());
         $response = sendRequestToWs($this->router, $this->frame, $otherUser);
         $data = $response->data();
@@ -222,7 +239,7 @@ describe('Fetching previous messages', function (): void {
         }
     );
 
-    it('should not return any messages when the user is not a member', function () use ($limit, $roomId): void {
+    it('should return an error if the user is not a member', function () use ($limit, $roomId): void {
         $otherUser = $this->userStorage->create(createNewUser());
         $response = sendRequestToWs($this->router, $this->frame, $otherUser);
         $data = $response->data();

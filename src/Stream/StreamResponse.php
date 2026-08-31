@@ -12,6 +12,14 @@ readonly class StreamResponse
     ) {
     }
 
+    public function sendCreated(string $correlationId): void
+    {
+        $this->wsResponse->push([
+            'correlationId' => $correlationId,
+            'status' => 'Success',
+        ]);
+    }
+
     /**
      * @param list<Message> $messages
      */
