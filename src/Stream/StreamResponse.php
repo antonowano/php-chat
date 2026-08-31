@@ -15,9 +15,10 @@ readonly class StreamResponse
     /**
      * @param list<Message> $messages
      */
-    public function sendMessageList(string $type, array $messages): void
+    public function sendMessageList(string $correlationId, string $type, array $messages): void
     {
         $this->wsResponse->push([
+            'correlationId' => $correlationId,
             'type' => $type,
             'data' => array_map(fn (Message $message) => $message->toChatPayload(), $messages),
         ]);
@@ -26,17 +27,19 @@ readonly class StreamResponse
     /**
      * @param list<Room> $rooms
      */
-    public function sendRoomList(array $rooms): void
+    public function sendRoomList(string $correlationId, array $rooms): void
     {
         $this->wsResponse->push([
+            'correlationId' => $correlationId,
             'type' => 'RoomList',
             'data' => array_map(fn (Room $room) => $room->toChatPayload(), $rooms),
         ]);
     }
 
-    public function sendForbidden(): void
+    public function sendForbidden(string $correlationId): void
     {
         $this->wsResponse->push([
+            'correlationId' => $correlationId,
             'type' => 'Error',
             'data' => 'You dont have permission to access this resource',
         ]);

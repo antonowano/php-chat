@@ -20,7 +20,8 @@
     },
     "require": {
         "php": "^8.4",
-        "symfony/clock": "^8.1"
+        "symfony/clock": "^8.1",
+        "ramsey/uuid": "^4.9"
     },
     "scripts": {
         "test": "pest"

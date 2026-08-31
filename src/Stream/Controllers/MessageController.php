@@ -27,7 +27,7 @@ readonly class MessageController
         $room = $this->roomStorage->findById($roomId);
 
         if (!$this->accessControl->isGranted($frame->user(), 'room.write', $room)) {
-            $response->sendForbidden();
+            $response->sendForbidden($frame->correlationId());
             return;
         }
 
@@ -41,16 +41,17 @@ readonly class MessageController
 
     public function last(StreamFrame $frame, StreamResponse $response): void
     {
-        $roomId = $frame->data()->get('roomId');
+        $data = $frame->data();
+        $roomId = $data->get('roomId');
         $room = $this->roomStorage->findById($roomId);
 
         if (!$this->accessControl->isGranted($frame->user(), 'room.read', $room)) {
-            $response->sendForbidden();
+            $response->sendForbidden($frame->correlationId());
             return;
         }
 
         $messages = $this->messageStorage->getLastMessages($roomId, 30);
-        $response->sendMessageList('LastMessages', $messages);
+        $response->sendMessageList($frame->correlationId(), 'LastMessages', $messages);
     }
 
     public function next(StreamFrame $frame, StreamResponse $response): void
@@ -60,7 +61,7 @@ readonly class MessageController
         $room = $this->roomStorage->findById($roomId);
 
         if (!$this->accessControl->isGranted($frame->user(), 'room.read', $room)) {
-            $response->sendForbidden();
+            $response->sendForbidden($frame->correlationId());
             return;
         }
 
@@ -69,7 +70,7 @@ readonly class MessageController
             $data->get('id', 0),
             30
         );
-        $response->sendMessageList('NextMessages', $messages);
+        $response->sendMessageList($frame->correlationId(), 'NextMessages', $messages);
     }
 
     public function previous(StreamFrame $frame, StreamResponse $response): void
@@ -79,7 +80,7 @@ readonly class MessageController
         $room = $this->roomStorage->findById($roomId);
 
         if (!$this->accessControl->isGranted($frame->user(), 'room.read', $room)) {
-            $response->sendForbidden();
+            $response->sendForbidden($frame->correlationId());
             return;
         }
 
@@ -88,6 +89,6 @@ readonly class MessageController
             $data->get('id', 0),
             30
         );
-        $response->sendMessageList('PreviousMessages', $messages);
+        $response->sendMessageList($frame->correlationId(), 'PreviousMessages', $messages);
     }
 }

@@ -19,6 +19,6 @@ readonly class RoomController
         $offset = $data->get('offset', 0);
         $limit = $data->get('limit', 20);
         $rooms = $this->roomStorage->findAllForUser($frame->user(), $offset, $limit);
-        $response->sendRoomList($rooms);
+        $response->sendRoomList($frame->correlationId(), $rooms);
     }
 }

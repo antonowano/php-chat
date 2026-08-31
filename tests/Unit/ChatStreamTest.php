@@ -4,6 +4,7 @@ use Antonowano\Chat\Chat;
 use Antonowano\Chat\Message;
 use Antonowano\Chat\Room;
 use Antonowano\Chat\Stubs\StubWsFrame;
+use Ramsey\Uuid\Uuid;
 use Symfony\Component\Clock\MockClock;
 
 beforeEach(function (): void {
@@ -21,7 +22,9 @@ describe('Sending a message', function (): void {
         $this->room = $this->roomStorage->create(createNewRoom(
             memberIds: [$this->user->id()],
         ));
+        $this->correlationId = Uuid::uuid4()->toString();
         $this->frame = new StubWsFrame([
+            'correlationId' => $this->correlationId,
             'type' => 'NewMessage',
             'data' => [
                 'roomId' => $this->room->id(),
@@ -76,20 +79,23 @@ describe('Fetching the room list', function (): void {
             $this->roomStorage->create(createNewRoom([$this->user->id()])),
             $this->roomStorage->create(createNewRoom()),
         ];
-        $frame = new StubWsFrame([
+        $this->correlationId = Uuid::uuid4()->toString();
+        $this->frame = new StubWsFrame([
+            'correlationId' => $this->correlationId,
             'type' => 'RoomList',
             'data' => [
                 'offset' => $offset,
                 'limit' => $limit,
             ],
         ]);
-        $this->response = sendRequestToWs($this->router, $frame, $this->user);
     });
 
     it('should return a list of the user\'s rooms', function () use ($offset, $limit): void {
+        $this->response = sendRequestToWs($this->router, $this->frame, $this->user);
         $expectedRooms = array_filter($this->rooms, fn (Room $m): bool => $m->hasMember($this->user));
         $expectedRooms = array_slice($expectedRooms, $offset, $limit);
         expect($this->response->data())->toBe([
+            'correlationId' => $this->correlationId,
             'type' => 'RoomList',
             'data' => payloadOfRooms($expectedRooms),
         ]);
@@ -103,7 +109,9 @@ describe('Fetching latest messages', function (): void {
     beforeEach(function () use ($roomId): void {
         $this->messages = createFullChat($this->userStorage, $this->roomStorage, $this->messageStorage);
         $this->user = $this->userStorage->findAllById([1])[0];
+        $this->correlationId = Uuid::uuid4()->toString();
         $this->frame = new StubWsFrame([
+            'correlationId' => $this->correlationId,
             'type' => 'LastMessages',
             'data' => [
                 'roomId' => 1,
@@ -116,6 +124,7 @@ describe('Fetching latest messages', function (): void {
         $expectedMessages = array_filter($this->messages, fn (Message $m): bool => $m->roomId() === $roomId);
         $expectedMessages = array_slice($expectedMessages, -$limit);
         expect($response->data())->toBe([
+            'correlationId' => $this->correlationId,
             'type' => 'LastMessages',
             'data' => payloadOfMessages($expectedMessages),
         ]);
@@ -126,6 +135,7 @@ describe('Fetching latest messages', function (): void {
         $response = sendRequestToWs($this->router, $this->frame, $otherUser);
         $data = $response->data();
         expect($data['type'])->toBe('Error')
+            ->and($data['correlationId'])->toBe($this->correlationId)
             ->and($data['data'])->toBeString()->not->toBeEmpty();
     });
 });
@@ -138,7 +148,9 @@ describe('Fetching next messages', function (): void {
     beforeEach(function () use ($roomId, $afterId): void {
         $this->messages = createFullChat($this->userStorage, $this->roomStorage, $this->messageStorage);
         $this->user = $this->userStorage->findAllById([1])[0];
+        $this->correlationId = Uuid::uuid4()->toString();
         $this->frame = new StubWsFrame([
+            'correlationId' => $this->correlationId,
             'type' => 'NextMessages',
             'data' => [
                 'roomId' => $roomId,
@@ -157,6 +169,7 @@ describe('Fetching next messages', function (): void {
             );
             $expectedMessages = array_slice($expectedMessages, 0, $limit);
             expect($response->data())->toBe([
+                'correlationId' => $this->correlationId,
                 'type' => 'NextMessages',
                 'data' => payloadOfMessages($expectedMessages),
             ]);
@@ -168,6 +181,7 @@ describe('Fetching next messages', function (): void {
         $response = sendRequestToWs($this->router, $this->frame, $otherUser);
         $data = $response->data();
         expect($data['type'])->toBe('Error')
+            ->and($data['correlationId'])->toBe($this->correlationId)
             ->and($data['data'])->toBeString()->not->toBeEmpty();
     });
 });
@@ -180,7 +194,9 @@ describe('Fetching previous messages', function (): void {
     beforeEach(function () use ($roomId, $beforeId): void {
         $this->messages = createFullChat($this->userStorage, $this->roomStorage, $this->messageStorage);
         $this->user = $this->userStorage->findAllById([1])[0];
+        $this->correlationId = Uuid::uuid4()->toString();
         $this->frame = new StubWsFrame([
+            'correlationId' => $this->correlationId,
             'type' => 'PreviousMessages',
             'data' => [
                 'roomId' => $roomId,
@@ -199,6 +215,7 @@ describe('Fetching previous messages', function (): void {
             );
             $expectedMessages = array_slice($expectedMessages, -$limit);
             expect($response->data())->toBe([
+                'correlationId' => $this->correlationId,
                 'type' => 'PreviousMessages',
                 'data' => payloadOfMessages($expectedMessages),
             ]);
@@ -210,6 +227,7 @@ describe('Fetching previous messages', function (): void {
         $response = sendRequestToWs($this->router, $this->frame, $otherUser);
         $data = $response->data();
         expect($data['type'])->toBe('Error')
+            ->and($data['correlationId'])->toBe($this->correlationId)
             ->and($data['data'])->toBeString()->not->toBeEmpty();
     });
 });

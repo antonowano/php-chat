@@ -21,6 +21,11 @@ readonly class StreamFrame
         return $this->data->get('type');
     }
 
+    public function correlationId(): string
+    {
+        return $this->data->get('correlationId');
+    }
+
     public function data(): DataBag
     {
         return new DataBag($this->data->get('data'));
