@@ -2,7 +2,6 @@
 
 namespace Antonowano\Chat\Stream;
 
-use Antonowano\Chat\Enums\HttpStatusCode;
 use Antonowano\Chat\Message;
 use Antonowano\Chat\Room;
 
