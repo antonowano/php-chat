@@ -2,6 +2,7 @@
 
 namespace Antonowano\Chat\Stream;
 
+use Antonowano\Chat\Enums\HttpStatusCode;
 use Antonowano\Chat\Message;
 use Antonowano\Chat\Room;
 
@@ -31,6 +32,14 @@ readonly class StreamResponse
         $this->wsResponse->push([
             'type' => 'RoomList',
             'data' => array_map(fn (Room $room) => $room->toChatPayload(), $rooms),
+        ]);
+    }
+
+    public function sendForbidden(): void
+    {
+        $this->wsResponse->push([
+            'type' => 'Error',
+            'data' => 'You dont have permission to access this resource',
         ]);
     }
 }

@@ -124,7 +124,9 @@ describe('Fetching latest messages', function (): void {
     it('should not return any messages when the user is not a member', function () use ($limit, $roomId): void {
         $otherUser = $this->userStorage->create(createNewUser());
         $response = sendRequestToWs($this->router, $this->frame, $otherUser);
-        expect($response->data())->toBeEmpty();
+        $data = $response->data();
+        expect($data['type'])->toBe('Error')
+            ->and($data['data'])->toBeString()->not->toBeEmpty();
     });
 });
 
@@ -164,7 +166,9 @@ describe('Fetching next messages', function (): void {
     it('should not return any messages when the user is not a member', function () use ($limit, $roomId): void {
         $otherUser = $this->userStorage->create(createNewUser());
         $response = sendRequestToWs($this->router, $this->frame, $otherUser);
-        expect($response->data())->toBeEmpty();
+        $data = $response->data();
+        expect($data['type'])->toBe('Error')
+            ->and($data['data'])->toBeString()->not->toBeEmpty();
     });
 });
 
@@ -204,6 +208,8 @@ describe('Fetching previous messages', function (): void {
     it('should not return any messages when the user is not a member', function () use ($limit, $roomId): void {
         $otherUser = $this->userStorage->create(createNewUser());
         $response = sendRequestToWs($this->router, $this->frame, $otherUser);
-        expect($response->data())->toBeEmpty();
+        $data = $response->data();
+        expect($data['type'])->toBe('Error')
+            ->and($data['data'])->toBeString()->not->toBeEmpty();
     });
 });

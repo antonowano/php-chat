@@ -27,6 +27,7 @@ readonly class MessageController
         $room = $this->roomStorage->findById($roomId);
 
         if (!$this->accessControl->isGranted($frame->user(), 'room.write', $room)) {
+            $response->sendForbidden();
             return;
         }
 
@@ -44,6 +45,7 @@ readonly class MessageController
         $room = $this->roomStorage->findById($roomId);
 
         if (!$this->accessControl->isGranted($frame->user(), 'room.read', $room)) {
+            $response->sendForbidden();
             return;
         }
 
@@ -58,6 +60,7 @@ readonly class MessageController
         $room = $this->roomStorage->findById($roomId);
 
         if (!$this->accessControl->isGranted($frame->user(), 'room.read', $room)) {
+            $response->sendForbidden();
             return;
         }
 
@@ -76,6 +79,7 @@ readonly class MessageController
         $room = $this->roomStorage->findById($roomId);
 
         if (!$this->accessControl->isGranted($frame->user(), 'room.read', $room)) {
+            $response->sendForbidden();
             return;
         }
 
