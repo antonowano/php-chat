@@ -3,7 +3,6 @@
 namespace Antonowano\Chat;
 
 use Antonowano\Chat\Api\ApiRouter;
-use Antonowano\Chat\Api\Controllers\MessageController as ApiMessageController;
 use Antonowano\Chat\Api\Controllers\RoomController as ApiRoomController;
 use Antonowano\Chat\Api\Controllers\UserController as ApiUserController;
 use Antonowano\Chat\Stream\Controllers\MessageController as StreamMessageController;
@@ -31,12 +30,6 @@ readonly class Chat
         $this->messageStorage = new MessageStorage($clock, $this->roomStorage);
         $accessControl = new AccessControl();
         $this->apiRouter = new ApiRouter(
-            new ApiMessageController(
-                $this->events,
-                $this->messageStorage,
-                $this->roomStorage,
-                $accessControl,
-            ),
             new ApiUserController(
                 $this->userStorage,
                 $accessControl,

@@ -103,3 +103,18 @@ describe('Room registration', function (): void {
         });
     });
 });
+
+describe('Accessing non-existent route', function (): void {
+    beforeEach(function (): void {
+        $request = new StubHttpRequest('POST', '/not-found');
+        $this->response = sendRequestToApi($this->router, $request);
+    });
+
+    it('should return 404 Not Found', function (): void {
+        expect($this->response->statusCode())->toBe(HttpStatusCode::NOT_FOUND);
+    });
+
+    it('should contains a error message', function (): void {
+        expect($this->response->data())->toHaveKey('error');
+    });
+});
