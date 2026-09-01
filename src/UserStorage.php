@@ -2,6 +2,8 @@
 
 namespace Antonowano\Chat;
 
+use Ramsey\Uuid\Uuid;
+
 class UserStorage
 {
     /** @var array<string, User> */
@@ -11,7 +13,7 @@ class UserStorage
 
     public function create(NewUser $user): User
     {
-        $token = uniqid();
+        $token = Uuid::uuid4()->toString();
         $user = new User(
             id: $this->autoIncrement++,
             name: $user->name(),
