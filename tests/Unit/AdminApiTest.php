@@ -26,19 +26,25 @@ describe('User registration', function (): void {
         beforeEach(function (): void {
             $this->response = sendRequestToApi($this->router, $this->request, createUser(role: Role::ADMIN));
             $this->accessToken = $this->response->data()['accessToken'] ?? '';
+            $this->user = createUser(id: 1, name: 'Ivan', accessToken: $this->accessToken);
         });
 
         it('should return 201 Created', function (): void {
             expect($this->response->statusCode())->toBe(HttpStatusCode::CREATED);
         });
 
-        it('should return access token', function (): void {
-            expect($this->accessToken)->not()->toBeEmpty();
+        it('should return access token and user', function (): void {
+            $data = $this->response->data();
+            expect($data)->toHaveKey('accessToken')
+                ->and($data['accessToken'])->toBe($this->accessToken)
+                ->and($data)->toHaveKey('user')
+                ->and($data['user'])->toBe($this->user->toChatPayload());
         });
 
         it('should add the user to the storage', function (): void {
-            $expectedUser = createUser(id: 1, name: 'Ivan', accessToken: $this->accessToken);
-            expect($this->userStorage->findByToken($this->accessToken))->toEqual($expectedUser);
+            $accessToken = $this->response->data()['accessToken'] ?? '';
+            $expectedUser = createUser(id: 1, name: 'Ivan', accessToken: $accessToken);
+            expect($this->userStorage->findByToken($accessToken))->toEqual($expectedUser);
         });
     });
 

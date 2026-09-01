@@ -25,10 +25,10 @@ readonly class UserController
         }
 
         $data = $request->json();
-        $accessToken = $this->userStorage->create(new NewUser(
+        $user = $this->userStorage->create(new NewUser(
             name: $data->get('name'),
             role: Role::USER,
-        ))->accessToken();
-        $response->sendAccessToken($accessToken);
+        ));
+        $response->sendRegisteredUser($user);
     }
 }

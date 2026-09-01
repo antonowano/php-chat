@@ -76,7 +76,7 @@ readonly class Message
             'roomId' => $this->room->id(),
             'id' => $this->id,
             'text' => $this->text,
-            'author' => $this->author->name(),
+            'author' => $this->author->toChatPayload(),
             'date' => $this->createdAt->format('d.m.Y'),
             'time' => $this->createdAt->format('H:i'),
         ];

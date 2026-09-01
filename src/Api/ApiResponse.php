@@ -5,6 +5,7 @@ namespace Antonowano\Chat\Api;
 use Antonowano\Chat\Enums\HttpStatusCode;
 use Antonowano\Chat\Message;
 use Antonowano\Chat\Room;
+use Antonowano\Chat\User;
 
 readonly class ApiResponse
 {
@@ -35,10 +36,11 @@ readonly class ApiResponse
         ], HttpStatusCode::NOT_FOUND);
     }
 
-    public function sendAccessToken(string $accessToken): void
+    public function sendRegisteredUser(User $user): void
     {
         $this->httpResponse->json([
-            'accessToken' => $accessToken,
+            'user' => $user->toChatPayload(),
+            'accessToken' => $user->accessToken(),
         ], HttpStatusCode::CREATED);
     }
 

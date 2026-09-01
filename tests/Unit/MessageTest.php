@@ -75,7 +75,10 @@ test('to chat payload', function (): void {
         'roomId' => 5,
         'id' => 11,
         'text' => 'Hello World',
-        'author' => 'Ivan',
+        'author' => [
+            'id' => 0,
+            'name' => 'Ivan',
+        ],
         'date' => '05.08.2027',
         'time' => '21:22',
     ]);
