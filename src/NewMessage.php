@@ -2,18 +2,30 @@
 
 namespace Antonowano\Chat;
 
+use Antonowano\Chat\Stream\StreamFrame;
+
 readonly class NewMessage
 {
     public function __construct(
-        private int    $roomId,
+        private Room $room,
         private string $text,
-        private User   $author,
+        private User $author,
     ) {
     }
 
-    public function roomId(): int
+    public static function createFromStreamFrame(StreamFrame $frame, Room $room): NewMessage
     {
-        return $this->roomId;
+        $data = $frame->data();
+        return new NewMessage(
+            room: $room,
+            text: $data->get('text'),
+            author: $frame->user(),
+        );
+    }
+
+    public function room(): Room
+    {
+        return $this->room;
     }
 
     public function text(): string

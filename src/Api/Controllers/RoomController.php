@@ -25,10 +25,7 @@ readonly class RoomController
             return;
         }
 
-        $data = $request->json();
-        $room = $this->roomStorage->create(new NewRoom(
-            memberIds: $data->get('memberIds'),
-        ));
+        $room = $this->roomStorage->create(NewRoom::createFromApiRequest($request));
         $this->events->roomCreated($room);
         $response->sendCreated();
     }

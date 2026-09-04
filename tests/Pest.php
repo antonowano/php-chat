@@ -126,10 +126,10 @@ function createMessage(
     );
 }
 
-function createNewMessage(int $roomId, string $text, ?User $author = null): NewMessage
+function createNewMessage(Room $room, string $text, ?User $author = null): NewMessage
 {
     return new NewMessage(
-        roomId: $roomId,
+        room: $room,
         text: $text,
         author: $author ?? createUser(),
     );
@@ -178,7 +178,7 @@ function createFullChat(UserStorage $userStorage, RoomStorage $roomStorage, Mess
         }
 
         $messages[] = $messageStorage->create(createNewMessage(
-            roomId: $room->id(),
+            room: $room,
             text: 'test message ' . $i,
             author: $author,
         ));

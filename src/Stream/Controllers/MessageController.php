@@ -31,11 +31,7 @@ readonly class MessageController
             return;
         }
 
-        $message = $this->messageStorage->create(new NewMessage(
-            roomId: $roomId,
-            text: $data->get('text'),
-            author: $frame->user(),
-        ));
+        $message = $this->messageStorage->create(NewMessage::createFromStreamFrame($frame, $room));
         $this->events->messageSent($message);
         $response->sendCreated($frame->correlationId());
     }

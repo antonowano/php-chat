@@ -6,7 +6,6 @@ use Antonowano\Chat\AccessControl;
 use Antonowano\Chat\Api\ApiRequest;
 use Antonowano\Chat\Api\ApiResponse;
 use Antonowano\Chat\NewUser;
-use Antonowano\Chat\Role;
 use Antonowano\Chat\UserStorage;
 
 readonly class UserController
@@ -24,11 +23,7 @@ readonly class UserController
             return;
         }
 
-        $data = $request->json();
-        $user = $this->userStorage->create(new NewUser(
-            name: $data->get('name'),
-            role: Role::USER,
-        ));
+        $user = $this->userStorage->create(NewUser::createFromApiRequest($request));
         $response->sendRegisteredUser($user);
     }
 }
