@@ -33,4 +33,14 @@ readonly class Room
             'members' => array_map(fn (User $member) => $member->toChatPayload(), $this->members),
         ];
     }
+
+    public function removeMember(int $userId): Room
+    {
+        return new Room(
+            id: $this->id,
+            members: array_values(
+                array_filter($this->members, fn($member) => $member->id() !== $userId)
+            ),
+        );
+    }
 }

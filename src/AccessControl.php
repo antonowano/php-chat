@@ -10,7 +10,7 @@ readonly class AccessControl
             return true;
         }
 
-        if (str_starts_with($permission, 'room.') && $subject instanceof Room) {
+        if (in_array($permission, ['room.write', 'room.read']) && $subject instanceof Room) {
             return $subject->hasMember($user);
         }
 

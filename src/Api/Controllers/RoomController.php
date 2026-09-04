@@ -29,4 +29,20 @@ readonly class RoomController
         $this->events->roomCreated($room);
         $response->sendCreated();
     }
+
+    public function removeUser(ApiRequest $request, ApiResponse $response): void
+    {
+        $data = $request->json();
+        $roomId = $data->get('roomId');
+        $room = $this->roomStorage->findById($roomId);
+
+        if (!$this->accessControl->isGranted($request->user(), 'room.remove-user', $room)) {
+            $response->sendForbidden();
+            return;
+        }
+
+        $room = $room->removeMember($data->get('userId'));
+        $this->roomStorage->save($room);
+        $response->sendExecuted();
+    }
 }

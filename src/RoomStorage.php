@@ -45,4 +45,9 @@ class RoomStorage
 
         return array_slice($rooms, $offset, $limit);
     }
+
+    public function save(Room $room): void
+    {
+        $this->rooms[$room->id()] = $room;
+    }
 }

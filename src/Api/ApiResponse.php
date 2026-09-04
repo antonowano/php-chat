@@ -19,6 +19,11 @@ readonly class ApiResponse
         $this->httpResponse->json([], HttpStatusCode::CREATED);
     }
 
+    public function sendExecuted(): void
+    {
+        $this->httpResponse->json([], HttpStatusCode::OK);
+    }
+
     /**
      * @param list<Message> $messages
      */
