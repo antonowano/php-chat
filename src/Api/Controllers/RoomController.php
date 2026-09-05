@@ -61,8 +61,8 @@ readonly class RoomController
 
         $userId = $data->get('userId');
         $user = $this->userStorage->findById($userId);
-        $room = $room->removeMember($user);
-        $this->roomStorage->save($room);
+        $updatedRoom = $room->removeMember($user);
+        $this->roomStorage->save($updatedRoom);
         $this->events->userRemovedFromRoom($user, $room);
         $response->sendExecuted();
     }
