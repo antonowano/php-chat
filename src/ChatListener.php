@@ -7,4 +7,6 @@ interface ChatListener
     public function onMessageSent(Message $message): void;
 
     public function onRoomCreated(Room $room): void;
+
+    public function onUserRemovedFromRoom(User $user, Room $room): void;
 }

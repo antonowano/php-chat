@@ -40,4 +40,17 @@ readonly class SwooleWsChatListener implements ChatListener
             ]);
         }
     }
+
+    public function onUserRemovedFromRoom(User $user, Room $room): void
+    {
+        if ($room->hasMember($this->user)) {
+            $this->response->push([
+                'type' => 'RemovedFromRoom',
+                'data' => [
+                    'userId' => $user->id(),
+                    'roomId' => $room->id(),
+                ],
+            ]);
+        }
+    }
 }

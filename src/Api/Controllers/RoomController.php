@@ -38,7 +38,7 @@ readonly class RoomController
         $roomId = $data->get('roomId');
         $room = $this->roomStorage->findById($roomId);
 
-        if (!$this->accessControl->isGranted($request->user(), 'room.remove-user', $room)) {
+        if (!$this->accessControl->isGranted($request->user(), 'room.remove', $room)) {
             $response->sendForbidden();
             return;
         }
@@ -62,6 +62,7 @@ readonly class RoomController
         $user = $this->userStorage->findById($userId);
         $room = $room->removeMember($user);
         $this->roomStorage->save($room);
+        $this->events->userRemovedFromRoom($user, $room);
         $response->sendExecuted();
     }
 }
