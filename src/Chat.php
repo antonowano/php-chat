@@ -31,6 +31,7 @@ readonly class Chat
         $accessControl = new AccessControl();
         $this->apiRouter = new ApiRouter(
             new ApiUserController(
+                $this->events,
                 $this->userStorage,
                 $this->roomStorage,
                 $accessControl,

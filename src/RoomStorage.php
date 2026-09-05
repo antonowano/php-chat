@@ -51,13 +51,19 @@ class RoomStorage
         unset($this->rooms[$room->id()]);
     }
 
-    public function removeMemberFromAllRooms(User $user): void
+    /**
+     * @return list<Room>
+     */
+    public function findAllByMember(User $user): array
     {
+        $rooms = [];
+
         foreach ($this->rooms as $room) {
             if ($room->hasMember($user)) {
-                $changedRoom = $room->removeMember($user);
-                $this->save($changedRoom);
+                $rooms[] = $room;
             }
         }
+
+        return $rooms;
     }
 }

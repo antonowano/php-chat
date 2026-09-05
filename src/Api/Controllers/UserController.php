@@ -5,6 +5,7 @@ namespace Antonowano\Chat\Api\Controllers;
 use Antonowano\Chat\AccessControl;
 use Antonowano\Chat\Api\ApiRequest;
 use Antonowano\Chat\Api\ApiResponse;
+use Antonowano\Chat\Events;
 use Antonowano\Chat\NewUser;
 use Antonowano\Chat\RoomStorage;
 use Antonowano\Chat\UserStorage;
@@ -12,6 +13,7 @@ use Antonowano\Chat\UserStorage;
 readonly class UserController
 {
     public function __construct(
+        private Events $events,
         private UserStorage $userStorage,
         private RoomStorage $roomStorage,
         private AccessControl $accessControl,
@@ -40,7 +42,14 @@ readonly class UserController
             return;
         }
 
-        $this->roomStorage->removeMemberFromAllRooms($user);
+        $rooms = $this->roomStorage->findAllByMember($user);
+
+        foreach ($rooms as $room) {
+            $updatedRoom = $room->removeMember($user);
+            $this->roomStorage->save($updatedRoom);
+            $this->events->userRemovedFromRoom($user, $room);
+        }
+
         $this->userStorage->remove($user);
         $response->sendExecuted();
     }
