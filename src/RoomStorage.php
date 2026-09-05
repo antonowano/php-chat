@@ -51,6 +51,11 @@ class RoomStorage
         $this->rooms[$room->id()] = $room;
     }
 
+    public function remove(Room $room): void
+    {
+        unset($this->rooms[$room->id()]);
+    }
+
     public function removeMemberFromAllRooms(User $user): void
     {
         foreach ($this->rooms as $room) {

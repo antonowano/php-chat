@@ -32,6 +32,21 @@ readonly class RoomController
         $response->sendCreated();
     }
 
+    public function remove(ApiRequest $request, ApiResponse $response): void
+    {
+        $data = $request->json();
+        $roomId = $data->get('roomId');
+        $room = $this->roomStorage->findById($roomId);
+
+        if (!$this->accessControl->isGranted($request->user(), 'room.remove-user', $room)) {
+            $response->sendForbidden();
+            return;
+        }
+
+        $this->roomStorage->remove($room);
+        $response->sendExecuted();
+    }
+
     public function removeUser(ApiRequest $request, ApiResponse $response): void
     {
         $data = $request->json();
