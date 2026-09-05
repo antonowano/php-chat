@@ -9,4 +9,6 @@ interface ChatListener
     public function onRoomCreated(Room $room): void;
 
     public function onUserRemovedFromRoom(User $user, Room $room): void;
+
+    public function onRemovedRoom(Room $room): void;
 }

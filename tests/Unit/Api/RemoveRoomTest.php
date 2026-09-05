@@ -1,6 +1,7 @@
 <?php
 
 use Antonowano\Chat\Chat;
+use Antonowano\Chat\ChatListener;
 use Antonowano\Chat\Enums\HttpStatusCode;
 use Antonowano\Chat\Role;
 use Antonowano\Chat\Stubs\StubHttpRequest;
@@ -11,6 +12,8 @@ beforeEach(function (): void {
     $this->userStorage = $this->chat->userStorage();
     $this->roomStorage = $this->chat->roomStorage();
     $this->router = $this->chat->apiRouter();
+    $this->listener = $this->createMock(ChatListener::class);
+    $this->chat->events()->addListener('listener1', $this->listener);
     $this->user = $this->userStorage->create(createNewUser());
     $this->room = $this->roomStorage->create(createNewRoom(
         memberIds: [$this->user->id()],
@@ -21,6 +24,7 @@ beforeEach(function (): void {
 });
 
 it('can be done by the administrator', function (): void {
+    $this->listener->expects($this->once())->method('onRemovedRoom');
     $response = sendRequestToApi($this->router, $this->request, createUser(role: Role::ADMIN));
     $deletedRoom = $this->roomStorage->findById($this->room->id());
     expect($response)->statusCode()->toBe(HttpStatusCode::OK)
@@ -28,6 +32,7 @@ it('can be done by the administrator', function (): void {
 });
 
 it('cannot be done by the user', function (): void {
+    $this->listener->expects($this->never())->method('onRemovedRoom');
     $response = sendRequestToApi($this->router, $this->request, $this->user);
     $deletedRoom = $this->roomStorage->findById($this->room->id());
     expect($response)->statusCode()->toBe(HttpStatusCode::FORBIDDEN)

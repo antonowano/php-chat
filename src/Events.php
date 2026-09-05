@@ -28,6 +28,13 @@ class Events
         }
     }
 
+    public function removedRoom(Room $room): void
+    {
+        foreach ($this->listeners as $listener) {
+            $listener->onRemovedRoom($room);
+        }
+    }
+
     public function addListener(string $id, ChatListener $listener): void
     {
         $this->listeners[$id] = $listener;

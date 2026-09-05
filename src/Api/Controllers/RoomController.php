@@ -44,6 +44,7 @@ readonly class RoomController
         }
 
         $this->roomStorage->remove($room);
+        $this->events->removedRoom($room);
         $response->sendExecuted();
     }
 
