@@ -32,6 +32,12 @@ class UserStorage
         return $this->usersByTokens[$token] ?? null;
     }
 
+    public function findById(int $id): ?User
+    {
+        $users = $this->findAllById([$id]);
+        return $users[0] ?? null;
+    }
+
     /**
      * @param list<int> $ids
      * @return list<User>
@@ -45,5 +51,14 @@ class UserStorage
             }
         }
         return $result;
+    }
+
+    public function remove(User $user): void
+    {
+        foreach ($this->usersByTokens as $token => $u) {
+            if ($u->equals($user)) {
+                unset($this->usersByTokens[$token]);
+            }
+        }
     }
 }

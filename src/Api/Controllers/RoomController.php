@@ -8,12 +8,14 @@ use Antonowano\Chat\Api\ApiResponse;
 use Antonowano\Chat\Events;
 use Antonowano\Chat\NewRoom;
 use Antonowano\Chat\RoomStorage;
+use Antonowano\Chat\UserStorage;
 
 readonly class RoomController
 {
     public function __construct(
         private Events $events,
         private RoomStorage $roomStorage,
+        private UserStorage $userStorage,
         private AccessControl $accessControl,
     ) {
     }
@@ -41,7 +43,9 @@ readonly class RoomController
             return;
         }
 
-        $room = $room->removeMember($data->get('userId'));
+        $userId = $data->get('userId');
+        $user = $this->userStorage->findById($userId);
+        $room = $room->removeMember($user);
         $this->roomStorage->save($room);
         $response->sendExecuted();
     }

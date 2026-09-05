@@ -50,4 +50,14 @@ class RoomStorage
     {
         $this->rooms[$room->id()] = $room;
     }
+
+    public function removeMemberFromAllRooms(User $user): void
+    {
+        foreach ($this->rooms as $room) {
+            if ($room->hasMember($user)) {
+                $changedRoom = $room->removeMember($user);
+                $this->save($changedRoom);
+            }
+        }
+    }
 }

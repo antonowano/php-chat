@@ -18,6 +18,7 @@ readonly class ApiRouter
             new ApiRoute('POST', '/api/room/register', [$roomController, 'register']),
             new ApiRoute('POST', '/api/room/remove-user', [$roomController, 'removeUser']),
             new ApiRoute('POST', '/api/user/register', [$userController, 'register']),
+            new ApiRoute('POST', '/api/user/remove', [$userController, 'remove']),
         ];
     }
 

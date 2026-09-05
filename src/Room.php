@@ -34,12 +34,12 @@ readonly class Room
         ];
     }
 
-    public function removeMember(int $userId): Room
+    public function removeMember(User $user): Room
     {
         return new Room(
             id: $this->id,
             members: array_values(
-                array_filter($this->members, fn($member) => $member->id() !== $userId)
+                array_filter($this->members, fn($member) => !$member->equals($user))
             ),
         );
     }
