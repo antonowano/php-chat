@@ -18,7 +18,7 @@ beforeEach(function (): void {
     $this->user2 = $this->userStorage->create(createNewUser());
     $this->user3 = $this->userStorage->create(createNewUser());
     $this->room = $this->roomStorage->create(createNewRoom(
-        memberIds: [$this->removingUser->id(), $this->user2->id()],
+        members: [$this->removingUser, $this->user2],
     ));
     $this->userListener = new StubWsResponse();
     $this->userListener2 = new StubWsResponse();

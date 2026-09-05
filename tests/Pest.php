@@ -147,12 +147,12 @@ function createRoom(int $id = 0, array $members = []): Room
 }
 
 /**
- * @param list<int> $memberIds
+ * @param list<User> $members
  */
-function createNewRoom(array $memberIds = []): NewRoom
+function createNewRoom(array $members = []): NewRoom
 {
     return new NewRoom(
-        memberIds: $memberIds,
+        members: $members,
     );
 }
 
@@ -164,8 +164,8 @@ function createFullChat(UserStorage $userStorage, RoomStorage $roomStorage, Mess
     $ivan = $userStorage->create(createNewUser(name: 'Ivan'));
     $olga = $userStorage->create(createNewUser(name: 'Olga'));
     $john = $userStorage->create(createNewUser(name: 'John Doe'));
-    $room1 = $roomStorage->create(createNewRoom(memberIds: [$ivan->id(), $olga->id()]));
-    $room2 = $roomStorage->create(createNewRoom(memberIds: [$john->id()]));
+    $room1 = $roomStorage->create(createNewRoom(members: [$ivan, $olga]));
+    $room2 = $roomStorage->create(createNewRoom(members: [$john]));
     $messages = [];
 
     foreach (range(1, 70) as $i) {

@@ -2,29 +2,19 @@
 
 namespace Antonowano\Chat;
 
-use Antonowano\Chat\Api\ApiRequest;
-
 readonly class NewRoom
 {
     public function __construct(
-        /** @var list<int> */
-        private array $memberIds,
+        /** @var list<User> */
+        private array $members,
     ) {
     }
 
-    public static function createFromApiRequest(ApiRequest $apiRequest): NewRoom
-    {
-        $data = $apiRequest->json();
-        return new NewRoom(
-            memberIds: $data->get('memberIds'),
-        );
-    }
-
     /**
-     * @return list<int>
+     * @return list<User>
      */
-    public function memberIds(): array
+    public function members(): array
     {
-        return $this->memberIds;
+        return $this->members;
     }
 }

@@ -13,7 +13,7 @@ beforeEach(function (): void {
     $this->router = $this->chat->apiRouter();
     $this->user = $this->userStorage->create(createNewUser());
     $this->room = $this->roomStorage->create(createNewRoom(
-        memberIds: [$this->user->id()],
+        members: [$this->user],
     ));
     $this->request = new StubHttpRequest('POST', '/api/user/remove', [], [
         'userId' => $this->user->id(),

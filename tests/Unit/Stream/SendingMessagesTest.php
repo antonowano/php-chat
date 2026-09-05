@@ -13,10 +13,10 @@ beforeEach(function (): void {
     $this->router = $this->chat->streamRouter();
     $this->user = $this->userStorage->create(createNewUser(name: 'John Doe'));
     $this->room = $this->roomStorage->create(createNewRoom(
-        memberIds: [$this->user->id()],
+        members: [$this->user],
     ));
     $this->room2 = $this->roomStorage->create(createNewRoom(
-        memberIds: [$this->user->id()],
+        members: [$this->user],
     ));
     $this->correlationId = Uuid::uuid4()->toString();
     $this->frame = new StubWsFrame([

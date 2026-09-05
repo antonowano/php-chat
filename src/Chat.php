@@ -26,7 +26,7 @@ readonly class Chat
         $this->events = new Events();
         $this->userStorage = new UserStorage();
         $this->sessionStorage = new SessionStorage();
-        $this->roomStorage = new RoomStorage($this->userStorage);
+        $this->roomStorage = new RoomStorage();
         $this->messageStorage = new MessageStorage($clock);
         $accessControl = new AccessControl();
         $this->apiRouter = new ApiRouter(

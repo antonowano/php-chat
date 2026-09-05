@@ -17,11 +17,11 @@ beforeEach(function () use ($offset, $limit): void {
     $this->user = $userStorage->create(createNewUser());
     $this->rooms = [
         $roomStorage->create(createNewRoom()),
-        $roomStorage->create(createNewRoom([$this->user->id()])),
-        $roomStorage->create(createNewRoom([$this->user->id()])),
-        $roomStorage->create(createNewRoom([$this->user->id()])),
-        $roomStorage->create(createNewRoom([$this->user->id()])),
-        $roomStorage->create(createNewRoom([$this->user->id()])),
+        $roomStorage->create(createNewRoom(members: [$this->user])),
+        $roomStorage->create(createNewRoom(members: [$this->user])),
+        $roomStorage->create(createNewRoom(members: [$this->user])),
+        $roomStorage->create(createNewRoom(members: [$this->user])),
+        $roomStorage->create(createNewRoom(members: [$this->user])),
         $roomStorage->create(createNewRoom()),
     ];
     $this->correlationId = Uuid::uuid4()->toString();
